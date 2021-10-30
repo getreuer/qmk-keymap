@@ -9,6 +9,22 @@ the [Dactyl
 Ergodox](https://ohkeycaps.com/products/built-to-order-dactyl-manuform-keyboard).
 Who knew a keyboard could do so much?
 
+### Topics
+
+* [Autocorrection with QMK](https://getreuer.info/posts/keyboards/autocorrection/index.html) &ndash; run rudimentary
+  autocorrection on your keyboard
+
+* [Caps Word](https://getreuer.info/posts/keyboards/caps-word/index.html) &ndash; modern alternative to Caps Lock
+
+* [Custom shift keys](https://getreuer.info/posts/keyboards/custom-shift-keys/index.html) &ndash; they're
+  surprisingly tricky to get right; here is my approach
+
+* [Macro buttons](https://getreuer.info/posts/keyboards/macros/index.html) &ndash; an assortment of practical QMK
+  macros
+
+* [Designing a symbol layer](https://getreuer.info/posts/keyboards/symbol-layer/index.html) &ndash; ergonomic and
+  character frequency considerations
+
 
 ## My keymap
 
