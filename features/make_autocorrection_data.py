@@ -29,6 +29,9 @@ with '#' are ignored. Example:
   lenght        -> length
   ouput         -> output
   widht         -> width
+
+For full documentation, see
+https://getreuer.info/posts/keyboards/autocorrection
 """
 
 import sys

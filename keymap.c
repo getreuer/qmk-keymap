@@ -14,6 +14,9 @@
 //
 //
 // Pascal Getreuer's QMK keymap.
+//
+// For documentation of this keymap's features, see
+// https://getreuer.info/posts/keyboards
 
 #include QMK_KEYBOARD_H
 

@@ -11,8 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+//
+// For full documentation, see
+// https://getreuer.info/posts/keyboards/select-word
 
 #include "select_word.h"
+
+// Mac users, uncomment this line:
+// #define MAC_HOTKEYS
 
 enum { STATE_NONE, STATE_SELECTED, STATE_WORD, STATE_FIRST_LINE, STATE_LINE };
 
@@ -25,11 +32,14 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
   if (keycode == sel_keycode && record->event.pressed) {  // On key press.
     const uint8_t mods = get_mods();
     if (((mods | get_oneshot_mods()) & MOD_MASK_SHIFT) == 0) {  // Select word.
-      // Mac users, change LCTL to LALT.
-      if (state == STATE_NONE) {
-        SEND_STRING(SS_LCTL(SS_TAP(X_RGHT) SS_TAP(X_LEFT)));
-      }
+#ifdef MAC_HOTKEYS
+      register_code(KC_LALT);
+#else
       register_code(KC_LCTL);
+#endif
+      if (state == STATE_NONE) {
+        SEND_STRING(SS_TAP(X_RGHT) SS_TAP(X_LEFT));
+      }
       register_code(KC_LSFT);
       register_code(KC_RGHT);
       state = STATE_WORD;
@@ -37,9 +47,11 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
       if (state == STATE_NONE) {
         clear_mods();
         clear_oneshot_mods();
+#ifdef MAC_HOTKEYS
+        SEND_STRING(SS_LCTL("a" SS_LSFT("e")));
+#else
         SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)));
-        // Mac users, use:
-        // SEND_STRING(SS_LCTL("a" SS_LSFT("e")));
+#endif
         set_mods(mods);
         state = STATE_FIRST_LINE;
       } else {
@@ -50,11 +62,16 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
     return false;
   }
 
+  // `sel_keycode` was released, or another key was pressed.
   switch (state) {
     case STATE_WORD:
       unregister_code(KC_RGHT);
       unregister_code(KC_LSFT);
+#ifdef MAC_HOTKEYS
+      unregister_code(KC_LALT);
+#else
       unregister_code(KC_LCTL);
+#endif
       state = STATE_SELECTED;
       break;
 

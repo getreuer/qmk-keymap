@@ -25,6 +25,9 @@ Who knew a keyboard could do so much?
 * [Designing a symbol layer](https://getreuer.info/posts/keyboards/symbol-layer/index.html) &ndash; ergonomic and
   character frequency considerations
 
+* [Word selection](select-word/index.html) &ndash; QMK macro for
+  convenient word or line selection
+
 
 ## My keymap
 

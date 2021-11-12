@@ -18,6 +18,9 @@
 // This library implements rudimentary autocorrection, automatically detecting
 // and fixing some misspellings. Beware that the autocorrection logic is
 // unaware of hotkey or mouse-based cursor movement.
+//
+// For full documentation, see
+// https://getreuer.info/posts/keyboards/autocorrection
 
 #pragma once
 

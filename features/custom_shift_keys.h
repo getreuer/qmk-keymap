@@ -45,6 +45,10 @@
 // Step 3: add `features/custom_shift_keys.c` to your rules.mk as
 //
 //   SRC += features/custom_shift_keys.c
+//
+//
+// For full documentation, see
+// https://getreuer.info/posts/keyboards/custom-shift-keys
 
 #pragma once
 

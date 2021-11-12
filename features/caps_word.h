@@ -24,6 +24,9 @@
 // tested that this works as expected with one-shot mods and Space Cadet Shift.
 // If your shift keys are mod-taps, activate Caps Word by holding both shift
 // mod-tap keys until the tapping term, release them, then begin typing.
+//
+// For full documentation, see
+// https://getreuer.info/posts/keyboards/caps-word
 
 #pragma once
 
