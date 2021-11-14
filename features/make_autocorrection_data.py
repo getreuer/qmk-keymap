@@ -74,15 +74,19 @@ def parse_file(file_name: str) -> List[Tuple[str, str]]:
     line = line.strip()
     if line and line[0] != '#':
       # Parse syntax "typo -> correction", using strip to ignore indenting.
-      typo, correction = [token.strip() for token in line.split('->', 1)]
-      typo = typo.lower()  # Force typos to lowercase.
+      tokens = [token.strip() for token in line.split('->', 1)]
+      if len(tokens) != 2 or not tokens[0]:
+        print(f'Error:{line_number}: Invalid syntax: "{line}"')
+        sys.exit(1)
 
+      typo, correction = tokens
+      typo = typo.lower()  # Force typos to lowercase.
       typo = typo.replace(' ', ':')
 
       # Check that `typo` is valid.
       if not(all([ord('a') <= ord(c) <= ord('z') or c == ':' for c in typo])):
         print(f'Error:{line_number}: Typo "{typo}" has '
-              'characters other than a-z.')
+              'characters other than a-z and :.')
         sys.exit(1)
       for other_typo in typos:
         if typo in other_typo or other_typo in typo:
@@ -96,10 +100,26 @@ def parse_file(file_name: str) -> List[Tuple[str, str]]:
       if len(typo) < 5:
         print(f'Warning:{line_number}: It is suggested that typos are at '
               f'least 5 characters long to avoid false triggers: "{typo}"')
-      for word in CORRECT_WORDS:
-        if typo in word:
-          print(f'Warning:{line_number}: Typo "{typo}" would falsely trigger '
-                f'on correctly spelled word "{word}".')
+
+      if typo.startswith(':') and typo.endswith(':'):
+        if typo[1:-1] in CORRECT_WORDS:
+          print(f'Warning:{line_number}: Typo "{typo}" is a correctly spelled '
+                'dictionary word.')
+      elif typo.startswith(':') and not typo.endswith(':'):
+        for word in CORRECT_WORDS:
+          if word.startswith(typo[1:]):
+            print(f'Warning:{line_number}: Typo "{typo}" would falsely trigger '
+                  f'on correctly spelled word "{word}".')
+      elif not typo.startswith(':') and typo.endswith(':'):
+        for word in CORRECT_WORDS:
+          if word.endswith(typo[:-1]):
+            print(f'Warning:{line_number}: Typo "{typo}" would falsely trigger '
+                  f'on correctly spelled word "{word}".')
+      elif not typo.startswith(':') and not typo.endswith(':'):
+        for word in CORRECT_WORDS:
+          if typo in word:
+            print(f'Warning:{line_number}: Typo "{typo}" would falsely trigger '
+                  f'on correctly spelled word "{word}".')
 
       autocorrections.append((typo, correction))
       typos.add(typo)
