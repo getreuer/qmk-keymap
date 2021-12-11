@@ -34,6 +34,15 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
     return true;
   }
 
+  switch (keycode) {
+    case QK_MOD_TAP ... QK_MOD_TAP_MAX:
+    case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+      // Earlier return if this has not been considered tapped yet.
+      if (record->tap.count == 0) { return true; }
+      // Get the base tapping keycode of a mod- or layer-tap key.
+      keycode &= 0xff;
+  }
+
   if (!(KC_A <= keycode && keycode <= KC_Z)) {
     if (keycode == KC_BSPC) {
       // Remove last character from the buffer.
