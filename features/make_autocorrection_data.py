@@ -24,15 +24,17 @@ Or to read from a different typo dict file, pass it as the first argument like
 
 $ python3 make_autocorrection_data.py dict.txt
 
-Each line of the autcorrections_dict.txt file defines one typo and its
-correction with the syntax "typo -> correction". Blank lines or lines starting
-with '#' are ignored. Example:
+Each line of the dict file defines one typo and its correction with the syntax
+"typo -> correction". Blank lines or lines starting with '#' are ignored.
+Example:
 
   :thier        -> their
   fitler        -> filter
   lenght        -> length
   ouput         -> output
   widht         -> width
+
+See autocorrection_dict_extra.txt for a larger example.
 
 For full documentation, see
 https://getreuer.info/posts/keyboards/autocorrection
