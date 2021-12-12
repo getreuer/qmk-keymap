@@ -78,44 +78,45 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
   // Check whether the buffer ends in a typo. This is done using a trie
   // stored in `autocorrection_data`.
   uint16_t state = 0;
+  uint8_t code = autocorrection_data[state];
   for (int i = typo_buffer_size - 1; i >= 0; --i) {
-    const uint8_t keycode = typo_buffer[i];
-    uint8_t code = autocorrection_data[state];
+    const uint8_t key_i = typo_buffer[i];
 
-    if (code & 128) {  // Check for match in node with multiple children.
-      code &= 127;
-      for (; code != keycode; code = autocorrection_data[state += 3]) {
+    if (code & 64) { // Check for match in node with multiple children.
+      code &= 63;
+      for (; code != key_i; code = autocorrection_data[state += 3]) {
         if (!code) { return true; }
       }
 
       // Follow link to child node.
       state = (uint16_t)((uint_fast16_t)autocorrection_data[state + 1]
                          | (uint_fast16_t)autocorrection_data[state + 2] << 8);
-      if ((state & 0x8000) != 0) { goto found_typo; }
     // Otherwise check for match in node with a single child.
-    } else if (code != keycode) {
+    } else if (code != key_i) {
       return true;
-    } else if (!autocorrection_data[++state] &&
-               !(autocorrection_data[++state] & 128)) {
-      goto found_typo;
+    } else if (!(code = autocorrection_data[++state])) {
+      ++state;
+    }
+
+    // Read first byte of the next node.
+    code = autocorrection_data[state];
+
+    if (code & 128) { // A typo was found! Apply autocorrection.
+      const int backspaces = code & 63;
+      for (int i = 0; i < backspaces; ++i) { tap_code(KC_BSPC); }
+      send_string((const char*)(autocorrection_data + state + 1));
+
+      if (keycode == KC_SPC) {
+        typo_buffer[0] = KC_SPC;
+        typo_buffer_size = 1;
+        return true;
+      } else {
+        typo_buffer_size = 0;
+        return false;
+      }
     }
   }
 
   return true;
-
-found_typo:  // A typo was found! Apply autocorrection.
-  state &= 0x7fff;
-  const int backspaces = autocorrection_data[state];
-  for (int i = 0; i < backspaces; ++i) { tap_code(KC_BSPC); }
-  send_string((const char*)(autocorrection_data + state + 1));
-
-  if (keycode == KC_SPC) {
-    typo_buffer[0] = KC_SPC;
-    typo_buffer_size = 1;
-    return true;
-  } else {
-    typo_buffer_size = 0;
-    return false;
-  }
 }
 
