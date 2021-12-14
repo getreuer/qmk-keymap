@@ -21,6 +21,14 @@
 #include <string.h>
 #include "autocorrection_data.h"
 
+#if AUTOCORRECTION_MIN_LENGTH < 4
+// Odd output or hard locks on the board have been observed when the min typo
+// length is 3 or lower (https://github.com/getreuer/qmk-keymap/issues/2).
+// Additionally, autocorrection entries for short typos are more likely to false
+// trigger, so it is suggested that typos be at least 5 characters.
+#error "Min typo length is less than 4. Autocorrection may behave poorly."
+#endif
+
 bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
   static uint8_t typo_buffer[AUTOCORRECTION_MAX_LENGTH] = {0};
   static uint8_t typo_buffer_size = 0;
