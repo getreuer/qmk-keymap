@@ -44,12 +44,19 @@ bool process_custom_shift_keys(uint16_t keycode, keyrecord_t *record) {
   for (int i = 0; i < NUM_CUSTOM_SHIFT_KEYS; ++i) {
     if (keycode == custom_shift_keys[i].keycode) {
       if (record->event.pressed) {
-        if ((get_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT) {
+#ifndef NO_ACTION_ONESHOT
+        const uint8_t mods = get_mods() | get_oneshot_mods();
+#else
+        const uint8_t mods = get_mods();
+#endif  // NO_ACTION_ONESHOT
+        if (mods & MOD_MASK_SHIFT) {
           // The key is being pressed with shift held. We save the shift mods
           // in `saved_mods`, then delete shift from the mod states.
           saved_mods = get_mods() & MOD_MASK_SHIFT;
           del_mods(MOD_MASK_SHIFT);
+#ifndef NO_ACTION_ONESHOT
           del_oneshot_mods(MOD_MASK_SHIFT);
+#endif  // NO_ACTION_ONESHOT
           shifted = true;
         } else {
           shifted = false;

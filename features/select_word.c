@@ -31,12 +31,17 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
 
   if (keycode == sel_keycode && record->event.pressed) {  // On key press.
     const uint8_t mods = get_mods();
-    if (((mods | get_oneshot_mods()) & MOD_MASK_SHIFT) == 0) {  // Select word.
+#ifndef NO_ACTION_ONESHOT
+    const uint8_t all_mods = mods | get_oneshot_mods();
+#else
+    const uint8_t all_mods = mods;
+#endif  // NO_ACTION_ONESHOT
+    if ((all_mods & MOD_MASK_SHIFT) == 0) {  // Select word.
 #ifdef MAC_HOTKEYS
       register_code(KC_LALT);
 #else
       register_code(KC_LCTL);
-#endif
+#endif  // MAC_HOTKEYS
       if (state == STATE_NONE) {
         SEND_STRING(SS_TAP(X_RGHT) SS_TAP(X_LEFT));
       }
@@ -46,12 +51,14 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
     } else {  // Select line.
       if (state == STATE_NONE) {
         clear_mods();
+#ifndef NO_ACTION_ONESHOT
         clear_oneshot_mods();
+#endif  // NO_ACTION_ONESHOT
 #ifdef MAC_HOTKEYS
         SEND_STRING(SS_LCTL("a" SS_LSFT("e")));
 #else
         SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)));
-#endif
+#endif  // MAC_HOTKEYS
         set_mods(mods);
         state = STATE_FIRST_LINE;
       } else {
@@ -71,7 +78,7 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
       unregister_code(KC_LALT);
 #else
       unregister_code(KC_LCTL);
-#endif
+#endif  // MAC_HOTKEYS
       state = STATE_SELECTED;
       break;
 

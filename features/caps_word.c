@@ -21,13 +21,19 @@
 bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
   static bool caps_word_enabled = false;
   static bool shifted = false;
+#ifndef NO_ACTION_ONESHOT
+  const uint8_t mods = get_mods() | get_oneshot_mods();
+#else
+  const uint8_t mods = get_mods();
+#endif  // NO_ACTION_ONESHOT
 
   if (!caps_word_enabled) {
     // Pressing both shift keys at the same time enables caps word.
-    if (((get_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT)
-        == MOD_MASK_SHIFT) {
+    if ((mods & MOD_MASK_SHIFT) == MOD_MASK_SHIFT) {
       clear_mods();
+#ifndef NO_ACTION_ONESHOT
       clear_oneshot_mods();
+#endif  // NO_ACTION_ONESHOT
       shifted = false;
       caps_word_enabled = true;
       return false;
@@ -37,7 +43,7 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
 
   if (!record->event.pressed) { return true; }
 
-  if (!((get_mods() | get_oneshot_mods()) & ~MOD_MASK_SHIFT)) {
+  if (!(mods & ~MOD_MASK_SHIFT)) {
     switch (keycode) {
       case QK_MOD_TAP ... QK_MOD_TAP_MAX:
       case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
