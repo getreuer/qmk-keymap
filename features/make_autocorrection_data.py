@@ -252,7 +252,7 @@ def write_generated_code(autocorrections: List[Tuple[str, str]],
                    for typo, correction in autocorrections)),
     f'\n#define AUTOCORRECTION_MIN_LENGTH {len(min_typo)}  // "{min_typo}"\n',
     f'#define AUTOCORRECTION_MAX_LENGTH {len(max_typo)}  // "{max_typo}"\n\n',
-    textwrap.fill('static const uint8_t autocorrection_data[%d] = {%s};' % (
+    textwrap.fill('static const uint8_t autocorrection_data[%d] PROGMEM = {%s};' % (
       len(data), ', '.join(map(str, data))), width=80, subsequent_indent='  '),
     '\n\n'])
 
