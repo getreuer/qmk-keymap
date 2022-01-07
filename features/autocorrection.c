@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2021-2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,8 +36,13 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
   // Ignore key release; we only process key presses.
   if (!record->event.pressed) { return true; }
 
+#ifndef NO_ACTION_ONESHOT
+  const uint8_t mods = get_mods() | get_oneshot_mods();
+#else
+  const uint8_t mods = get_mods();
+#endif  // NO_ACTION_ONESHOT
   // Disable autocorrection while a mod other than shift is active.
-  if (((get_mods() | get_oneshot_mods()) & ~MOD_MASK_SHIFT) != 0) {
+  if ((mods & ~MOD_MASK_SHIFT) != 0) {
     typo_buffer_size = 0;
     return true;
   }
@@ -92,13 +97,15 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
 
     if (code & 64) { // Check for match in node with multiple children.
       code &= 63;
-      for (; code != key_i; code = pgm_read_byte(autocorrection_data + (state += 3))) {
+      for (; code != key_i;
+          code = pgm_read_byte(autocorrection_data + (state += 3))) {
         if (!code) { return true; }
       }
 
       // Follow link to child node.
-      state = (uint16_t)((uint_fast16_t)pgm_read_byte(autocorrection_data + state + 1)
-                         | (uint_fast16_t)pgm_read_byte(autocorrection_data + state + 2) << 8);
+      state = (uint16_t)(
+          (uint_fast16_t)pgm_read_byte(autocorrection_data + state + 1)
+          | (uint_fast16_t)pgm_read_byte(autocorrection_data + state + 2) << 8);
     // Otherwise check for match in node with a single child.
     } else if (code != key_i) {
       return true;
