@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2021-2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,5 +32,38 @@
 
 #include QMK_KEYBOARD_H
 
+// Call this function from `process_record_user()` to implement Caps Word.
 bool process_caps_word(uint16_t keycode, keyrecord_t* record);
+
+// Activates or deactivates Caps Word. For instance activate Caps Word with a
+// combo by defining a `COMBO_ACTION` that calls `caps_word_set(true)`:
+//
+// void process_combo_event(uint16_t combo_index, bool pressed) {
+//   switch(combo_index) {
+//     case CAPS_COMBO:
+//       if (pressed) {
+//         caps_word_set(true);  // Activate Caps Word.
+//       }
+//       break;
+//
+//     // Other combos...
+//   }
+// }
+void caps_word_set(bool active);
+
+// Returns whether Caps Word is currently active.
+bool caps_word_get(void);
+
+// An optional callback that gets called when Caps Word turns on or off. This is
+// useful to represent the current Caps Word state, e.g. by setting an LED or
+// playing a sound. In your keymap, define
+//
+//   void caps_word_set_user(bool active) {
+//     if (active) {
+//       // Do something when Caps Word activates.
+//     } else {
+//       // Do something when Caps Word deactivates.
+//     }
+//   }
+void caps_word_set_user(bool active);
 

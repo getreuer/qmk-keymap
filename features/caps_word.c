@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2021-2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,24 +18,20 @@
 
 #include "caps_word.h"
 
+static bool caps_word_active = false;
+static bool shifted = false;
+
 bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
-  static bool caps_word_enabled = false;
-  static bool shifted = false;
 #ifndef NO_ACTION_ONESHOT
   const uint8_t mods = get_mods() | get_oneshot_mods();
 #else
   const uint8_t mods = get_mods();
 #endif  // NO_ACTION_ONESHOT
 
-  if (!caps_word_enabled) {
+  if (!caps_word_active) {
     // Pressing both shift keys at the same time enables caps word.
     if ((mods & MOD_MASK_SHIFT) == MOD_MASK_SHIFT) {
-      clear_mods();
-#ifndef NO_ACTION_ONESHOT
-      clear_oneshot_mods();
-#endif  // NO_ACTION_ONESHOT
-      shifted = false;
-      caps_word_enabled = true;
+      caps_word_set(true);  // Activate Caps Word.
       return false;
     }
     return true;
@@ -73,10 +69,28 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
     }
   }
 
-  // Disable caps word.
-  caps_word_enabled = false;
-  if (shifted) { unregister_code(KC_LSFT); }
-  shifted = false;
+  caps_word_set(false);  // Deactivate Caps Word.
   return true;
 }
+
+void caps_word_set(bool active) {
+  if (active != caps_word_active) {
+    if (active) {
+      clear_mods();
+#ifndef NO_ACTION_ONESHOT
+      clear_oneshot_mods();
+#endif  // NO_ACTION_ONESHOT
+    } else if (shifted) {
+      unregister_code(KC_LSFT);
+    }
+
+    caps_word_active = active;
+    shifted = false;
+    caps_word_set_user(active);
+  }
+}
+
+bool caps_word_get(void) { return caps_word_active; }
+
+__attribute__((weak)) void caps_word_set_user(bool active) {}
 

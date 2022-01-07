@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2021-2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -152,6 +152,39 @@ const custom_shift_key_t custom_shift_keys[] = {
 };
 uint8_t NUM_CUSTOM_SHIFT_KEYS =
     sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
+
+enum combo_events {
+  // . and C => activate Caps Word.
+  CAPS_COMBO,
+  // , and . => types a period, space, and sets one-shot mod for shift.
+  // This combo is useful to flow between sentences.
+  END_SENTENCE_COMBO,
+  COMBO_LENGTH
+};
+uint16_t COMBO_LEN = COMBO_LENGTH;
+
+const uint16_t PROGMEM caps_combo[] = {KC_DOT, KC_C, COMBO_END};
+const uint16_t PROGMEM end_sentence_combo[] = {KC_COMM, KC_DOT, COMBO_END};
+
+combo_t key_combos[] = {
+  [CAPS_COMBO] = COMBO_ACTION(caps_combo),
+  [END_SENTENCE_COMBO] = COMBO_ACTION(end_sentence_combo),
+};
+
+void process_combo_event(uint16_t combo_index, bool pressed) {
+  if (pressed) {
+    switch(combo_index) {
+      case CAPS_COMBO:
+        caps_word_set(true);  // Activate Caps Word.
+        break;
+
+      case END_SENTENCE_COMBO:
+        SEND_STRING(". ");
+        add_oneshot_mods(MOD_BIT(KC_LSFT));  // Set one-shot mod for shift.
+        break;
+    }
+  }
+}
 
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_autocorrection(keycode, record)) { return false; }

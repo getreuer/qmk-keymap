@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2021-2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ BLUETOOTH_ENABLE = no      # Enable Bluetooth with the Adafruit EZ-Key HID
 RGBLIGHT_ENABLE = no       # Enable WS2812 RGB underlight.
 
 UNICODEMAP_ENABLE = yes
+COMBO_ENABLE = yes
 TAP_DANCE_ENABLE = no
 LTO_ENABLE = yes
 
