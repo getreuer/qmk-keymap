@@ -40,10 +40,11 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
 
   if (!(mods & ~MOD_MASK_SHIFT)) {
     switch (keycode) {
-      // Ignore TO, MO, TG, and OSL layer switch keys.
-      case QK_TO ... QK_TO + 255:
+      // Ignore MO, TO, TG, TT, and OSL layer switch keys.
       case QK_MOMENTARY ... QK_MOMENTARY + 255:
+      case QK_TO ... QK_TO + 255:
       case QK_TOGGLE_LAYER ... QK_TOGGLE_LAYER + 255:
+      case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE + 255:
       case QK_ONE_SHOT_LAYER ... QK_ONE_SHOT_LAYER + 255:
         return true;
 
