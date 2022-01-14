@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2021-2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,52 +18,36 @@
 
 #include "custom_shift_keys.h"
 
-static uint16_t custom_shift_keycode(int active_key, bool shifted) {
-  const custom_shift_key_t* p = &custom_shift_keys[active_key];
-  return shifted ? p->shifted_keycode : p->keycode;
-}
-
 bool process_custom_shift_keys(uint16_t keycode, keyrecord_t *record) {
-  const uint8_t kNone = 255;
-  static uint8_t saved_mods = 0;
-  static uint8_t active_key = kNone;
-  static bool shifted = false;
+  static uint16_t registered_keycode = KC_NO;
 
-  // If a custom key is active, then this event is either releasing it or
-  // manipulating another key at the same time. Either way, we release the
-  // currently active key.
-  if (active_key != kNone) {
-    unregister_code16(custom_shift_keycode(active_key, shifted));
-    add_mods(saved_mods);  // Restore shift mods that were active on press.
-    active_key = kNone;
-    saved_mods = 0;
-    shifted = false;
+  // If a custom shift key is registered, then this event is either releasing
+  // it or manipulating another key at the same time. Either way, we release
+  // the currently registered key.
+  if (registered_keycode != KC_NO) {
+    unregister_code16(registered_keycode);
+    registered_keycode = KC_NO;
   }
 
   // Search for a custom key with keycode equal to `keycode`.
   for (int i = 0; i < NUM_CUSTOM_SHIFT_KEYS; ++i) {
     if (keycode == custom_shift_keys[i].keycode) {
       if (record->event.pressed) {
-#ifndef NO_ACTION_ONESHOT
-        const uint8_t mods = get_mods() | get_oneshot_mods();
-#else
         const uint8_t mods = get_mods();
-#endif  // NO_ACTION_ONESHOT
-        if (mods & MOD_MASK_SHIFT) {
-          // The key is being pressed with shift held. We save the shift mods
-          // in `saved_mods`, then delete shift from the mod states.
-          saved_mods = get_mods() & MOD_MASK_SHIFT;
-          del_mods(MOD_MASK_SHIFT);
 #ifndef NO_ACTION_ONESHOT
+        if ((mods | get_oneshot_mods()) & MOD_MASK_SHIFT) {
           del_oneshot_mods(MOD_MASK_SHIFT);
+#else
+        if (mods & MOD_MASK_SHIFT) {
 #endif  // NO_ACTION_ONESHOT
-          shifted = true;
+          del_mods(MOD_MASK_SHIFT);
+          registered_keycode = custom_shift_keys[i].shifted_keycode;
         } else {
-          shifted = false;
+          registered_keycode = custom_shift_keys[i].keycode;
         }
 
-        active_key = i;  // Remember which custom key is active.
-        register_code16(custom_shift_keycode(active_key, shifted));
+        register_code16(registered_keycode);
+        set_mods(mods);  // Restore the mods.
       }
 
       return false;
