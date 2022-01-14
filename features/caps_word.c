@@ -19,7 +19,6 @@
 #include "caps_word.h"
 
 static bool caps_word_active = false;
-static bool shifted = false;
 
 bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
 #ifndef NO_ACTION_ONESHOT
@@ -41,31 +40,46 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
 
   if (!(mods & ~MOD_MASK_SHIFT)) {
     switch (keycode) {
+      // Ignore TO, MO, TG, and OSL layer switch keys.
+      case QK_TO ... QK_TO + 255:
+      case QK_MOMENTARY ... QK_MOMENTARY + 255:
+      case QK_TOGGLE_LAYER ... QK_TOGGLE_LAYER + 255:
+      case QK_ONE_SHOT_LAYER ... QK_ONE_SHOT_LAYER + 255:
+        return true;
+
+#ifndef NO_ACTION_TAPPING
       case QK_MOD_TAP ... QK_MOD_TAP_MAX:
-      case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-        // Earlier return if this has not been considered tapped yet.
-        if (record->tap.count == 0) { return true; }
-        // Get the base tapping keycode of a mod- or layer-tap key.
+        if (record->tap.count == 0) {
+          // Deactivate if a mod becomes active through holding a mod-tap key.
+          caps_word_set(false);
+          return true;
+        }
         keycode &= 0xff;
+        break;
+
+#ifndef NO_ACTION_LAYER
+      case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+#endif  // NO_ACTION_LAYER
+        if (record->tap.count == 0) { return true; }
+        keycode &= 0xff;
+        break;
+#endif  // NO_ACTION_TAPPING
     }
 
     switch (keycode) {
       // Letter keys should be shifted.
       case KC_A ... KC_Z:
-        if (!shifted) { register_code(KC_LSFT); }
-        shifted = true;
+        add_weak_mods(MOD_BIT(KC_LSFT));
         return true;
 
-      // Keycodes that continue caps word but shouldn't get shifted.
+      // Keycodes that continue Caps Word but shouldn't get shifted.
       case KC_1 ... KC_0:
       case KC_BSPC:
       case KC_MINS:
       case KC_UNDS:
-        if (shifted) { unregister_code(KC_LSFT); }
-        shifted = false;
         return true;
 
-      // Any other keycode disables caps word.
+      // Any other keycode deactivates Caps Word.
     }
   }
 
@@ -80,12 +94,9 @@ void caps_word_set(bool active) {
 #ifndef NO_ACTION_ONESHOT
       clear_oneshot_mods();
 #endif  // NO_ACTION_ONESHOT
-    } else if (shifted) {
-      unregister_code(KC_LSFT);
     }
 
     caps_word_active = active;
-    shifted = false;
     caps_word_set_user(active);
   }
 }
