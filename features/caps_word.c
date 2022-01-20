@@ -65,22 +65,17 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
         keycode &= 0xff;
         break;
 #endif  // NO_ACTION_TAPPING
+
+#ifdef SWAP_HANDS_ENABLE
+      case QK_SWAP_HANDS ... QK_SWAP_HANDS_MAX:
+        if (keycode > 0x56F0 || record->tap.count == 0) { return true; }
+        keycode &= 0xff;
+        break;
+#endif  // SWAP_HANDS_ENABLE
     }
 
-    switch (keycode) {
-      // Letter keys should be shifted.
-      case KC_A ... KC_Z:
-        add_weak_mods(MOD_BIT(KC_LSFT));
-        return true;
-
-      // Keycodes that continue Caps Word but shouldn't get shifted.
-      case KC_1 ... KC_0:
-      case KC_BSPC:
-      case KC_MINS:
-      case KC_UNDS:
-        return true;
-
-      // Any other keycode deactivates Caps Word.
+    if (caps_word_press_user(keycode)) {
+      return true;
     }
   }
 
@@ -105,4 +100,23 @@ void caps_word_set(bool active) {
 bool caps_word_get(void) { return caps_word_active; }
 
 __attribute__((weak)) void caps_word_set_user(bool active) {}
+
+__attribute__((weak)) bool caps_word_press_user(uint16_t keycode) {
+  switch (keycode) {
+    // Keycodes that continue Caps Word, with shift applied.
+    case KC_A ... KC_Z:
+      add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to the next key.
+      return true;
+
+    // Keycodes that continue Caps Word, without shifting.
+    case KC_1 ... KC_0:
+    case KC_BSPC:
+    case KC_MINS:
+    case KC_UNDS:
+      return true;
+
+    default:
+      return false;  // Deactivate Caps Word.
+  }
+}
 
