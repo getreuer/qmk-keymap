@@ -28,6 +28,10 @@ Who knew a keyboard could do so much?
 * [Word selection](https://getreuer.info/posts/keyboards/select-word/index.html) &ndash; QMK macro for
   convenient word or line selection
 
+* [Mouse Turbo
+  Click](https://getreuer.info/posts/keyboards/mouse-turbo-click/index.html)
+  &ndash; QMK macro that clicks the mouse rapidly
+
 
 ## My keymap
 
