@@ -32,6 +32,9 @@ Who knew a keyboard could do so much?
   Click](https://getreuer.info/posts/keyboards/mouse-turbo-click/index.html)
   &ndash; QMK macro that clicks the mouse rapidly
 
+* [Layer Lock key](https://getreuer.info/posts/keyboards/layer-lock/index.html)
+  &ndash; QMK macro to stay in the current layer
+
 
 ## My keymap
 
