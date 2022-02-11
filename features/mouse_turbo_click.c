@@ -19,7 +19,7 @@
 #include "features/mouse_turbo_click.h"
 
 // This library relies on that mouse keys and the deferred execution API are
-// enabled, which we check for here. Enable them in you rules.mk by setting:
+// enabled, which we check for here. Enable them in your rules.mk by setting:
 //   MOUSEKEY_ENABLE = yes
 //   DEFERRED_EXEC_ENABLE = yes
 #if !defined(MOUSEKEY_ENABLE)
@@ -39,8 +39,8 @@ static deferred_token click_token = INVALID_DEFERRED_TOKEN;
 static bool click_registered = false;
 
 // Callback used with deferred execution. It alternates between registering and
-// unregisting the mouse button.
-static uint32_t turbo_click_callback(uint32_t trigger_time, void *cb_arg) {
+// unregistering (pressing and releasing) the mouse button.
+static uint32_t turbo_click_callback(uint32_t trigger_time, void* cb_arg) {
   if (click_registered) {
     unregister_code16(KC_MS_BTN1);
     click_registered = false;
@@ -51,7 +51,7 @@ static uint32_t turbo_click_callback(uint32_t trigger_time, void *cb_arg) {
   return CLICK_PERIOD_MS / 2;  // Execute callback again in half a period.
 }
 
-// Starts Turbo Click, begins the callback.
+// Starts Turbo Click, begins the `turbo_click_callback()` callback.
 static void turbo_click_start(void) {
   if (click_token == INVALID_DEFERRED_TOKEN) {
     uint32_t next_delay_ms = turbo_click_callback(0, NULL);
