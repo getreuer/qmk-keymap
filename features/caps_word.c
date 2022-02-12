@@ -20,6 +20,16 @@
 
 static bool caps_word_active = false;
 
+#if CAPS_WORD_IDLE_TIMEOUT > 0
+static uint16_t idle_timer = 0;
+
+void caps_word_task(void) {
+  if (caps_word_active && timer_expired(timer_read(), idle_timer)) {
+    caps_word_set(false);
+  }
+}
+#endif  // CAPS_WORD_IDLE_TIMEOUT > 0
+
 bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
 #ifndef NO_ACTION_ONESHOT
   const uint8_t mods = get_mods() | get_oneshot_mods();
@@ -34,6 +44,10 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
       return false;
     }
     return true;
+  } else {
+#if CAPS_WORD_IDLE_TIMEOUT > 0
+    idle_timer = record->event.time + CAPS_WORD_IDLE_TIMEOUT;
+#endif  // CAPS_WORD_IDLE_TIMEOUT > 0
   }
 
   if (!record->event.pressed) { return true; }
@@ -90,6 +104,14 @@ void caps_word_set(bool active) {
 #ifndef NO_ACTION_ONESHOT
       clear_oneshot_mods();
 #endif  // NO_ACTION_ONESHOT
+#if CAPS_WORD_IDLE_TIMEOUT > 0
+      idle_timer = timer_read() + CAPS_WORD_IDLE_TIMEOUT;
+#endif  // CAPS_WORD_IDLE_TIMEOUT > 0
+    } else if ((get_weak_mods() & MOD_BIT(KC_LSFT)) != 0) {
+      // If the weak shift mod is still on, turn it off and send an update to
+      // the host computer.
+      del_weak_mods(MOD_BIT(KC_LSFT));
+      send_keyboard_report();
     }
 
     caps_word_active = active;
