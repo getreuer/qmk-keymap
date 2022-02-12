@@ -21,6 +21,12 @@
 static bool caps_word_active = false;
 
 #if CAPS_WORD_IDLE_TIMEOUT > 0
+#if CAPS_WORD_IDLE_TIMEOUT < 100 || CAPS_WORD_IDLE_TIMEOUT > 30000
+// Constrain timeout to a sensible range. With the 16-bit timer, the longest
+// representable timeout is 32768 ms, rounded here to 30000 ms = half a minute.
+#error "caps_word: CAPS_WORD_IDLE_TIMEOUT must be between 100 and 30000 ms"
+#endif
+
 static uint16_t idle_timer = 0;
 
 void caps_word_task(void) {
