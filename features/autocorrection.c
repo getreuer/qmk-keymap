@@ -48,12 +48,34 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
   }
 
   switch (keycode) {
-    case QK_MOD_TAP ... QK_MOD_TAP_MAX:
+    // Ignore shifts, one-shot mods, and layer switch keys.
+    case KC_LSFT:
+    case KC_RSFT:
+    case QK_ONE_SHOT_MOD ... QK_ONE_SHOT_MOD_MAX:
+    case QK_TO ... QK_TO_MAX:
+    case QK_MOMENTARY ... QK_MOMENTARY_MAX:
+    case QK_DEF_LAYER ... QK_DEF_LAYER_MAX:
+    case QK_TOGGLE_LAYER ... QK_TOGGLE_LAYER_MAX:
+    case QK_ONE_SHOT_LAYER ... QK_ONE_SHOT_LAYER_MAX:
+    case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX:
+    case QK_LAYER_MOD ... QK_LAYER_MOD_MAX:
+      return true;  // Ignore these keys.
+
+#ifndef NO_ACTION_TAPPING
+    case QK_MOD_TAP ... QK_MOD_TAP_MAX:  // Tap-hold keys.
+#ifndef NO_ACTION_LAYER
     case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-      // Earlier return if this has not been considered tapped yet.
+#endif  // NO_ACTION_LAYER
+      // Ignore when tap-hold keys are held.
       if (record->tap.count == 0) { return true; }
-      // Get the base tapping keycode of a mod- or layer-tap key.
-      keycode &= 0xff;
+      // Otherwise when tapped, get the base keycode.
+      // Fallthrough intended.
+#endif  // NO_ACTION_TAPPING
+
+    // Handle shifted keys, e.g. symbols like KC_EXLM = S(KC_1).
+    case QK_LSFT ... QK_LSFT + 255:
+    case QK_RSFT ... QK_RSFT + 255:
+      keycode &= 0xff;  // Get the base keycode.
   }
 
   if (!(KC_A <= keycode && keycode <= KC_Z)) {
