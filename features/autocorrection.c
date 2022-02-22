@@ -47,10 +47,41 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
     return true;
   }
 
+  // The following switch cases address various kinds of keycodes. This logic is
+  // split over two switches rather than merged into one. The first switch may
+  // extract a basic keycode which is then further handled by the second switch,
+  // e.g. a layer-tap key with Caps Lock `LT(layer, KC_CAPS)`.
   switch (keycode) {
-    // Ignore shifts, one-shot mods, and layer switch keys.
+#ifndef NO_ACTION_TAPPING
+    case QK_MOD_TAP ... QK_MOD_TAP_MAX:  // Tap-hold keys.
+#ifndef NO_ACTION_LAYER
+    case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+#endif  // NO_ACTION_LAYER
+      // Ignore when tap-hold keys are held.
+      if (record->tap.count == 0) { return true; }
+      // Otherwise when tapped, get the basic keycode.
+      // Fallthrough intended.
+#endif  // NO_ACTION_TAPPING
+
+    // Handle shifted keys, e.g. symbols like KC_EXLM = S(KC_1).
+    case QK_LSFT ... QK_LSFT + 255:
+    case QK_RSFT ... QK_RSFT + 255:
+      keycode &= 0xff;  // Get the basic keycode.
+      break;
+
+    // NOTE: Space Cadet keys expose no info to check whether they are being
+    // tapped vs. held. This makes autocorrection ambiguous, e.g. KC_LCPO might
+    // be '(', which we would treat as a word break, or it might be shift, which
+    // we would treat as having no effect. To behave cautiously, we allow Space
+    // Cadet keycodes to fall to the logic below and clear autocorrection state.
+  }
+
+  switch (keycode) {
+    // Ignore shifts, Caps Lock, one-shot mods, and layer switch keys.
+    case KC_NO:
     case KC_LSFT:
     case KC_RSFT:
+    case KC_CAPS:
     case QK_ONE_SHOT_MOD ... QK_ONE_SHOT_MOD_MAX:
     case QK_TO ... QK_TO_MAX:
     case QK_MOMENTARY ... QK_MOMENTARY_MAX:
@@ -60,25 +91,12 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
     case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX:
     case QK_LAYER_MOD ... QK_LAYER_MOD_MAX:
       return true;  // Ignore these keys.
-
-#ifndef NO_ACTION_TAPPING
-    case QK_MOD_TAP ... QK_MOD_TAP_MAX:  // Tap-hold keys.
-#ifndef NO_ACTION_LAYER
-    case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-#endif  // NO_ACTION_LAYER
-      // Ignore when tap-hold keys are held.
-      if (record->tap.count == 0) { return true; }
-      // Otherwise when tapped, get the base keycode.
-      // Fallthrough intended.
-#endif  // NO_ACTION_TAPPING
-
-    // Handle shifted keys, e.g. symbols like KC_EXLM = S(KC_1).
-    case QK_LSFT ... QK_LSFT + 255:
-    case QK_RSFT ... QK_RSFT + 255:
-      keycode &= 0xff;  // Get the base keycode.
   }
 
-  if (!(KC_A <= keycode && keycode <= KC_Z)) {
+  if (keycode == KC_QUOT) {
+    // Treat " (shifted ') as a word boundary.
+    if ((mods & MOD_MASK_SHIFT) != 0) { keycode = KC_SPC; }
+  } else if (!(KC_A <= keycode && keycode <= KC_Z)) {
     if (keycode == KC_BSPC) {
       // Remove last character from the buffer.
       if (typo_buffer_size > 0) { --typo_buffer_size; }
@@ -103,6 +121,7 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
   }
 
   // Append `keycode` to the buffer.
+  // NOTE: `keycode` must be a basic keycode (0-255) by this point.
   typo_buffer[typo_buffer_size++] = (uint8_t) keycode;
   if (typo_buffer_size < AUTOCORRECTION_MAX_LENGTH) {
     typo_buffer[typo_buffer_size] = 0;

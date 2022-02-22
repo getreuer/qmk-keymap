@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2021-2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ Each line of the dict file defines one typo and its correction with the syntax
 Example:
 
   :thier        -> their
+  dosen't       -> doesn't
   fitler        -> filter
   lenght        -> length
   ouput         -> output
@@ -51,12 +52,24 @@ except ImportError:
         'correctly spelled word. To check for this, install the english_words '
         'package and rerun this script:\n\n  pip install english_words\n')
   # Use a minimal word list as a fallback.
-  CORRECT_WORDS = ('information', 'available', 'international', 'language',
-                   'loosest', 'reference', 'wealthier', 'entertainment',
-                   'association', 'provides', 'technology', 'statehood')
+  CORRECT_WORDS = ('apparent', 'association', 'available', 'classification',
+                   'effect', 'entertainment', 'fantastic', 'information',
+                   'integrate', 'international', 'language', 'loosest',
+                   'manual', 'nothing', 'provides', 'reference', 'statehood',
+                   'technology', 'virtually', 'wealthier', 'wonderful')
 
 KC_A = 4
 KC_SPC = 0x2c
+KC_QUOT = 0x34
+
+TYPO_CHARS = dict(
+  [
+    ("'", KC_QUOT),
+    (':', KC_SPC),  # "Word break" character.
+  ] +
+  # Characters a-z.
+  [(chr(c), c + KC_A - ord('a')) for c in range(ord('a'), ord('z') + 1)]
+)
 
 
 def parse_file(file_name: str) -> List[Tuple[str, str]]:
@@ -64,8 +77,9 @@ def parse_file(file_name: str) -> List[Tuple[str, str]]:
 
   Each line of the file defines one typo and its correction with the syntax
   "typo -> correction". Blank lines or lines starting with '#' are ignored. The
-  function validates that typos only have characters a-z and that typos are not
-  substrings of other typos, otherwise the longer typo would never trigger.
+  function validates that typos only have characters in TYPO_CHARS, that
+  typos are not substrings of other typos, and checking that typos don't trigger
+  on CORRECT_WORDS.
 
   Args:
     file_name: String, path of the autocorrections dictionary.
@@ -81,9 +95,9 @@ def parse_file(file_name: str) -> List[Tuple[str, str]]:
       continue
 
     # Check that `typo` is valid.
-    if not(all([ord('a') <= ord(c) <= ord('z') or c == ':' for c in typo])):
+    if not(all([c in TYPO_CHARS for c in typo])):
       print(f'Error:{line_number}: Typo "{typo}" has '
-            'characters other than a-z and :.')
+            'characters other than ' + ''.join(TYPO_CHARS.keys()))
       sys.exit(1)
     for other_typo in typos:
       if typo in other_typo or other_typo in typo:
@@ -179,7 +193,7 @@ def serialize_trie(autocorrections: List[Tuple[str, str]],
   table = []
 
   # Traverse trie in depth first order.
-  def traverse(trie_node):
+  def traverse(trie_node: Dict[str, Any]) -> Dict[str, Any]:
     if 'LEAF' in trie_node:  # Handle a leaf trie node.
       typo, correction = trie_node['LEAF']
       word_boundary_ending = typo[-1] == ':'
@@ -214,23 +228,15 @@ def serialize_trie(autocorrections: List[Tuple[str, str]],
 
   traverse(trie)
 
-  def serialize(e):
-    def kc_code(c):
-      if ord('a') <= ord(c) <= ord('z'):
-        return ord(c) - ord('a') + KC_A
-      elif c == ':':
-        return KC_SPC
-      else:
-        raise ValueError(f'Invalid character: {c}')
-
+  def serialize(e: Dict[str, Any]) -> List[int]:
     if not e['links']:  # Handle a leaf table entry.
       return e['data']
     elif len(e['links']) == 1:  # Handle a chain table entry.
-      return list(map(kc_code, e['chars'])) + [0] #+ encode_link(e['links'][0]))
+      return [TYPO_CHARS[c] for c in e['chars']] + [0]
     else:  # Handle a branch table entry.
       data = []
       for c, link in zip(e['chars'], e['links']):
-        data += [kc_code(c) | (0 if data else 64)] + encode_link(link)
+        data += [TYPO_CHARS[c] | (0 if data else 64)] + encode_link(link)
       return data + [0]
 
   byte_offset = 0
