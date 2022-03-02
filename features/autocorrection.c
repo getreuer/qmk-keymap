@@ -123,11 +123,8 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
   // Append `keycode` to the buffer.
   // NOTE: `keycode` must be a basic keycode (0-255) by this point.
   typo_buffer[typo_buffer_size++] = (uint8_t) keycode;
-  if (typo_buffer_size < AUTOCORRECTION_MAX_LENGTH) {
-    typo_buffer[typo_buffer_size] = 0;
-    // Early return if not many characters have been buffered so far.
-    if (typo_buffer_size < AUTOCORRECTION_MIN_LENGTH) { return true; }
-  }
+  // Early return if not many characters have been buffered so far.
+  if (typo_buffer_size < AUTOCORRECTION_MIN_LENGTH) { return true; }
 
   // Check whether the buffer ends in a typo. This is done using a trie
   // stored in `autocorrection_data`.
