@@ -42,6 +42,7 @@ bool process_custom_shift_keys(uint16_t keycode, keyrecord_t *record) {
 #endif  // NO_ACTION_ONESHOT
           del_mods(MOD_MASK_SHIFT);
           del_weak_mods(MOD_MASK_SHIFT);
+          send_keyboard_report();
           registered_keycode = custom_shift_keys[i].shifted_keycode;
         } else {
           registered_keycode = custom_shift_keys[i].keycode;
