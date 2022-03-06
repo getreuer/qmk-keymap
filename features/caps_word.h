@@ -94,16 +94,16 @@ void caps_word_set_user(bool active);
 
 // An optional callback which is called on every key press while Caps Word is
 // active. When the key should be shifted (that is, a letter key), the callback
-// should call `add_weak_mods(MOD_BIT(KC_LSFT))` to shift the key. The callback
-// also determines whether the key should continue Caps Word. Returning true
-// continues the current "word", while returning false is "word breaking" and
-// deactivates Caps Word. The default callback is
+// should call `register_weak_mods(MOD_BIT(KC_LSFT))` to shift the key. The
+// callback also determines whether the key should continue Caps Word. Returning
+// true continues the current "word", while returning false is "word breaking"
+// and deactivates Caps Word. The default callback is
 //
 //   bool caps_word_press_user(uint16_t keycode) {
 //     switch (keycode) {
 //       // Keycodes that continue Caps Word, with shift applied.
 //       case KC_A ... KC_Z:
-//         add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to the next key.
+//         register_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to next key.
 //         return true;
 //
 //       // Keycodes that continue Caps Word, without shifting.
