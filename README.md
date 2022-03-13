@@ -38,10 +38,10 @@ Who knew a keyboard could do so much?
 
 ## My keymap
 
-Here is a [KLE](http://www.keyboard-layout-editor.com/) visualization of my
+Here is a [KLE visualization](http://www.keyboard-layout-editor.com/) of my
 keymap. See the [keymap.c](keymap.c) itself for full details.
 
-**Base layer** (Dvorak)
+**Base layer** (Dvorak with home row mods)
 
 ![Base layer](doc/layout_base.png)
 
@@ -53,9 +53,9 @@ keymap. See the [keymap.c](keymap.c) itself for full details.
 
 ![Symbol layer](doc/layout_symbol.png)
 
-**Unicode layer**
+**Adjust layer**
 
-![Unicode layer](doc/layout_unicode.png)
+![Adjust layer](doc/layout_adjust.png)
 
 
 ## License
