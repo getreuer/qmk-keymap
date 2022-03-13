@@ -26,6 +26,9 @@
 
 #define UNICODE_SELECTED_MODES UC_LNX
 
+// Use Left Ctrl + Right Ctrl to activate the Command feature.
+#define IS_COMMAND() (get_mods() == MOD_MASK_CTRL)
+
 // When idle, turn off Caps Word after 5 seconds.
 #define CAPS_WORD_IDLE_TIMEOUT 5000
 

@@ -20,6 +20,14 @@
 
 static bool caps_word_active = false;
 
+// Many keyboards enable the Command feature, which by default is also activated
+// by Left Shift + Right Shift. It can be configured to use a different key
+// combination by defining IS_COMMAND(). We make a non-fatal warning if Command
+// is enabled but IS_COMMAND() is *not* defined.
+#if defined(COMMAND_ENABLE) && !defined(IS_COMMAND)
+#pragma message "Caps Word and Command should not be enabled at the same time, since both use the Left Shift + Right Shift key combination. Please disable Command, or ensure that `IS_COMMAND` is not set to (get_mods() == MOD_MASK_SHIFT)."
+#endif  // defined(COMMAND_ENABLE) && !defined(IS_COMMAND)
+
 #if CAPS_WORD_IDLE_TIMEOUT > 0
 #if CAPS_WORD_IDLE_TIMEOUT < 100 || CAPS_WORD_IDLE_TIMEOUT > 30000
 // Constrain timeout to a sensible range. With the 16-bit timer, the longest
@@ -45,7 +53,7 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
 
   if (!caps_word_active) {
     // Pressing both shift keys at the same time enables caps word.
-    if ((mods & MOD_MASK_SHIFT) == MOD_MASK_SHIFT) {
+    if (mods == MOD_MASK_SHIFT) {
       caps_word_set(true);  // Activate Caps Word.
       return false;
     }
