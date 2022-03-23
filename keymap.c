@@ -20,6 +20,7 @@
 
 #include QMK_KEYBOARD_H
 
+#include "features/achordion.h"
 #include "features/autocorrection.h"
 #include "features/caps_word.h"
 #include "features/custom_shift_keys.h"
@@ -211,7 +212,11 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
   }
 }
 
-bool get_tapping_force_hold(uint16_t keycode, keyrecord_t *record) {
+bool get_tapping_force_hold(uint16_t keycode, keyrecord_t* record) {
+  // If you quickly hold a tap-hold key after tapping it, the tap action is
+  // repeated. Key repeating is useful e.g. for Vim navigation keys, but can
+  // lead to missed triggers in fast typing. Here, returning true means we
+  // instead want to "force hold" and disable key repeating.
   switch (keycode) {
     // Repeating is useful for Vim navigation keys.
     case HOME_U:
@@ -219,13 +224,51 @@ bool get_tapping_force_hold(uint16_t keycode, keyrecord_t *record) {
     case QHOME_J:
     case QHOME_K:
     case QHOME_L:
-      return false;
+    // Repeating Z is useful for spamming undo.
+    case HOME_Z:
+    case QHOME_Z:
+      return false;  // Enable key repeating.
     default:
-      return true;
+      return true;  // Otherwise, force hold and disable key repeating.
   }
 }
 
+bool achordion_chord(uint16_t tap_hold_keycode,
+                     keyrecord_t* tap_hold_record,
+                     uint16_t other_keycode,
+                     keyrecord_t* other_record) {
+  // Exceptionally consider the following chords as holds, even though they
+  // are on the same hand in Dvorak.
+  switch (tap_hold_keycode) {
+    case HOME_A:  // A + U.
+      if (other_keycode == HOME_U) { return true; }
+      break;
+
+    case HOME_S:  // S + H and S + G.
+      if (other_keycode == HOME_H || other_keycode == KC_G) { return true; }
+      break;
+  }
+
+  // Also allow same-hand holds when the other key is in the rows below the
+  // alphas. I need the `% (MATRIX_ROWS / 2)` because my keyboard is split.
+  if (other_record->event.key.row % (MATRIX_ROWS / 2) >= 4) { return true; }
+
+  // Otherwise, follow the opposite hands rule.
+  return achordion_opposite_hands(tap_hold_record, other_record);
+}
+
+uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
+  switch (tap_hold_keycode) {
+    case HOME_SC:
+    case HOME_Z:
+      return 0;  // Bypass Achordion for these keys.
+  }
+
+  return 800;  // Otherwise use a timeout of 800 ms.
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
+  if (!process_achordion(keycode, record)) { return false; }
   if (!process_autocorrection(keycode, record)) { return false; }
   if (!process_caps_word(keycode, record)) { return false; }
   if (!process_custom_shift_keys(keycode, record)) { return false; }
@@ -303,6 +346,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 }
 
 void matrix_scan_user(void) {
+  achordion_task();
   caps_word_task();
 }
 

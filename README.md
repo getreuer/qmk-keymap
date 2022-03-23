@@ -35,6 +35,9 @@ Who knew a keyboard could do so much?
 * [Layer Lock key](https://getreuer.info/posts/keyboards/layer-lock/index.html)
   &ndash; QMK macro to stay in the current layer
 
+* [Achordion](https://getreuer.info/posts/keyboards/achordion/index.html)
+  &ndash; Customize the tap-hold decision
+
 
 ## My keymap
 

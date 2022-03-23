@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+SRC += features/achordion.c
 SRC += features/autocorrection.c
 SRC += features/caps_word.c
 SRC += features/custom_shift_keys.c
