@@ -35,6 +35,12 @@
 // Achordion only changes the behavior when QMK considered the key held. It
 // changes some would-be holds to taps, but no taps to holds.
 //
+// NOTE: Some QMK features handle events before the point where Achordion can
+// intercept them, particularly: Combos, Key Lock, and Dynamic Macros. It's
+// still possible to use these features and Achordion in your keymap, but beware
+// they might behave poorly when used simultaneously with tap-hold keys.
+//
+//
 // For full documentation, see
 // https://getreuer.info/posts/keyboards/achordion
 

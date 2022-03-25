@@ -59,9 +59,13 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   // Determine whether the current event is for a mod-tap or layer-tap key.
   const bool is_tap_hold = (QK_MOD_TAP <= keycode && keycode <= QK_MOD_TAP_MAX)
       || (QK_LAYER_TAP <= keycode && keycode <= QK_LAYER_TAP_MAX);
+  // Check key position to avoid acting on combos.
+  const bool is_physical_pos = (record->event.key.row < 254
+                             && record->event.key.col < 254);
 
   if (tap_hold_keycode == KC_NO) {
-    if (is_tap_hold && record->tap.count == 0 && record->event.pressed) {
+    if (record->event.pressed && is_physical_pos
+        && is_tap_hold && record->tap.count == 0) {
       // A tap-hold key is pressed and considered by QMK as "held".
       const uint16_t timeout = achordion_timeout(keycode);
       if (timeout > 0) {
@@ -101,7 +105,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     // this makes this function recursive, as it is called by
     // `process_record_user()`, so care is needed. We set `settled = true` above
     // to prevent infinite loops.
-    if ((is_tap_hold && record->tap.count == 0) ||
+    if (!is_physical_pos || (is_tap_hold && record->tap.count == 0) ||
         achordion_chord(tap_hold_keycode, &tap_hold_record, keycode, record)) {
       apply_hold_action();
     } else {
