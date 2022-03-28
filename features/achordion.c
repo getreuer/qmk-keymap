@@ -111,7 +111,9 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     } else {
       tap_hold_record.tap.count = 1;  // Revise event as a tap.
       process_record(&tap_hold_record);  // Create tap press event.
+#if TAP_CODE_DELAY > 0
       wait_ms(TAP_CODE_DELAY);
+#endif  // TAP_CODE_DELAY > 0
       tap_hold_record.event.pressed = false;
       process_record(&tap_hold_record);  // Create tap release event.
     }
