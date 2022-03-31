@@ -57,8 +57,9 @@ static void clear_hold_action(void) {
 
 bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   // Determine whether the current event is for a mod-tap or layer-tap key.
-  const bool is_tap_hold = (QK_MOD_TAP <= keycode && keycode <= QK_MOD_TAP_MAX)
-      || (QK_LAYER_TAP <= keycode && keycode <= QK_LAYER_TAP_MAX);
+  const bool is_mt = QK_MOD_TAP <= keycode && keycode <= QK_MOD_TAP_MAX;
+  const bool is_tap_hold =
+      is_mt || (QK_LAYER_TAP <= keycode && keycode <= QK_LAYER_TAP_MAX);
   // Check key position to avoid acting on combos.
   const bool is_physical_pos = (record->event.key.row < 254
                              && record->event.key.col < 254);
@@ -74,6 +75,11 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
         tap_hold_keycode = keycode;
         tap_hold_record = *record;
         hold_timer = record->event.time + timeout;
+
+        // For an "eager" mod, apply it immediately.
+        if (is_mt && achordion_eager_mod((keycode >> 8) & 0x1f)) {
+          apply_hold_action();
+        }
         return false;  // Skip default handling.
       }
     }
@@ -109,6 +115,8 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
         achordion_chord(tap_hold_keycode, &tap_hold_record, keycode, record)) {
       apply_hold_action();
     } else {
+      clear_hold_action();  // Clear in case mod was eagerly applied.
+
       tap_hold_record.tap.count = 1;  // Revise event as a tap.
       process_record(&tap_hold_record);  // Create tap press event.
 #if TAP_CODE_DELAY > 0
@@ -159,5 +167,19 @@ __attribute__((weak)) bool achordion_chord(uint16_t tap_hold_keycode,
 // By default, the timeout is 1000 ms for all keys.
 __attribute__((weak)) uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
   return 1000;
+}
+
+// By default, hold Shift and Ctrl mods eagerly.
+__attribute__((weak)) bool achordion_eager_mod(uint8_t mod) {
+  switch (mod) {
+    case MOD_LSFT:
+    case MOD_RSFT:
+    case MOD_LCTL:
+    case MOD_RCTL:
+      return true;
+
+    default:
+      return false;
+  }
 }
 
