@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2021-2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include QMK_KEYBOARD_H
+#include "quantum.h"
 
 bool process_select_word(uint16_t keycode, keyrecord_t* record,
                          uint16_t sel_keycode);

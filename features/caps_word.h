@@ -44,7 +44,7 @@
 
 #pragma once
 
-#include QMK_KEYBOARD_H
+#include "quantum.h"
 
 // Call this function from `process_record_user()` to implement Caps Word.
 bool process_caps_word(uint16_t keycode, keyrecord_t* record);

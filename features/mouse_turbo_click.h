@@ -33,7 +33,7 @@
 
 #pragma once
 
-#include QMK_KEYBOARD_H
+#include "quantum.h"
 
 // In your keymap, define a custom keycode to use for Turbo Click. Then handle
 // Turbo Click from your `process_record_user` function by calling

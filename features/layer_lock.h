@@ -40,7 +40,7 @@
 
 #pragma once
 
-#include QMK_KEYBOARD_H
+#include "quantum.h"
 
 // In your keymap, define a custom keycode to use for Layer Lock. Then handle
 // Layer Lock from your `process_record_user` function by calling
