@@ -151,6 +151,12 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
       ++state;
     }
 
+    // Stop if `state` becomes an invalid index. This should not normally
+    // happen, it is a safeguard in case of a bug, data corruption, etc.
+    if (state >= sizeof(autocorrection_data)) {
+      return true;
+    }
+
     // Read first byte of the next node.
     code = pgm_read_byte(autocorrection_data + state);
 
