@@ -48,6 +48,10 @@
 
 #include "quantum.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Call this function from `process_record_user()` as
 //
 //   bool process_record_user(uint16_t keycode, keyrecord_t* record) {
@@ -112,9 +116,14 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode);
 //     }
 //   }
 //
-// NOTE: `mod` should be compared with `MOD_` prefixed codes, not `KC_`.
+// NOTE: `mod` should be compared with `MOD_` prefixed codes, not `KC_` codes.
 bool achordion_eager_mod(uint8_t mod);
 
 // Returns true if the args come from keys on opposite hands.
 bool achordion_opposite_hands(const keyrecord_t* tap_hold_record,
                               const keyrecord_t* other_record);
+
+#ifdef __cplusplus
+}
+#endif
+
