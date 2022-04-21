@@ -42,6 +42,10 @@
 
 #include "quantum.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // In your keymap, define a custom keycode to use for Layer Lock. Then handle
 // Layer Lock from your `process_record_user` function by calling
 // `process_layer_lock`, passing your custom keycode for the `lock_keycode` arg:
@@ -77,4 +81,8 @@ void layer_lock_invert(uint8_t layer);
 //     // Do something like `set_led(is_layer_locked(NAV));`
 //   }
 void layer_lock_set_user(layer_state_t locked_layers);
+
+#ifdef __cplusplus
+}
+#endif
 

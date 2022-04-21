@@ -35,6 +35,10 @@
 
 #include "quantum.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // In your keymap, define a custom keycode to use for Turbo Click. Then handle
 // Turbo Click from your `process_record_user` function by calling
 // `process_mouse_turbo_click`, passing your custom keycode for the
@@ -50,4 +54,8 @@
 //   }
 bool process_mouse_turbo_click(uint16_t keycode, keyrecord_t* record,
                                uint16_t turbo_click_keycode);
+
+#ifdef __cplusplus
+}
+#endif
 

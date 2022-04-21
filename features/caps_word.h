@@ -46,6 +46,10 @@
 
 #include "quantum.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Call this function from `process_record_user()` to implement Caps Word.
 bool process_caps_word(uint16_t keycode, keyrecord_t* record);
 
@@ -125,4 +129,8 @@ void caps_word_set_user(bool active);
 // NOTE: Outside of this callback, you can use `caps_word_set(false)` to
 // deactivate Caps Word.
 bool caps_word_press_user(uint16_t keycode);
+
+#ifdef __cplusplus
+}
+#endif
 
