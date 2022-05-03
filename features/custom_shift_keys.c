@@ -26,10 +26,6 @@ bool process_custom_shift_keys(uint16_t keycode, keyrecord_t *record) {
   // the currently registered key.
   if (registered_keycode != KC_NO) {
     unregister_code16(registered_keycode);
-    if (keycode == registered_keycode && !record->event.pressed) {
-      registered_keycode = KC_NO;
-      return false;
-    }
     registered_keycode = KC_NO;
   }
 
