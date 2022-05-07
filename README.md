@@ -11,32 +11,54 @@ Who knew a keyboard could do so much?
 
 ### Topics
 
-* [Autocorrection with QMK](https://getreuer.info/posts/keyboards/autocorrection/index.html) &ndash; run rudimentary
-  autocorrection on your keyboard
+**Feature libraries**
 
-* [Caps Word](https://getreuer.info/posts/keyboards/caps-word/index.html) &ndash; modern alternative to Caps Lock
+* [Achordion](https://getreuer.info/posts/keyboards/achordion/index.html)
+  &ndash; customize the tap-hold decision
 
-* [Custom shift keys](https://getreuer.info/posts/keyboards/custom-shift-keys/index.html) &ndash; they're
-  surprisingly tricky to get right; here is my approach
+* [Autocorrection](https://getreuer.info/posts/keyboards/autocorrection/index.html)
+  &ndash; run rudimentary autocorrection on your keyboard
 
-* [Macro buttons](https://getreuer.info/posts/keyboards/macros/index.html) &ndash; an assortment of practical QMK
-  macros
+* [Caps Word](https://getreuer.info/posts/keyboards/caps-word/index.html)
+  &ndash; modern alternative to Caps Lock
 
-* [Designing a symbol layer](https://getreuer.info/posts/keyboards/symbol-layer/index.html) &ndash; ergonomic and
-  character frequency considerations
+* [Custom shift
+  keys](https://getreuer.info/posts/keyboards/custom-shift-keys/index.html)
+  &ndash; they're surprisingly tricky to get right; here is my approach
 
-* [Word selection](https://getreuer.info/posts/keyboards/select-word/index.html) &ndash; QMK macro for
-  convenient word or line selection
+* [Layer Lock key](layer-lock/index.html) &ndash; macro to stay in the current
+  layer
 
 * [Mouse Turbo
   Click](https://getreuer.info/posts/keyboards/mouse-turbo-click/index.html)
-  &ndash; QMK macro that clicks the mouse rapidly
+  &ndash; macro that clicks the mouse rapidly
 
-* [Layer Lock key](https://getreuer.info/posts/keyboards/layer-lock/index.html)
-  &ndash; QMK macro to stay in the current layer
+* [Word selection](https://getreuer.info/posts/keyboards/select-word/index.html)
+  &ndash; macro for convenient word or line selection
 
-* [Achordion](https://getreuer.info/posts/keyboards/achordion/index.html)
-  &ndash; Customize the tap-hold decision
+**Tutorials**
+
+* [Macro buttons](https://getreuer.info/posts/keyboards/macros/index.html)
+  &ndash; an assortment of practical QMK macros
+
+* [Triggers: reacting to interesting
+  events](https://getreuer.info/posts/keyboards/triggers/index.html) &ndash;
+  layer changes, tap vs. long press, etc.
+
+ 
+**General**
+
+* [Designing a symbol
+  layer](https://getreuer.info/posts/keyboards/symbol-layer/index.html) &ndash;
+  ergonomic and character frequency considerations
+
+* [Questioning the ergonomics of 40%
+  keyboards](https://getreuer.info/posts/keyboards/40-percent-ergo/index.html)
+  &ndash; smaller is not necessarily better
+
+* [Links about
+  keyboards](https://getreuer.info/posts/keyboards/links/index.html) &ndash;
+  interesting links about keyboards and related topics
 
 
 ## My keymap
