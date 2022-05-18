@@ -48,6 +48,10 @@ Who knew a keyboard could do so much?
  
 **General**
 
+* [Alt keyboard
+  layouts](https://getreuer.info/posts/keyboards/alt-layouts/index.html) &ndash;
+  switching from QWERTY to an alternative keyboard layout
+
 * [Designing a symbol
   layer](https://getreuer.info/posts/keyboards/symbol-layer/index.html) &ndash;
   ergonomic and character frequency considerations
@@ -55,6 +59,9 @@ Who knew a keyboard could do so much?
 * [Questioning the ergonomics of 40%
   keyboards](https://getreuer.info/posts/keyboards/40-percent-ergo/index.html)
   &ndash; smaller is not necessarily better
+
+* [Keyboard FAQS](https://getreuer.info/posts/keyboards/faqs/index.html) &ndash;
+  thoughts on topics that come up regularly
 
 * [Links about
   keyboards](https://getreuer.info/posts/keyboards/links/index.html) &ndash;
