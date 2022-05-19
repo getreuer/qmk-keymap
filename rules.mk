@@ -41,6 +41,8 @@ MIDI_ENABLE = no           # MIDI controls
 AUDIO_ENABLE = no          # Audio output on port C6
 BLUETOOTH_ENABLE = no      # Enable Bluetooth with the Adafruit EZ-Key HID
 RGBLIGHT_ENABLE = no       # Enable WS2812 RGB underlight.
+SPACE_CADET_ENABLE = no
+GRAVE_ESC_ENABLE = no
 
 UNICODEMAP_ENABLE = yes
 COMBO_ENABLE = yes
