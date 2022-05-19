@@ -86,7 +86,7 @@ enum custom_keycodes {
 // I have F13 bound to toggle Redshift (http://jonls.dk/redshift/).
 #define REDSHFT KC_F13
 
-const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
   [BASE] = LAYOUT_LR(  // Base layer: Dvorak.
     KC_GRV , KC_7   , KC_8   , KC_9   , KC_0   , KC_5   ,
     KC_TAB , KC_QUOT, KC_COMM, KC_DOT , KC_P   , KC_Y   ,
@@ -168,13 +168,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 };
 
-const uint32_t PROGMEM unicode_map[] = {};
+const uint32_t unicode_map[] PROGMEM = {};
 
 const custom_shift_key_t custom_shift_keys[] = {
   {KC_DOT , KC_QUES}, // Shift . is ?
   {KC_COMM, KC_EXLM},
-  {KC_UNDS, KC_MINS},
-  {KC_SLSH, KC_BSLS},
+  {KC_EQL , KC_EQL }, // Don't shift =
+  {KC_SLSH, KC_SLSH}, // Don't shift /
 };
 uint8_t NUM_CUSTOM_SHIFT_KEYS =
     sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
@@ -189,8 +189,8 @@ enum combo_events {
 };
 uint16_t COMBO_LEN = COMBO_LENGTH;
 
-const uint16_t PROGMEM caps_combo[] = {KC_DOT, KC_C, COMBO_END};
-const uint16_t PROGMEM end_sentence_combo[] = {KC_COMM, KC_DOT, COMBO_END};
+const uint16_t caps_combo[] PROGMEM = {KC_DOT, KC_C, COMBO_END};
+const uint16_t end_sentence_combo[] PROGMEM = {KC_COMM, KC_DOT, COMBO_END};
 
 combo_t key_combos[] = {
   [CAPS_COMBO] = COMBO_ACTION(caps_combo),
