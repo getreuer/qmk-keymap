@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2021-2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ def count_chars(input_file_names: List[str]) -> Dict[str, int]:
   hist = collections.defaultdict(int)
   for file_name in input_file_names:
     for line in open(file_name, 'rt'):
-      for char in line:
+      for char in line.lower():
         hist[char] += 1
 
   return dict(hist)
