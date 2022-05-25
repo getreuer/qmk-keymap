@@ -17,6 +17,7 @@ SRC += features/autocorrection.c
 SRC += features/caps_word.c
 SRC += features/custom_shift_keys.c
 SRC += features/select_word.c
+SRC += features/sentence_case.c
 
 MCU = atmega32u4
 

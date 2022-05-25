@@ -25,6 +25,7 @@
 #include "features/caps_word.h"
 #include "features/custom_shift_keys.h"
 #include "features/select_word.h"
+#include "features/sentence_case.h"
 
 #include "layout.h"
 
@@ -267,12 +268,28 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
   return 800;  // Otherwise use a timeout of 800 ms.
 }
 
+bool sentence_case_is_punct(uint16_t keycode, keyrecord_t* record) {
+  const bool shifted = (get_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT;
+  // Account for my custom shift keys, defined above.
+  switch (keycode) {
+    case KC_DOT:  // Both . and Shift . (?) punctuate sentence ending.
+      return true;
+    case KC_COMM:
+      return shifted;
+    case KC_QUES:
+    case KC_EXLM:
+      return true;
+  }
+  return false;
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_achordion(keycode, record)) { return false; }
   if (!process_autocorrection(keycode, record)) { return false; }
   if (!process_caps_word(keycode, record)) { return false; }
   if (!process_custom_shift_keys(keycode, record)) { return false; }
   if (!process_select_word(keycode, record, SELWORD)) { return false; }
+  if (!process_sentence_case(keycode, record)) { return false; }
 
 #ifndef NO_ACTION_ONESHOT
   const bool shifted = (get_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT;
@@ -348,5 +365,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 void matrix_scan_user(void) {
   achordion_task();
   caps_word_task();
+  sentence_case_task();
 }
 
