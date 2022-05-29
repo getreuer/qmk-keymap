@@ -15,6 +15,9 @@
 //
 // Caps Word, activated by pressing both shift keys at the same time.
 //
+// NOTE: Caps Word is now a core QMK feature! See
+// https://docs.qmk.fm/#/feature_caps_word
+//
 // This library implements "Caps Word", which is like conventional Caps Lock,
 // but automatically disables itself at the end of the word. This is useful for
 // typing all-caps identifiers like `MOD_MASK_ALT`.
