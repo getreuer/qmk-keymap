@@ -22,7 +22,6 @@
 
 #include "features/achordion.h"
 #include "features/autocorrection.h"
-#include "features/caps_word.h"
 #include "features/custom_shift_keys.h"
 #include "features/select_word.h"
 
@@ -201,7 +200,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
   if (pressed) {
     switch(combo_index) {
       case CAPS_COMBO:
-        caps_word_set(true);  // Activate Caps Word.
+        caps_word_on();
         break;
 
       case END_SENTENCE_COMBO:
@@ -270,7 +269,6 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_achordion(keycode, record)) { return false; }
   if (!process_autocorrection(keycode, record)) { return false; }
-  if (!process_caps_word(keycode, record)) { return false; }
   if (!process_custom_shift_keys(keycode, record)) { return false; }
   if (!process_select_word(keycode, record, SELWORD)) { return false; }
 
@@ -347,6 +345,5 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 
 void matrix_scan_user(void) {
   achordion_task();
-  caps_word_task();
 }
 
