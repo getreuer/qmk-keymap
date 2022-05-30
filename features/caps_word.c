@@ -20,6 +20,8 @@
 
 static bool caps_word_active = false;
 
+#pragma message "Caps Word is now a core QMK feature! To use it, update your QMK set up and see https://docs.qmk.fm/#/feature_caps_word"
+
 // Many keyboards enable the Command feature, which by default is also activated
 // by Left Shift + Right Shift. It can be configured to use a different key
 // combination by defining IS_COMMAND(). We make a non-fatal warning if Command
