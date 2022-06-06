@@ -20,6 +20,10 @@
 
 #include <string.h>
 
+#ifdef NO_ACTION_ONESHOT
+#error "Sentence case: Please enable oneshot."
+#else
+
 // State in matching the beginning of a sentence.
 enum {
   STATE_INIT    = 0,
@@ -29,9 +33,27 @@ enum {
   STATE_ENDING  = 4,
   STATE_PRIMED  = 5,
 };
+#ifndef NO_DEBUG
+static const char* state_names[] = {
+  "INIT",
+  "WORD",
+  "MATCHED",
+  "ABBREV",
+  "ENDING",
+  "PRIMED",
+};
+#endif  // NO_DEBUG
 static uint8_t sentence_state = STATE_INIT;
 
 static void set_sentence_state(uint8_t new_state) {
+  if (sentence_state == new_state) { return; }
+
+  #ifndef NO_DEBUG
+  if (debug_enable) {
+    dprintf("Sentence case: state = %s.\n", state_names[new_state]);
+  }
+  #endif  // NO_DEBUG
+
   const bool primed = (new_state == STATE_PRIMED);
   if (primed != (sentence_state == STATE_PRIMED)) {
     sentence_case_primed(primed);
@@ -92,11 +114,7 @@ bool process_sentence_case(uint16_t keycode, keyrecord_t* record) {
   // Only process press events.
   if (!record->event.pressed) { return true; }
 
-#ifndef NO_ACTION_ONESHOT
   const uint8_t mods = get_mods() | get_oneshot_mods();
-#else
-  const uint8_t mods = get_mods();
-#endif  // NO_ACTION_ONESHOT
   uint8_t new_state = STATE_INIT;
 
   if ((mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT))) != 0) {
@@ -162,7 +180,7 @@ bool process_sentence_case(uint16_t keycode, keyrecord_t* record) {
         // This is the start of a sentence. Apply weak shift mod to capitalize.
         new_state = STATE_MATCHED;
         if ((mods & MOD_MASK_SHIFT) == 0) {
-          register_weak_mods(MOD_BIT(KC_LSFT));
+          set_oneshot_mods(MOD_BIT(KC_LSFT));
         }
       } else {
         new_state = STATE_ABBREV;
@@ -222,4 +240,6 @@ __attribute__((weak)) bool sentence_case_check_ending(const uint16_t* buffer) {
 }
 
 __attribute__((weak)) void sentence_case_primed(bool primed) {}
+
+#endif  // NO_ACTION_ONESHOT
 
