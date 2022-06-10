@@ -84,18 +84,19 @@ void layer_lock_set_user(layer_state_t locked_layers);
 
 #if LAYER_LOCK_IDLE_TIMEOUT > 0
 
-//If you want to automatically disable layer lock if no keys are pressed after a
-//configurable timeout, define LAYER_LOCK_IDLE_TIMEOUT to a value between 100
+// If you want to automatically disable layer lock if no keys are pressed after a
+// configurable timeout, define LAYER_LOCK_IDLE_TIMEOUT to a value between 100
 // and 30000 (in milliseconds) in your config.h file and add the following
-//functions as described below.
+// functions as described below.
 
-//Add this function below your process_record_user function, preferrably right below
-//the process_layer_lock function.
+// Add this function below your process_record_user function, preferrably right below
+// the process_layer_lock function.
     bool process_layer_lock_timer(uint16_t keycode, keyrecord_t* record);
 
-//You'll also have to add this timer_task function under your matrix_scan_user
-//function.
+// You'll also have to add this timer_task function under your matrix_scan_user
+// function.
     void layer_lock_timer_task(void);
+    void layer_lock_all_off(void);
 #endif
 
 #ifdef __cplusplus

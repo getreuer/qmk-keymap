@@ -23,24 +23,30 @@ static layer_state_t locked_layers = 0;
 
 #if LAYER_LOCK_IDLE_TIMEOUT > 0
 #if LAYER_LOCK_IDLE_TIMEOUT < 100 || LAYER_LOCK_IDLE_TIMEOUT > 30000
-//Constrain timeout to a sensible range. With the 16-bit timer, the longest
-//representable timeout is 32768 ms, rounded here to 30000 ms = half a minute.
+// Constrain timeout to a sensible range. With the 16-bit timer, the longest
+// representable timeout is 32768 ms, rounded here to 30000 ms = half a minute.
 #error "layer_lock: LAYER_LOCK_IDLE_TIMEOUT must be between 100 and 30000 ms"
 #endif
 
-//Layer Lock timer to disable layer lock after X seconds inactivity
+// Layer Lock timer to disable layer lock after X seconds inactivity
 
 static uint16_t layer_lock_timer = 0;
 
     void layer_lock_timer_task(void) {
-        const uint8_t layer = get_highest_layer(layer_state);
-        if (is_layer_locked(layer) && timer_elapsed(layer_lock_timer) > LAYER_LOCK_IDLE_TIMEOUT) {
-            layer_lock_invert(layer);
+        if (locked_layers && timer_elapsed(layer_lock_timer) > LAYER_LOCK_IDLE_TIMEOUT) {
+            layer_lock_all_off();
             layer_lock_timer = timer_read();
+            dprintf("Layer Lock Timer Task Expired: %d\n", layer_lock_timer);
         }
     }
 
-    bool process_layer_lock_timer(uint16_t keycode, keyrecord_t* record) {
+     void layer_lock_all_off(void) {
+         layer_and(~locked_layers);
+         locked_layers = 0;
+         dprintf("Layer Lock Timer All Off Function: %d\n", layer_lock_timer);
+     }
+
+ bool process_layer_lock_timer(uint16_t keycode, keyrecord_t* record) {
             const uint8_t layer = get_highest_layer(layer_state);
             if (is_layer_locked(layer)) {
                 if (record->event.pressed) {
@@ -50,10 +56,18 @@ static uint16_t layer_lock_timer = 0;
                     return true;
                     }
 
-#endif //End of layer lock idle timeout functions
+#endif // End of layer lock idle timeout functions
 
 bool process_layer_lock(uint16_t keycode, keyrecord_t* record,
                         uint16_t lock_keycode) {
+
+//   #if LAYER_LOCK_IDLE_TIMEOUT > 0
+//     if (locked_layers) {
+//         layer_lock_timer = record->event.time;
+//         dprintf("Layer Lock Process Update: %d\n", layer_lock_timer);
+//     }
+//   #endif
+
   // The intention is that locked layers remain on. If something outside of
   // this feature turned any locked layers off, unlock them.
   if ((locked_layers & ~layer_state) != 0) {
@@ -109,6 +123,7 @@ void layer_lock_invert(uint8_t layer) {
     layer_on(layer);
     #if LAYER_LOCK_IDLE_TIMEOUT > 0
         layer_lock_timer = timer_read();
+        dprintf("Layer Lock Invert On Update: %d\n", layer_lock_timer);
     #endif
   } else {  // Layer is being unlocked.
     layer_off(layer);
@@ -118,7 +133,7 @@ void layer_lock_invert(uint8_t layer) {
 
 // Implement layer_lock_on/off by deferring to layer_lock_invert.
 void layer_lock_on(uint8_t layer) {
-  if (!is_layer_locked(layer)) {layer_lock_invert(layer); }
+  if (!is_layer_locked(layer)) { layer_lock_invert(layer); }
 }
 
 void layer_lock_off(uint8_t layer) {
