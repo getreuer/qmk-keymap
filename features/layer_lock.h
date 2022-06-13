@@ -89,14 +89,12 @@ void layer_lock_set_user(layer_state_t locked_layers);
 // and 30000 (in milliseconds) in your config.h file and add the following
 // functions as described below.
 
-// Add this function below your process_record_user function, preferrably right below
-// the process_layer_lock function.
-    bool process_layer_lock_timer(uint16_t keycode, keyrecord_t* record);
-
-// You'll also have to add this timer_task function under your matrix_scan_user
-// function.
-    void layer_lock_timer_task(void);
     void layer_lock_all_off(void);
+
+// To enable the layer_lock timer you will have to add the layer_lock_timer_task
+// function under your matrix_scan_user function, most likely in keymap.c.
+    void layer_lock_timer_task(void);
+
 #endif
 
 #ifdef __cplusplus
