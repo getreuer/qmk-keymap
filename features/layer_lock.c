@@ -39,12 +39,14 @@ static uint16_t layer_lock_timer = 0;
         }
     }
 
-     void layer_lock_all_off(void) {
-         layer_and(~locked_layers);
-         locked_layers = 0;
-     }
-
 #endif // End of layer lock idle timeout functions
+
+// Function to unlock all locked layers at once.
+
+void layer_lock_all_off(void) {
+  layer_and(~locked_layers);
+    locked_layers = 0;
+  }
 
 bool process_layer_lock(uint16_t keycode, keyrecord_t* record,
                         uint16_t lock_keycode) {

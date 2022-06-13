@@ -82,17 +82,18 @@ void layer_lock_invert(uint8_t layer);
 //   }
 void layer_lock_set_user(layer_state_t locked_layers);
 
+// A function to unlock all locked layers in the event that more than one 
+// layer has been locked.
+
+void layer_lock_all_off(void);
+
 #if LAYER_LOCK_IDLE_TIMEOUT > 0
 
 // If you want to automatically disable layer lock if no keys are pressed after a
 // configurable timeout, define LAYER_LOCK_IDLE_TIMEOUT to a value between 100
 // and 30000 (in milliseconds) in your config.h file and add the following
-// functions as described below.
+// function under your matrix_scan_user() function, most likely in keymap.c
 
-    void layer_lock_all_off(void);
-
-// To enable the layer_lock timer you will have to add the layer_lock_timer_task
-// function under your matrix_scan_user function, most likely in keymap.c.
     void layer_lock_timer_task(void);
 
 #endif
