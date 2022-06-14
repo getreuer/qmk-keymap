@@ -24,6 +24,9 @@
 #error "Sentence case: Please enable oneshot."
 #else
 
+// Firmware size as of e845936:
+// * The firmware size is fine - 24120/28672 (84%, 4552 bytes free)
+
 // State in matching the beginning of a sentence.
 enum {
   STATE_INIT    = 0,
@@ -32,6 +35,7 @@ enum {
   STATE_ABBREV  = 3,
   STATE_ENDING  = 4,
   STATE_PRIMED  = 5,
+  STATE_INVALID = 6,
 };
 #ifndef NO_DEBUG
 static const char* state_names[] = {
@@ -43,6 +47,8 @@ static const char* state_names[] = {
   "PRIMED",
 };
 #endif  // NO_DEBUG
+
+/* static uint8_t state_history[HISTORY_SIZE]; */
 static uint8_t sentence_state = STATE_INIT;
 
 static void set_sentence_state(uint8_t new_state) {
