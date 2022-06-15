@@ -82,21 +82,35 @@ void layer_lock_invert(uint8_t layer);
 //   }
 void layer_lock_set_user(layer_state_t locked_layers);
 
-// A function to unlock all locked layers in the event that more than one 
-// layer has been locked.
-
-void layer_lock_all_off(void);
-
-#if LAYER_LOCK_IDLE_TIMEOUT > 0
+#if LAYER_LOCK_IDLE_TIMEOUT > 0 // Layer Lock Timer
 
 // If you want to automatically disable layer lock if no keys are pressed after a
-// configurable timeout, define LAYER_LOCK_IDLE_TIMEOUT to a value between 100
-// and 30000 (in milliseconds) in your config.h file and add the following
-// function under your matrix_scan_user() function, most likely in keymap.c
+// configurable timeout, define LAYER_LOCK_IDLE_TIMEOUT in your config.h file.
+// Also add the layer_lock_timer_task function under your matrix_scan_user function,
+// most likely in keymap.c
+
+// Timeout values between 100 and 32767 (in milliseconds) will use a 16 bit timer, while
+// values above 32767 will use a 32 bit timer, which uses slightly more space on
+// your MCU.
 
     void layer_lock_timer_task(void);
 
-#endif
+    void layer_lock_all_off(void);
+
+        #if LAYER_LOCK_IDLE_TIMEOUT > 100 && LAYER_LOCK_IDLE_TIMEOUT <= 32767
+
+            uint16_t layer_lock_timer_read(void);
+
+            uint16_t layer_lock_timer_elapsed(void);
+
+        #elif LAYER_LOCK_IDLE_TIMEOUT > 32767
+
+            uint32_t layer_lock_timer_read(void);
+
+            uint32_t layer_lock_timer_elapsed(void);
+        #endif
+
+#endif // Layer Lock Timer
 
 #ifdef __cplusplus
 }
