@@ -86,29 +86,16 @@ void layer_lock_set_user(layer_state_t locked_layers);
 
 // If you want to automatically disable layer lock if no keys are pressed after a
 // configurable timeout, define LAYER_LOCK_IDLE_TIMEOUT in your config.h file.
-// Also add the layer_lock_timer_task function under your matrix_scan_user function,
+// Also add the layer_lock_task function under your matrix_scan_user function,
 // most likely in keymap.c
 
-// Timeout values between 100 and 32767 (in milliseconds) will use a 16 bit timer, while
-// values above 32767 will use a 32 bit timer, which uses slightly more space on
-// your MCU.
-
-    void layer_lock_timer_task(void);
+    void layer_lock_task(void);
 
     void layer_lock_all_off(void);
 
-        #if LAYER_LOCK_IDLE_TIMEOUT > 100 && LAYER_LOCK_IDLE_TIMEOUT <= 32767
+#else
 
-            uint16_t layer_lock_timer_read(void);
-
-            uint16_t layer_lock_timer_elapsed(void);
-
-        #elif LAYER_LOCK_IDLE_TIMEOUT > 32767
-
-            uint32_t layer_lock_timer_read(void);
-
-            uint32_t layer_lock_timer_elapsed(void);
-        #endif
+    static inline void layer_lock_task(void) {}
 
 #endif // Layer Lock Timer
 

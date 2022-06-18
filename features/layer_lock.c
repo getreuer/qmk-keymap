@@ -24,38 +24,12 @@ static layer_state_t locked_layers = 0;
 // Layer Lock timer to disable layer lock after X seconds inactivity
 #if LAYER_LOCK_IDLE_TIMEOUT > 0
 
-// Layer lock 16 bit timer.
-#if LAYER_LOCK_IDLE_TIMEOUT > 100 && LAYER_LOCK_IDLE_TIMEOUT <= 32767
-
-    static uint16_t layer_lock_timer = 0;
-
-    uint16_t layer_lock_timer_read(void) {
-        return timer_read();
-    }
-
-    uint16_t layer_lock_timer_elapsed(void) {
-        return timer_elapsed(layer_lock_timer);
-    }
-#endif
-
-// Layer lock 32 bit timer.
-#if LAYER_LOCK_IDLE_TIMEOUT > 32767
-
     static uint32_t layer_lock_timer = 0;
 
-    uint32_t layer_lock_timer_read(void) {
-        return timer_read32();
-    }
-
-    uint32_t layer_lock_timer_elapsed(void) {
-        return timer_elapsed32(layer_lock_timer);
-    }
-#endif
-
-    void layer_lock_timer_task(void) {
-        if (locked_layers && layer_lock_timer_elapsed() > LAYER_LOCK_IDLE_TIMEOUT) {
+    void layer_lock_task(void) {
+        if (locked_layers && timer_elapsed32(layer_lock_timer) > LAYER_LOCK_IDLE_TIMEOUT) {
             layer_lock_all_off();
-            layer_lock_timer = layer_lock_timer_read();
+            layer_lock_timer = timer_read32();
         }
     }
 
@@ -70,7 +44,7 @@ bool process_layer_lock(uint16_t keycode, keyrecord_t* record,
                         uint16_t lock_keycode) {
 
     #if LAYER_LOCK_IDLE_TIMEOUT > 0
-      layer_lock_timer = layer_lock_timer_read();
+      layer_lock_timer = timer_read32();
     #endif
 
   // The intention is that locked layers remain on. If something outside of
@@ -127,7 +101,7 @@ void layer_lock_invert(uint8_t layer) {
 #endif  // NO_ACTION_ONESHOT
     layer_on(layer);
     #if LAYER_LOCK_IDLE_TIMEOUT > 0
-        layer_lock_timer = layer_lock_timer_read();
+        layer_lock_timer = timer_read32();
     #endif
   } else {  // Layer is being unlocked.
     layer_off(layer);
