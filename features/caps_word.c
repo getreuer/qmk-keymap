@@ -41,7 +41,7 @@ static uint16_t idle_timer = 0;
 
 void caps_word_task(void) {
   if (caps_word_active && timer_expired(timer_read(), idle_timer)) {
-    caps_word_set(false);
+    caps_word_off();
   }
 }
 #endif  // CAPS_WORD_IDLE_TIMEOUT > 0
@@ -56,7 +56,7 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
   if (!caps_word_active) {
     // Pressing both shift keys at the same time enables caps word.
     if (mods == MOD_MASK_SHIFT) {
-      caps_word_set(true);  // Activate Caps Word.
+      caps_word_on();
       return false;
     }
     return true;
@@ -114,31 +114,42 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
     }
   }
 
-  caps_word_set(false);  // Deactivate Caps Word.
+  caps_word_off();
   return true;
 }
 
-void caps_word_set(bool active) {
-  if (active != caps_word_active) {
-    if (active) {
-      clear_mods();
+void caps_word_on(void) {
+  if (caps_word_active) { return; }
+
+  clear_mods();
 #ifndef NO_ACTION_ONESHOT
-      clear_oneshot_mods();
+  clear_oneshot_mods();
 #endif  // NO_ACTION_ONESHOT
 #if CAPS_WORD_IDLE_TIMEOUT > 0
-      idle_timer = timer_read() + CAPS_WORD_IDLE_TIMEOUT;
+  idle_timer = timer_read() + CAPS_WORD_IDLE_TIMEOUT;
 #endif  // CAPS_WORD_IDLE_TIMEOUT > 0
-    } else {
-      // Make sure weak shift is off.
-      unregister_weak_mods(MOD_BIT(KC_LSFT));
-    }
 
-    caps_word_active = active;
-    caps_word_set_user(active);
+  caps_word_active = true;
+  caps_word_set_user(true);
+}
+
+void caps_word_off(void) {
+  if (!caps_word_active) { return; }
+
+  unregister_weak_mods(MOD_BIT(KC_LSFT));  // Make sure weak shift is off.
+  caps_word_active = false;
+  caps_word_set_user(false);
+}
+
+void caps_word_toggle(void) {
+  if (caps_word_active) {
+    caps_word_off();
+  } else {
+    caps_word_on();
   }
 }
 
-bool caps_word_get(void) { return caps_word_active; }
+bool is_caps_word_on(void) { return caps_word_active; }
 
 __attribute__((weak)) void caps_word_set_user(bool active) {}
 
