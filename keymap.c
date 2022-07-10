@@ -101,7 +101,7 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
                       KC_D   , HOME_H , HOME_T , HOME_N , HOME_S , KC_MINS,
                       KC_B   , KC_M   , KC_W   , KC_V   , HOME_Z , KC_RSFT,
                                KC_LEFT, KC_RGHT, DASH   , ARROW  , THMBUP ,
-    KC_RGUI, TMUXESC,
+    KC_BSLS, TMUXESC,
     JOINLN ,
     SELWORD, KC_BSPC, KC_ENT
   ),
@@ -229,6 +229,27 @@ bool get_tapping_force_hold(uint16_t keycode, keyrecord_t* record) {
       return false;  // Enable key repeating.
     default:
       return true;  // Otherwise, force hold and disable key repeating.
+  }
+}
+
+bool caps_word_press_user(uint16_t keycode) {
+  switch (keycode) {
+    // Keycodes that continue Caps Word, with shift applied.
+    case KC_A ... KC_Z:
+      add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to the next key.
+      return true;
+
+    // Keycodes that continue Caps Word, without shifting.
+    case KC_1 ... KC_0:
+    case KC_BSPC:
+    case KC_DEL:
+    // I have a dedicated underscore key, so no need to shift KC_MINS.
+    case KC_MINS:
+    case KC_UNDS:
+      return true;
+
+    default:
+      return false;  // Deactivate Caps Word.
   }
 }
 
