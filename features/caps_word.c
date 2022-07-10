@@ -41,12 +41,21 @@ static uint16_t idle_timer = 0;
 
 void caps_word_task(void) {
   if (caps_word_active && timer_expired(timer_read(), idle_timer)) {
-    caps_word_set(false);
+    caps_word_off();
   }
 }
 #endif  // CAPS_WORD_IDLE_TIMEOUT > 0
 
 bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
+#ifdef CAPS_WORD_TOGGLE_KEY
+  if (keycode == CAPSWRD) {  // Pressing CAPSWRD toggles Caps Word.
+    if (record->event.pressed) {
+      caps_word_toggle();
+    }
+    return false;
+  }
+#endif  // CAPS_WORD_TOGGLE_KEY
+
 #ifndef NO_ACTION_ONESHOT
   const uint8_t mods = get_mods() | get_oneshot_mods();
 #else
@@ -56,7 +65,7 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
   if (!caps_word_active) {
     // Pressing both shift keys at the same time enables caps word.
     if (mods == MOD_MASK_SHIFT) {
-      caps_word_set(true);  // Activate Caps Word.
+      caps_word_on();
       return false;
     }
     return true;
@@ -83,12 +92,33 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
 
 #ifndef NO_ACTION_TAPPING
       case QK_MOD_TAP ... QK_MOD_TAP_MAX:
-        if (record->tap.count == 0) {
-          // Deactivate if a mod becomes active through holding a mod-tap key.
-          caps_word_set(false);
-          return true;
+        if (record->tap.count == 0) {  // Mod-tap key is held.
+          // Corresponding to how mods are handled above:
+          // * For shift mods, pass KC_LSFT or KC_RSFT to caps_word_press_user()
+          //   to determine whether to continue Caps Word.
+          // * For Shift + AltGr (MOD_RSFT | MOD_RALT), pass RSFT(KC_RALT).
+          // * AltGr (MOD_RALT) is ignored.
+          // * Otherwise stop Caps Word.
+          const uint8_t mods = (keycode >> 8) & 0x1f;
+          switch (mods) {
+            case MOD_LSFT:
+              keycode = KC_LSFT;
+              break;
+            case MOD_RSFT:
+              keycode = KC_RSFT;
+              break;
+            case MOD_RSFT | MOD_RALT:
+              keycode = RSFT(KC_RALT);
+              break;
+            default:
+              if (mods != MOD_RALT) {
+                caps_word_off();
+              }
+              return true;
+          }
+        } else {
+          keycode &= 0xff;
         }
-        keycode &= 0xff;
         break;
 
 #ifndef NO_ACTION_LAYER
@@ -114,31 +144,42 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
     }
   }
 
-  caps_word_set(false);  // Deactivate Caps Word.
+  caps_word_off();
   return true;
 }
 
-void caps_word_set(bool active) {
-  if (active != caps_word_active) {
-    if (active) {
-      clear_mods();
+void caps_word_on(void) {
+  if (caps_word_active) { return; }
+
+  clear_mods();
 #ifndef NO_ACTION_ONESHOT
-      clear_oneshot_mods();
+  clear_oneshot_mods();
 #endif  // NO_ACTION_ONESHOT
 #if CAPS_WORD_IDLE_TIMEOUT > 0
-      idle_timer = timer_read() + CAPS_WORD_IDLE_TIMEOUT;
+  idle_timer = timer_read() + CAPS_WORD_IDLE_TIMEOUT;
 #endif  // CAPS_WORD_IDLE_TIMEOUT > 0
-    } else {
-      // Make sure weak shift is off.
-      unregister_weak_mods(MOD_BIT(KC_LSFT));
-    }
 
-    caps_word_active = active;
-    caps_word_set_user(active);
+  caps_word_active = true;
+  caps_word_set_user(true);
+}
+
+void caps_word_off(void) {
+  if (!caps_word_active) { return; }
+
+  unregister_weak_mods(MOD_BIT(KC_LSFT));  // Make sure weak shift is off.
+  caps_word_active = false;
+  caps_word_set_user(false);
+}
+
+void caps_word_toggle(void) {
+  if (caps_word_active) {
+    caps_word_off();
+  } else {
+    caps_word_on();
   }
 }
 
-bool caps_word_get(void) { return caps_word_active; }
+bool is_caps_word_on(void) { return caps_word_active; }
 
 __attribute__((weak)) void caps_word_set_user(bool active) {}
 

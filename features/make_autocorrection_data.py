@@ -109,7 +109,7 @@ def parse_file(file_name: str) -> List[Tuple[str, str]]:
       print(f'Warning:{line_number}: It is suggested that typos are at '
             f'least 5 characters long to avoid false triggers: "{typo}"')
 
-    check_typo_against_dictionary(typo)
+    check_typo_against_dictionary(line_number, typo)
 
     autocorrections.append((typo, correction))
     typos.add(typo)
@@ -156,7 +156,7 @@ def parse_file_lines(file_name: str) -> Iterator[Tuple[int, str, str]]:
       yield line_number, typo, correction
 
 
-def check_typo_against_dictionary(typo: str) -> None:
+def check_typo_against_dictionary(line_number: int, typo: str) -> None:
   """Checks `typo` against English dictionary words."""
 
   if typo.startswith(':') and typo.endswith(':'):

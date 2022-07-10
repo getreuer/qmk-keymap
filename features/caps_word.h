@@ -67,24 +67,30 @@ void caps_word_task(void);
 static inline void caps_word_task(void) {}
 #endif
 
-// Activates or deactivates Caps Word. For instance activate Caps Word with a
-// combo by defining a `COMBO_ACTION` that calls `caps_word_set(true)`:
+// Turns on Caps Word. For instance activate Caps Word with a combo by defining
+// a `COMBO_ACTION` that calls `caps_word_on()`:
 //
 // void process_combo_event(uint16_t combo_index, bool pressed) {
 //   switch(combo_index) {
 //     case CAPS_COMBO:
 //       if (pressed) {
-//         caps_word_set(true);  // Activate Caps Word.
+//         caps_word_on();
 //       }
 //       break;
 //
 //     // Other combos...
 //   }
 // }
-void caps_word_set(bool active);
+void caps_word_on(void);
 
-// Returns whether Caps Word is currently active.
-bool caps_word_get(void);
+// Turns off Caps Word.
+void caps_word_off(void);
+
+// Toggles Caps Word.
+void caps_word_toggle(void);
+
+// Returns true if Caps Word is currently on.
+bool is_caps_word_on(void);
 
 // An optional callback that gets called when Caps Word turns on or off. This is
 // useful to represent the current Caps Word state, e.g. by setting an LED or
@@ -129,9 +135,21 @@ void caps_word_set_user(bool active);
 // To customize, copy the above function into your keymap and add/remove
 // keycodes to the above cases.
 //
-// NOTE: Outside of this callback, you can use `caps_word_set(false)` to
-// deactivate Caps Word.
+// NOTE: Outside of this callback, you can use `caps_word_off()` to deactivate
+// Caps Word.
 bool caps_word_press_user(uint16_t keycode);
+
+/** @deprecated API, use `caps_word_on()` and `caps_word_off()` instead. */
+static inline void caps_word_set(bool active) {
+  if (active) {
+    caps_word_on();
+  } else {
+    caps_word_off();
+  }
+}
+
+/** @deprecated API, use `is_caps_word_on()` instead. */
+static inline bool caps_word_get(void) { return is_caps_word_on(); }
 
 #ifdef __cplusplus
 }

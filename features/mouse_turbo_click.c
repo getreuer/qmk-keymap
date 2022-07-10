@@ -32,7 +32,7 @@
 // clicks per second. Smaller period implies faster clicking.
 //
 // WARNING: The keyboard might become unresponsive if the period is too small.
-// I suggest setting this no smaller than 50.
+// I suggest setting this no smaller than 10.
 #define CLICK_PERIOD_MS 80
 
 static deferred_token click_token = INVALID_DEFERRED_TOKEN;
@@ -42,11 +42,11 @@ static bool click_registered = false;
 // unregistering (pressing and releasing) the mouse button.
 static uint32_t turbo_click_callback(uint32_t trigger_time, void* cb_arg) {
   if (click_registered) {
-    unregister_code16(KC_MS_BTN1);
+    unregister_code(KC_MS_BTN1);
     click_registered = false;
   } else {
     click_registered = true;
-    register_code16(KC_MS_BTN1);
+    register_code(KC_MS_BTN1);
   }
   return CLICK_PERIOD_MS / 2;  // Execute callback again in half a period.
 }
@@ -66,7 +66,7 @@ static void turbo_click_stop(void) {
     click_token = INVALID_DEFERRED_TOKEN;
     if (click_registered) {
       // If mouse button is currently registered, release it.
-      unregister_code16(KC_MS_BTN1);
+      unregister_code(KC_MS_BTN1);
       click_registered = false;
     }
   }
