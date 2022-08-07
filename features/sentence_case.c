@@ -24,6 +24,8 @@
 #error "Sentence case: Please enable oneshot."
 #else
 
+#define HISTORY_SIZE 8
+
 // Firmware size as of e845936:
 // * The firmware size is fine - 24120/28672 (84%, 4552 bytes free)
 
@@ -48,7 +50,16 @@ static const char* state_names[] = {
 };
 #endif  // NO_DEBUG
 
-/* static uint8_t state_history[HISTORY_SIZE]; */
+#if SENTENCE_CASE_TIMEOUT > 0
+static uint16_t idle_timer = 0;
+#endif  // SENTENCE_CASE_TIMEOUT > 0
+#if SENTENCE_CASE_BUFFER_SIZE > 1
+static uint16_t key_buffer[SENTENCE_CASE_BUFFER_SIZE] = {0};
+#endif  // SENTENCE_CASE_BUFFER_SIZE > 1
+#if HISTORY_SIZE > 0
+static uint8_t state_history[HISTORY_SIZE];
+static uint16_t suppress_key = KC_NO;
+#endif  // HISTORY_SIZE > 0
 static uint8_t sentence_state = STATE_INIT;
 
 static void set_sentence_state(uint8_t new_state) {
@@ -67,6 +78,24 @@ static void set_sentence_state(uint8_t new_state) {
   sentence_state = new_state;
 }
 
+static void sentence_case_clear(void) {
+#if SENTENCE_CASE_TIMEOUT > 0
+  idle_timer = 0;
+#endif  // SENTENCE_CASE_TIMEOUT > 0
+#if SENTENCE_CASE_BUFFER_SIZE > 1
+  for (uint8_t i = 0; i < SENTENCE_CASE_BUFFER_SIZE; ++i) {
+    key_buffer[i] = KC_NO;
+  }
+#endif  // SENTENCE_CASE_BUFFER_SIZE > 1
+#if HISTORY_SIZE > 0
+  for (uint8_t i = 0; i < HISTORY_SIZE; ++i) {
+    state_history[i] = STATE_INIT;
+  }
+  suppress_key = KC_NO;
+#endif  // HISTORY_SIZE > 0
+  set_sentence_state(STATE_INIT);
+}
+
 #if SENTENCE_CASE_TIMEOUT > 0
 #if SENTENCE_CASE_TIMEOUT < 100 || SENTENCE_CASE_TIMEOUT > 30000
 // Constrain timeout to a sensible range. With the 16-bit timer, the longest
@@ -74,11 +103,9 @@ static void set_sentence_state(uint8_t new_state) {
 #error "sentence_case: SENTENCE_CASE_TIMEOUT must be between 100 and 30000 ms"
 #endif
 
-static uint16_t idle_timer = 0;
-
 void sentence_case_task(void) {
-  if (sentence_state && timer_expired(timer_read(), idle_timer)) {
-    set_sentence_state(STATE_INIT);
+  if (idle_timer && timer_expired(timer_read(), idle_timer)) {
+    sentence_case_clear();  // Timed out; clear all state.
   }
 }
 #endif  // SENTENCE_CASE_TIMEOUT > 0
@@ -113,18 +140,23 @@ __attribute__((weak)) bool sentence_case_is_punct(
 }
 
 bool process_sentence_case(uint16_t keycode, keyrecord_t* record) {
-#if SENTENCE_CASE_BUFFER_SIZE > 1
-  static uint16_t buffer[SENTENCE_CASE_BUFFER_SIZE] = {0};
-#endif  // SENTENCE_CASE_BUFFER_SIZE > 1
-
   // Only process press events.
   if (!record->event.pressed) { return true; }
 
-  const uint8_t mods = get_mods() | get_oneshot_mods();
-  uint8_t new_state = STATE_INIT;
+#if SENTENCE_CASE_TIMEOUT > 0
+  idle_timer = (record->event.time + SENTENCE_CASE_TIMEOUT) | 1;
+#endif  // SENTENCE_CASE_TIMEOUT > 0
 
+  const uint8_t mods = get_mods() | get_oneshot_mods();
+
+  uint8_t new_state = STATE_INIT;
   if ((mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT))) != 0) {
+#if HISTORY_SIZE > 0
+    sentence_case_clear();
+    return true;
+#else
     keycode = KC_NO;
+#endif  // HISTORY_SIZE > 0
   } else {
     switch (keycode) {
       // Ignore MO, TO, TG, TT, and OSL layer switch keys.
@@ -174,47 +206,86 @@ bool process_sentence_case(uint16_t keycode, keyrecord_t* record) {
       if (sentence_state == STATE_PRIMED
           || (sentence_state == STATE_ENDING
 #if SENTENCE_CASE_BUFFER_SIZE > 1
-              && sentence_case_check_ending(buffer)
+              && sentence_case_check_ending(key_buffer)
 #endif  // SENTENCE_CASE_BUFFER_SIZE > 1
       )) {
         new_state = STATE_PRIMED;
+#if HISTORY_SIZE > 0
+        suppress_key = KC_NO;
+#endif  // HISTORY_SIZE > 0
       }
     } else if (sentence_case_is_letter(keycode, record)) {  // Letter key.
       if (sentence_state <= STATE_MATCHED) {
         new_state = STATE_WORD;
       } else if (sentence_state == STATE_PRIMED) {
-        // This is the start of a sentence. Apply weak shift mod to capitalize.
-        new_state = STATE_MATCHED;
-        if ((mods & MOD_MASK_SHIFT) == 0) {
-          set_oneshot_mods(MOD_BIT(KC_LSFT));
+        // This is the start of a sentence.
+        if (
+#if HISTORY_SIZE > 0
+            keycode == suppress_key ||
+#endif  // HISTORY_SIZE > 0
+            false) {
+          new_state = STATE_INIT;
+        } else {
+#if HISTORY_SIZE > 0
+          suppress_key = keycode;
+#endif  // HISTORY_SIZE > 0
+          // Apply weak shift mod to capitalize.
+          new_state = STATE_MATCHED;
+          if ((mods & MOD_MASK_SHIFT) == 0) {
+            set_oneshot_mods(MOD_BIT(KC_LSFT));
+          }
         }
       } else {
         new_state = STATE_ABBREV;
       }
     } else if (sentence_case_is_punct(keycode, record)) {  // Punctuating key.
       if (sentence_state == STATE_WORD || sentence_state == STATE_MATCHED) {
-#if SENTENCE_CASE_BUFFER_SIZE > 1
-        if (sentence_case_check_ending(buffer)) {
-#else
-        {
-#endif  // SENTENCE_CASE_BUFFER_SIZE > 1
-          new_state = STATE_ENDING;
-        }
+        new_state = STATE_ENDING;
       } else if (sentence_state == STATE_ABBREV) {
         new_state = STATE_ABBREV;
       }
-    }
-
+#if HISTORY_SIZE > 0
+    } else if (keycode == KC_BSPC) {
+      // Backspace key pressed. Rewind the state and key buffers.
+      set_sentence_state(state_history[HISTORY_SIZE - 1]);
+      memmove(state_history + 1, state_history, HISTORY_SIZE - 1);
+      state_history[0] = STATE_INIT;
 #if SENTENCE_CASE_BUFFER_SIZE > 1
-    memmove(buffer, buffer + 1,
-            (SENTENCE_CASE_BUFFER_SIZE - 1) * sizeof(uint16_t));
-    buffer[SENTENCE_CASE_BUFFER_SIZE - 1] = keycode;
+      memmove(key_buffer + 1, key_buffer,
+              (SENTENCE_CASE_BUFFER_SIZE - 1) * sizeof(uint16_t));
+      key_buffer[0] = KC_NO;
 #endif  // SENTENCE_CASE_BUFFER_SIZE > 1
-#if SENTENCE_CASE_TIMEOUT > 0
-    idle_timer = record->event.time + SENTENCE_CASE_TIMEOUT;
-#endif  // SENTENCE_CASE_TIMEOUT > 0
+      return true;
+    } else {
+      sentence_case_clear();
+      return true;
+#endif  // HISTORY_SIZE > 0
+    }
   }
 
+#if SENTENCE_CASE_BUFFER_SIZE > 1
+  memmove(key_buffer, key_buffer + 1,
+          (SENTENCE_CASE_BUFFER_SIZE - 1) * sizeof(uint16_t));
+  key_buffer[SENTENCE_CASE_BUFFER_SIZE - 1] = keycode;
+
+  if (new_state == STATE_ENDING && !sentence_case_check_ending(key_buffer)) {
+    dprintf("Not a real ending.\n");
+    new_state = STATE_INIT;
+  }
+#endif  // SENTENCE_CASE_BUFFER_SIZE > 1
+
+#if HISTORY_SIZE > 0
+  memmove(state_history, state_history + 1, HISTORY_SIZE - 1);
+  state_history[HISTORY_SIZE - 1] = sentence_state;
+#endif  // HISTORY_SIZE > 0
+  if (debug_enable) {
+    dprintf("hist: [");
+    for (int i = 0; i < HISTORY_SIZE; ++i) {
+      if (i) { dprintf(", "); }
+      dprintf("%7s", state_names[state_history[i]]);
+    }
+    dprintf("]\n");
+  }
   set_sentence_state(new_state);
   return true;
 }
