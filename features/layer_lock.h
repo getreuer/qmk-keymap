@@ -70,6 +70,9 @@ void layer_lock_on(uint8_t layer);
 // Unlocks and turns off `layer`.
 void layer_lock_off(uint8_t layer);
 
+// Unlocks and turns off all locked layers.
+void layer_lock_all_off(void);
+
 // Toggles whether `layer` is locked.
 void layer_lock_invert(uint8_t layer);
 
@@ -82,22 +85,15 @@ void layer_lock_invert(uint8_t layer);
 //   }
 void layer_lock_set_user(layer_state_t locked_layers);
 
-#if LAYER_LOCK_IDLE_TIMEOUT > 0 // Layer Lock Timer
-
-// If you want to automatically disable layer lock if no keys are pressed after a
-// configurable timeout, define LAYER_LOCK_IDLE_TIMEOUT in your config.h file.
+#if LAYER_LOCK_IDLE_TIMEOUT > 0  // Layer Lock Timer
+// If you want to automatically disable layer lock if no keys are pressed after
+// a configurable timeout, define LAYER_LOCK_IDLE_TIMEOUT in your config.h file.
 // Also add the layer_lock_task function under your matrix_scan_user function,
 // most likely in keymap.c
-
-    void layer_lock_task(void);
-
-    void layer_lock_all_off(void);
-
+void layer_lock_task(void);
 #else
-
-    static inline void layer_lock_task(void) {}
-
-#endif // Layer Lock Timer
+static inline void layer_lock_task(void) {}
+#endif  // LAYER_LOCK_IDLE_TIMEOUT > 0
 
 #ifdef __cplusplus
 }

@@ -23,29 +23,22 @@ static layer_state_t locked_layers = 0;
 
 // Layer Lock timer to disable layer lock after X seconds inactivity
 #if LAYER_LOCK_IDLE_TIMEOUT > 0
+static uint32_t layer_lock_timer = 0;
 
-    static uint32_t layer_lock_timer = 0;
-
-    void layer_lock_task(void) {
-        if (locked_layers && timer_elapsed32(layer_lock_timer) > LAYER_LOCK_IDLE_TIMEOUT) {
-            layer_lock_all_off();
-            layer_lock_timer = timer_read32();
-        }
-    }
-
-     void layer_lock_all_off(void) {
-         layer_and(~locked_layers);
-         locked_layers = 0;
-     }
-
-#endif // End of layer lock idle timeout functions
+void layer_lock_task(void) {
+  if (locked_layers &&
+      timer_elapsed32(layer_lock_timer) > LAYER_LOCK_IDLE_TIMEOUT) {
+    layer_lock_all_off();
+    layer_lock_timer = timer_read32();
+  }
+}
+#endif  // LAYER_LOCK_IDLE_TIMEOUT > 0
 
 bool process_layer_lock(uint16_t keycode, keyrecord_t* record,
                         uint16_t lock_keycode) {
-
-    #if LAYER_LOCK_IDLE_TIMEOUT > 0
-      layer_lock_timer = timer_read32();
-    #endif
+#if LAYER_LOCK_IDLE_TIMEOUT > 0
+  layer_lock_timer = timer_read32();
+#endif  // LAYER_LOCK_IDLE_TIMEOUT > 0
 
   // The intention is that locked layers remain on. If something outside of
   // this feature turned any locked layers off, unlock them.
@@ -100,9 +93,9 @@ void layer_lock_invert(uint8_t layer) {
     }
 #endif  // NO_ACTION_ONESHOT
     layer_on(layer);
-    #if LAYER_LOCK_IDLE_TIMEOUT > 0
-        layer_lock_timer = timer_read32();
-    #endif
+#if LAYER_LOCK_IDLE_TIMEOUT > 0
+    layer_lock_timer = timer_read32();
+#endif  // LAYER_LOCK_IDLE_TIMEOUT > 0
   } else {  // Layer is being unlocked.
     layer_off(layer);
   }
@@ -116,6 +109,11 @@ void layer_lock_on(uint8_t layer) {
 
 void layer_lock_off(uint8_t layer) {
   if (is_layer_locked(layer)) { layer_lock_invert(layer); }
+}
+
+void layer_lock_all_off(void) {
+  layer_and(~locked_layers);
+  locked_layers = 0;
 }
 
 __attribute__((weak)) void layer_lock_set_user(layer_state_t locked_layers) {}
