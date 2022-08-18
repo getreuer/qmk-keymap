@@ -14,15 +14,20 @@
 
 """Python program to make autocorrection_data.h.
 
-This program reads "autocorrection_dict.txt" and generates a C source file
-"autocorrection_data.h" with a serialized trie embedded as an array. Run this
-program without arguments like
+This program reads "autocorrection_dict.txt" from the current directory and
+generates a C source file "autocorrection_data.h" with a serialized trie
+embedded as an array. Run this program without arguments like
 
 $ python3 make_autocorrection_data.py
 
-Or to read from a different typo dict file, pass it as the first argument like
+Or specify a dict file as the first argument like
 
-$ python3 make_autocorrection_data.py dict.txt
+$ python3 make_autocorrection_data.py mykeymap/dict.txt
+
+The output is written to "autocorrection_data.h" in the same directory as the
+dictionary. Or optionally specify the output .h file as well like
+
+$ python3 make_autocorrection_data.py dict.txt somewhere/out.h
 
 Each line of the dict file defines one typo and its correction with the syntax
 "typo -> correction". Blank lines or lines starting with '#' are ignored.
@@ -41,6 +46,7 @@ For full documentation, see
 https://getreuer.info/posts/keyboards/autocorrection
 """
 
+import os.path
 import sys
 import textwrap
 from typing import Any, Dict, Iterator, List, Tuple
@@ -289,14 +295,20 @@ def write_generated_code(autocorrections: List[Tuple[str, str]],
     f.write(generated_code)
 
 
+def get_default_h_file(dict_file: str) -> str:
+  return os.path.join(os.path.dirname(dict_file), 'autocorrection_data.h')
+
+
 def main(argv):
   dict_file = argv[1] if len(argv) > 1 else 'autocorrection_dict.txt'
+  h_file = argv[2] if len(argv) > 2 else get_default_h_file(dict_file)
+
   autocorrections = parse_file(dict_file)
   trie = make_trie(autocorrections)
   data = serialize_trie(autocorrections, trie)
   print(f'Processed %d autocorrection entries to table with %d bytes.'
         % (len(autocorrections), len(data)))
-  write_generated_code(autocorrections, data, 'autocorrection_data.h')
+  write_generated_code(autocorrections, data, h_file)
 
 
 if __name__ == '__main__':
