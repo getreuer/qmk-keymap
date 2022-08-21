@@ -11,12 +11,31 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-//
-// Pascal Getreuer's QMK keymap.
-//
-// For documentation of this keymap's features, see
-// https://getreuer.info/posts/keyboards
+
+/**
+ * @mainpage Pascal Getreuer's QMK keymap
+ *
+ * This is my Quantum Mechanical Keyboard (QMK) keymap for the Dactyl Ergodox.
+ * Who knew a keyboard could do so much?
+ *
+ * Feature libraries
+ * -----------------
+ *  * features/achordion.h: customize the tap-hold decision
+ *  * features/autocorrection.h: run rudimentary autocorrection on your keyboard
+ *  * features/caps_word.h: modern alternative to Caps Lock
+ *  * features/custom_shift_keys.h: they're surprisingly tricky to get right;
+ *                                  here is my approach
+ *  * features/layer_lock.h: macro to stay in the current layer
+ *  * features/mouse_turbo_click.h: macro that clicks the mouse rapidly
+ *  * features/select_word.h: macro for convenient word or line selection
+ *
+ * License
+ * -------
+ * This code uses the Apache License 2.0. See LICENSE.txt for details.
+ *
+ * For further documentation of this keymap's features, see
+ * <https://getreuer.info/posts/keyboards>
+ */
 
 #include QMK_KEYBOARD_H
 
@@ -39,6 +58,7 @@ enum custom_keycodes {
   UPDIR = SAFE_RANGE,
   EXIT,
   SCOPE,
+  END_SENTENCE,
   SELWORD,
   JOINLN,
   TMUXESC,
@@ -87,7 +107,7 @@ enum custom_keycodes {
 #define REDSHFT KC_F13
 
 const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
-  [BASE] = LAYOUT_LR(  // Base layer: Dvorak.
+  [BASE] = LAYOUT_LR(  // Base layer: Dvorak with home row mods.
     KC_GRV , KC_7   , KC_8   , KC_9   , KC_0   , KC_5   ,
     KC_TAB , KC_QUOT, KC_COMM, KC_DOT , KC_P   , KC_Y   ,
     KC_ESC , HOME_A , HOME_O , HOME_E , HOME_U , KC_I   ,
@@ -102,7 +122,7 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
                       KC_D   , HOME_H , HOME_T , HOME_N , HOME_S , KC_MINS,
                       KC_B   , KC_M   , KC_W   , KC_V   , HOME_Z , KC_RSFT,
                                KC_LEFT, KC_RGHT, DASH   , ARROW  , THMBUP ,
-    KC_RGUI, TMUXESC,
+    KC_BSLS, TMUXESC,
     JOINLN ,
     SELWORD, KC_BSPC, KC_ENT
   ),
@@ -177,40 +197,18 @@ const custom_shift_key_t custom_shift_keys[] = {
   {KC_SLSH, KC_SLSH}, // Don't shift /
 };
 uint8_t NUM_CUSTOM_SHIFT_KEYS =
-    sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
-
-enum combo_events {
-  // . and C => activate Caps Word.
-  CAPS_COMBO,
-  // , and . => types a period, space, and sets one-shot mod for shift.
-  // This combo is useful to flow between sentences.
-  END_SENTENCE_COMBO,
-  COMBO_LENGTH
-};
-uint16_t COMBO_LEN = COMBO_LENGTH;
+    sizeof(custom_shift_keys) / sizeof(*custom_shift_keys);
 
 const uint16_t caps_combo[] PROGMEM = {KC_DOT, KC_C, COMBO_END};
 const uint16_t end_sentence_combo[] PROGMEM = {KC_COMM, KC_DOT, COMBO_END};
-
 combo_t key_combos[] = {
-  [CAPS_COMBO] = COMBO_ACTION(caps_combo),
-  [END_SENTENCE_COMBO] = COMBO_ACTION(end_sentence_combo),
+  // . and C => activate Caps Word.
+  COMBO(caps_combo, CAPSWRD),
+  // , and . => types a period, space, and sets one-shot mod for shift.
+  // This combo is useful to flow between sentences.
+  COMBO(end_sentence_combo, END_SENTENCE),
 };
-
-void process_combo_event(uint16_t combo_index, bool pressed) {
-  if (pressed) {
-    switch(combo_index) {
-      case CAPS_COMBO:
-        caps_word_on();
-        break;
-
-      case END_SENTENCE_COMBO:
-        SEND_STRING(". ");
-        add_oneshot_mods(MOD_BIT(KC_LSFT));  // Set one-shot mod for shift.
-        break;
-    }
-  }
-}
+uint16_t COMBO_LEN = sizeof(key_combos) / sizeof(*key_combos);
 
 bool get_tapping_force_hold(uint16_t keycode, keyrecord_t* record) {
   // If you quickly hold a tap-hold key after tapping it, the tap action is
@@ -230,6 +228,27 @@ bool get_tapping_force_hold(uint16_t keycode, keyrecord_t* record) {
       return false;  // Enable key repeating.
     default:
       return true;  // Otherwise, force hold and disable key repeating.
+  }
+}
+
+bool caps_word_press_user(uint16_t keycode) {
+  switch (keycode) {
+    // Keycodes that continue Caps Word, with shift applied.
+    case KC_A ... KC_Z:
+      add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to the next key.
+      return true;
+
+    // Keycodes that continue Caps Word, without shifting.
+    case KC_1 ... KC_0:
+    case KC_BSPC:
+    case KC_DEL:
+    // I have a dedicated underscore key, so no need to shift KC_MINS.
+    case KC_MINS:
+    case KC_UNDS:
+      return true;
+
+    default:
+      return false;  // Deactivate Caps Word.
   }
 }
 
@@ -299,6 +318,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
     switch (keycode) {
       case EXIT:
         layer_off(ADJUST);
+        return false;
+
+      case END_SENTENCE:
+        SEND_STRING(". ");
+        add_oneshot_mods(MOD_BIT(KC_LSFT));  // Set one-shot mod for shift.
         return false;
 
       case SCOPE:

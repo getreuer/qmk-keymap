@@ -11,10 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-//
-// For full documentation, see
-// https://getreuer.info/posts/keyboards/autocorrection
+
+/**
+ * @file autocorrection.c
+ * @brief Autocorrection implementation
+ *
+ * For full documentation, see
+ * <https://getreuer.info/posts/keyboards/autocorrection>
+ */
 
 #include "autocorrection.h"
 
