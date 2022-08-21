@@ -26,8 +26,8 @@ Who knew a keyboard could do so much?
   keys](https://getreuer.info/posts/keyboards/custom-shift-keys/index.html)
   &ndash; they're surprisingly tricky to get right; here is my approach
 
-* [Layer Lock key](layer-lock/index.html) &ndash; macro to stay in the current
-  layer
+* [Layer Lock key](https://getreuer.info/posts/keyboards/layer-lock/index.html)
+  &ndash; macro to stay in the current layer
 
 * [Mouse Turbo
   Click](https://getreuer.info/posts/keyboards/mouse-turbo-click/index.html)

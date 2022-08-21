@@ -11,12 +11,31 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-//
-// Pascal Getreuer's QMK keymap.
-//
-// For documentation of this keymap's features, see
-// https://getreuer.info/posts/keyboards
+
+/**
+ * @mainpage Pascal Getreuer's QMK keymap
+ *
+ * This is my Quantum Mechanical Keyboard (QMK) keymap for the Dactyl Ergodox.
+ * Who knew a keyboard could do so much?
+ *
+ * Feature libraries
+ * -----------------
+ *  * features/achordion.h: customize the tap-hold decision
+ *  * features/autocorrection.h: run rudimentary autocorrection on your keyboard
+ *  * features/caps_word.h: modern alternative to Caps Lock
+ *  * features/custom_shift_keys.h: they're surprisingly tricky to get right;
+ *                                  here is my approach
+ *  * features/layer_lock.h: macro to stay in the current layer
+ *  * features/mouse_turbo_click.h: macro that clicks the mouse rapidly
+ *  * features/select_word.h: macro for convenient word or line selection
+ *
+ * License
+ * -------
+ * This code uses the Apache License 2.0. See LICENSE.txt for details.
+ *
+ * For further documentation of this keymap's features, see
+ * <https://getreuer.info/posts/keyboards>
+ */
 
 #include QMK_KEYBOARD_H
 
@@ -86,7 +105,7 @@ enum custom_keycodes {
 #define REDSHFT KC_F13
 
 const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
-  [BASE] = LAYOUT_LR(  // Base layer: Dvorak.
+  [BASE] = LAYOUT_LR(  // Base layer: Dvorak with home row mods.
     KC_GRV , KC_7   , KC_8   , KC_9   , KC_0   , KC_5   ,
     KC_TAB , KC_QUOT, KC_COMM, KC_DOT , KC_P   , KC_Y   ,
     KC_ESC , HOME_A , HOME_O , HOME_E , HOME_U , KC_I   ,

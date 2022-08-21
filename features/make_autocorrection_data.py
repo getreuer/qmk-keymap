@@ -33,12 +33,12 @@ Each line of the dict file defines one typo and its correction with the syntax
 "typo -> correction". Blank lines or lines starting with '#' are ignored.
 Example:
 
-  :thier        -> their
-  dosen't       -> doesn't
-  fitler        -> filter
-  lenght        -> length
-  ouput         -> output
-  widht         -> width
+    :thier     -> their
+    dosen't    -> doesn't
+    fitler     -> filter
+    lenght     -> length
+    ouput      -> output
+    widht      -> width
 
 See autocorrection_dict_extra.txt for a larger example.
 
