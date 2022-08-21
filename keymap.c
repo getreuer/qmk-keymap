@@ -57,6 +57,7 @@ enum custom_keycodes {
   UPDIR = SAFE_RANGE,
   EXIT,
   SCOPE,
+  END_SENTENCE,
   SELWORD,
   JOINLN,
   TMUXESC,
@@ -195,40 +196,18 @@ const custom_shift_key_t custom_shift_keys[] = {
   {KC_SLSH, KC_SLSH}, // Don't shift /
 };
 uint8_t NUM_CUSTOM_SHIFT_KEYS =
-    sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
-
-enum combo_events {
-  // . and C => activate Caps Word.
-  CAPS_COMBO,
-  // , and . => types a period, space, and sets one-shot mod for shift.
-  // This combo is useful to flow between sentences.
-  END_SENTENCE_COMBO,
-  COMBO_LENGTH
-};
-uint16_t COMBO_LEN = COMBO_LENGTH;
+    sizeof(custom_shift_keys) / sizeof(*custom_shift_keys);
 
 const uint16_t caps_combo[] PROGMEM = {KC_DOT, KC_C, COMBO_END};
 const uint16_t end_sentence_combo[] PROGMEM = {KC_COMM, KC_DOT, COMBO_END};
-
 combo_t key_combos[] = {
-  [CAPS_COMBO] = COMBO_ACTION(caps_combo),
-  [END_SENTENCE_COMBO] = COMBO_ACTION(end_sentence_combo),
+  // . and C => activate Caps Word.
+  COMBO(caps_combo, CAPSWRD),
+  // , and . => types a period, space, and sets one-shot mod for shift.
+  // This combo is useful to flow between sentences.
+  COMBO(end_sentence_combo, END_SENTENCE),
 };
-
-void process_combo_event(uint16_t combo_index, bool pressed) {
-  if (pressed) {
-    switch(combo_index) {
-      case CAPS_COMBO:
-        caps_word_on();
-        break;
-
-      case END_SENTENCE_COMBO:
-        SEND_STRING(". ");
-        add_oneshot_mods(MOD_BIT(KC_LSFT));  // Set one-shot mod for shift.
-        break;
-    }
-  }
-}
+uint16_t COMBO_LEN = sizeof(key_combos) / sizeof(*key_combos);
 
 bool get_tapping_force_hold(uint16_t keycode, keyrecord_t* record) {
   // If you quickly hold a tap-hold key after tapping it, the tap action is
@@ -322,6 +301,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
     switch (keycode) {
       case EXIT:
         layer_off(ADJUST);
+        return false;
+
+      case END_SENTENCE:
+        SEND_STRING(". ");
+        add_oneshot_mods(MOD_BIT(KC_LSFT));  // Set one-shot mod for shift.
         return false;
 
       case SCOPE:
