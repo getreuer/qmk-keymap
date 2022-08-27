@@ -54,17 +54,17 @@ static void recursively_process_record(keyrecord_t* record, uint8_t state) {
   achordion_state = state;
 }
 
-// Sends hold press event and settles the active tap-hold key as held.
-static void settle_as_hold(void) {
-  eager_mods = 0;
-  // Create hold press event.
-  recursively_process_record(&tap_hold_record, STATE_HOLDING);
-}
-
 // Clears eagerly-applied mods.
 static void clear_eager_mods(void) {
   unregister_mods(eager_mods);
   eager_mods = 0;
+}
+
+// Sends hold press event and settles the active tap-hold key as held.
+static void settle_as_hold(void) {
+  clear_eager_mods();
+  // Create hold press event.
+  recursively_process_record(&tap_hold_record, STATE_HOLDING);
 }
 
 bool process_achordion(uint16_t keycode, keyrecord_t* record) {
