@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2021-2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Macro for conveniently defining dactyl layouts.
+// clang-format off
+
+// Macro for conveniently defining Dactyl layouts.
 #define LAYOUT_LR(                          \
     L00, L01, L02, L03, L04, L05,           \
     L10, L11, L12, L13, L14, L15,           \

@@ -43,7 +43,6 @@
 #include "features/autocorrection.h"
 #include "features/custom_shift_keys.h"
 #include "features/select_word.h"
-
 #include "layout.h"
 
 enum layers {
@@ -79,16 +78,16 @@ enum custom_keycodes {
 // +-------+                                                   +-------+
 
 // Home row mods for Dvorak layer.
-#define HOME_A  LT(SYM, KC_A)
-#define HOME_O  LALT_T(KC_O)
-#define HOME_E  LSFT_T(KC_E)
-#define HOME_U  LCTL_T(KC_U)
-#define HOME_H  RCTL_T(KC_H)
-#define HOME_T  RSFT_T(KC_T)
-#define HOME_N  LALT_T(KC_N)
-#define HOME_S  LT(SYM, KC_S)
+#define HOME_A LT(SYM, KC_A)
+#define HOME_O LALT_T(KC_O)
+#define HOME_E LSFT_T(KC_E)
+#define HOME_U LCTL_T(KC_U)
+#define HOME_H RCTL_T(KC_H)
+#define HOME_T RSFT_T(KC_T)
+#define HOME_N LALT_T(KC_N)
+#define HOME_S LT(SYM, KC_S)
 #define HOME_SC LGUI_T(KC_SCLN)
-#define HOME_Z  RGUI_T(KC_Z)
+#define HOME_Z RGUI_T(KC_Z)
 
 // Home row mods for QWERTY layer.
 #define QHOME_A LT(SYM, KC_A)
@@ -99,12 +98,13 @@ enum custom_keycodes {
 #define QHOME_K RSFT_T(KC_K)
 #define QHOME_L LALT_T(KC_L)
 #define QHOME_SC LT(SYM, KC_SCLN)
-#define QHOME_Z  LGUI_T(KC_Z)
+#define QHOME_Z LGUI_T(KC_Z)
 #define QHOME_SL RGUI_T(KC_SLSH)
 
 // I have F13 bound to toggle Redshift (http://jonls.dk/redshift/).
 #define REDSHFT KC_F13
 
+// clang-format off
 const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
   [BASE] = LAYOUT_LR(  // Base layer: Dvorak with home row mods.
     KC_GRV , KC_7   , KC_8   , KC_9   , KC_0   , KC_5   ,
@@ -186,14 +186,15 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
     XXXXXXX, XXXXXXX, XXXXXXX
   ),
 };
+// clang-format on
 
 const uint32_t unicode_map[] PROGMEM = {};
 
 const custom_shift_key_t custom_shift_keys[] = {
-  {KC_DOT , KC_QUES}, // Shift . is ?
-  {KC_COMM, KC_EXLM},
-  {KC_EQL , KC_EQL }, // Don't shift =
-  {KC_SLSH, KC_SLSH}, // Don't shift /
+    {KC_DOT, KC_QUES},  // Shift . is ?
+    {KC_COMM, KC_EXLM},
+    {KC_EQL, KC_EQL},  // Don't shift =
+    {KC_SLSH, KC_SLSH},  // Don't shift /
 };
 uint8_t NUM_CUSTOM_SHIFT_KEYS =
     sizeof(custom_shift_keys) / sizeof(*custom_shift_keys);
@@ -201,11 +202,11 @@ uint8_t NUM_CUSTOM_SHIFT_KEYS =
 const uint16_t caps_combo[] PROGMEM = {KC_DOT, KC_C, COMBO_END};
 const uint16_t end_sentence_combo[] PROGMEM = {KC_COMM, KC_DOT, COMBO_END};
 combo_t key_combos[] = {
-  // . and C => activate Caps Word.
-  COMBO(caps_combo, CAPSWRD),
-  // , and . => types a period, space, and sets one-shot mod for shift.
-  // This combo is useful to flow between sentences.
-  COMBO(end_sentence_combo, END_SENTENCE),
+    // . and C => activate Caps Word.
+    COMBO(caps_combo, CAPSWRD),
+    // , and . => types a period, space, and sets one-shot mod for shift.
+    // This combo is useful to flow between sentences.
+    COMBO(end_sentence_combo, END_SENTENCE),
 };
 uint16_t COMBO_LEN = sizeof(key_combos) / sizeof(*key_combos);
 
@@ -251,25 +252,29 @@ bool caps_word_press_user(uint16_t keycode) {
   }
 }
 
-bool achordion_chord(uint16_t tap_hold_keycode,
-                     keyrecord_t* tap_hold_record,
-                     uint16_t other_keycode,
-                     keyrecord_t* other_record) {
+bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
+                     uint16_t other_keycode, keyrecord_t* other_record) {
   // Exceptionally consider the following chords as holds, even though they
   // are on the same hand in Dvorak.
   switch (tap_hold_keycode) {
     case HOME_A:  // A + U.
-      if (other_keycode == HOME_U) { return true; }
+      if (other_keycode == HOME_U) {
+        return true;
+      }
       break;
 
     case HOME_S:  // S + H and S + G.
-      if (other_keycode == HOME_H || other_keycode == KC_G) { return true; }
+      if (other_keycode == HOME_H || other_keycode == KC_G) {
+        return true;
+      }
       break;
   }
 
   // Also allow same-hand holds when the other key is in the rows below the
   // alphas. I need the `% (MATRIX_ROWS / 2)` because my keyboard is split.
-  if (other_record->event.key.row % (MATRIX_ROWS / 2) >= 4) { return true; }
+  if (other_record->event.key.row % (MATRIX_ROWS / 2) >= 4) {
+    return true;
+  }
 
   // Otherwise, follow the opposite hands rule.
   return achordion_opposite_hands(tap_hold_record, other_record);
@@ -285,6 +290,7 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
   return 800;  // Otherwise use a timeout of 800 ms.
 }
 
+// clang-format off
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_achordion(keycode, record)) { return false; }
   if (!process_autocorrection(keycode, record)) { return false; }

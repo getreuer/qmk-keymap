@@ -69,19 +69,21 @@ static void settle_as_hold(void) {
 
 bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   // Don't process events that Achordion generated.
-  if (achordion_state == STATE_RECURSING) { return true; }
+  if (achordion_state == STATE_RECURSING) {
+    return true;
+  }
 
   // Determine whether the current event is for a mod-tap or layer-tap key.
   const bool is_mt = QK_MOD_TAP <= keycode && keycode <= QK_MOD_TAP_MAX;
   const bool is_tap_hold =
       is_mt || (QK_LAYER_TAP <= keycode && keycode <= QK_LAYER_TAP_MAX);
   // Check key position to avoid acting on combos.
-  const bool is_physical_pos = (record->event.key.row < 254
-                             && record->event.key.col < 254);
+  const bool is_physical_pos =
+      (record->event.key.row < 254 && record->event.key.col < 254);
 
   if (achordion_state == STATE_RELEASED) {
-    if (is_tap_hold && record->tap.count == 0 &&
-        record->event.pressed && is_physical_pos) {
+    if (is_tap_hold && record->tap.count == 0 && record->event.pressed &&
+        is_physical_pos) {
       // A tap-hold key is pressed and considered by QMK as "held".
       const uint16_t timeout = achordion_timeout(keycode);
       if (timeout > 0) {
@@ -99,8 +101,8 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
           }
         }
 
-        dprintf("Achordion: Key 0x%04X pressed.%s\n",
-            keycode, eager_mods ? " Set eager mods." : "");
+        dprintf("Achordion: Key 0x%04X pressed.%s\n", keycode,
+                eager_mods ? " Set eager mods." : "");
         return false;  // Skip default handling.
       }
     }
@@ -117,7 +119,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       recursively_process_record(&tap_hold_record, STATE_RELEASED);
     } else {
       dprintf("Achordion: Key released.%s\n",
-          eager_mods ? " Clearing eager mods." : "");
+              eager_mods ? " Clearing eager mods." : "");
       if (is_mt) {
         clear_eager_mods();
       }
@@ -183,15 +185,15 @@ static bool on_left_hand(keypos_t pos) {
 #ifdef SPLIT_KEYBOARD
   return pos.row < MATRIX_ROWS / 2;
 #else
-  return (MATRIX_COLS > MATRIX_ROWS)
-      ? pos.col < MATRIX_COLS / 2 : pos.row < MATRIX_ROWS / 2;
+  return (MATRIX_COLS > MATRIX_ROWS) ? pos.col < MATRIX_COLS / 2
+                                     : pos.row < MATRIX_ROWS / 2;
 #endif
 }
 
 bool achordion_opposite_hands(const keyrecord_t* tap_hold_record,
                               const keyrecord_t* other_record) {
-  return on_left_hand(tap_hold_record->event.key)
-      != on_left_hand(other_record->event.key);
+  return on_left_hand(tap_hold_record->event.key) !=
+         on_left_hand(other_record->event.key);
 }
 
 // By default, use the BILATERAL_COMBINATIONS rule to consider the tap-hold key
@@ -221,4 +223,3 @@ __attribute__((weak)) bool achordion_eager_mod(uint8_t mod) {
       return false;
   }
 }
-

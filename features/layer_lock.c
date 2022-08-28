@@ -108,11 +108,15 @@ void layer_lock_invert(uint8_t layer) {
 
 // Implement layer_lock_on/off by deferring to layer_lock_invert.
 void layer_lock_on(uint8_t layer) {
-  if (!is_layer_locked(layer)) { layer_lock_invert(layer); }
+  if (!is_layer_locked(layer)) {
+    layer_lock_invert(layer);
+  }
 }
 
 void layer_lock_off(uint8_t layer) {
-  if (is_layer_locked(layer)) { layer_lock_invert(layer); }
+  if (is_layer_locked(layer)) {
+    layer_lock_invert(layer);
+  }
 }
 
 void layer_lock_all_off(void) {

@@ -24,14 +24,16 @@
 
 static bool caps_word_active = false;
 
-#pragma message "Caps Word is now a core QMK feature! To use it, update your QMK set up and see https://docs.qmk.fm/#/feature_caps_word"
+#pragma message \
+    "Caps Word is now a core QMK feature! To use it, update your QMK set up and see https://docs.qmk.fm/#/feature_caps_word"
 
 // Many keyboards enable the Command feature, which by default is also activated
 // by Left Shift + Right Shift. It can be configured to use a different key
 // combination by defining IS_COMMAND(). We make a non-fatal warning if Command
 // is enabled but IS_COMMAND() is *not* defined.
 #if defined(COMMAND_ENABLE) && !defined(IS_COMMAND)
-#pragma message "Caps Word and Command should not be enabled at the same time, since both use the Left Shift + Right Shift key combination. Please disable Command, or ensure that `IS_COMMAND` is not set to (get_mods() == MOD_MASK_SHIFT)."
+#pragma message \
+    "Caps Word and Command should not be enabled at the same time, since both use the Left Shift + Right Shift key combination. Please disable Command, or ensure that `IS_COMMAND` is not set to (get_mods() == MOD_MASK_SHIFT)."
 #endif  // defined(COMMAND_ENABLE) && !defined(IS_COMMAND)
 
 #if CAPS_WORD_IDLE_TIMEOUT > 0
@@ -79,7 +81,9 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
 #endif  // CAPS_WORD_IDLE_TIMEOUT > 0
   }
 
-  if (!record->event.pressed) { return true; }
+  if (!record->event.pressed) {
+    return true;
+  }
 
   if (!(mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT)))) {
     switch (keycode) {
@@ -128,14 +132,18 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
 #ifndef NO_ACTION_LAYER
       case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
 #endif  // NO_ACTION_LAYER
-        if (record->tap.count == 0) { return true; }
+        if (record->tap.count == 0) {
+          return true;
+        }
         keycode &= 0xff;
         break;
 #endif  // NO_ACTION_TAPPING
 
 #ifdef SWAP_HANDS_ENABLE
       case QK_SWAP_HANDS ... QK_SWAP_HANDS_MAX:
-        if (keycode > 0x56F0 || record->tap.count == 0) { return true; }
+        if (keycode > 0x56F0 || record->tap.count == 0) {
+          return true;
+        }
         keycode &= 0xff;
         break;
 #endif  // SWAP_HANDS_ENABLE
@@ -153,7 +161,9 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
 }
 
 void caps_word_on(void) {
-  if (caps_word_active) { return; }
+  if (caps_word_active) {
+    return;
+  }
 
   clear_mods();
 #ifndef NO_ACTION_ONESHOT
@@ -168,7 +178,9 @@ void caps_word_on(void) {
 }
 
 void caps_word_off(void) {
-  if (!caps_word_active) { return; }
+  if (!caps_word_active) {
+    return;
+  }
 
   unregister_weak_mods(MOD_BIT(KC_LSFT));  // Make sure weak shift is off.
   caps_word_active = false;
@@ -206,4 +218,3 @@ __attribute__((weak)) bool caps_word_press_user(uint16_t keycode) {
       return false;  // Deactivate Caps Word.
   }
 }
-

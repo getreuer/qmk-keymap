@@ -49,4 +49,3 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
 #ifdef __cplusplus
 }
 #endif
-
