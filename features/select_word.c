@@ -16,19 +16,24 @@
  * @file select_word.c
  * @brief Select word implementation
  *
+ * @note To switch between Mac and Win/Linux mode, define the following
+ * function in your keymap.c and pass its returned value to
+ * `process_select_word()`.
+ * bool is_mac_mode_active(void) { return keymap_config.swap_lctl_lgui; }
+ * You can use the keycode CG_TOGG to change between Mac and Win/Linux mode.
+ * For documentation on CG_TOGG, see
+ * <https://docs.qmk.fm/#/keycodes_magic>
+ *
  * For full documentation, see
  * <https://getreuer.info/posts/keyboards/select-word>
  */
 
 #include "select_word.h"
 
-// Mac users, uncomment this line:
-// #define MAC_HOTKEYS
-
 enum { STATE_NONE, STATE_SELECTED, STATE_WORD, STATE_FIRST_LINE, STATE_LINE };
 
 bool process_select_word(uint16_t keycode, keyrecord_t* record,
-                         uint16_t sel_keycode) {
+                         uint16_t sel_keycode, bool isMac) {
   static uint8_t state = STATE_NONE;
 
   if (keycode == KC_LSFT || keycode == KC_RSFT) {
@@ -43,11 +48,8 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
     const uint8_t all_mods = mods;
 #endif  // NO_ACTION_ONESHOT
     if ((all_mods & MOD_MASK_SHIFT) == 0) {  // Select word.
-#ifdef MAC_HOTKEYS
-      register_code(KC_LALT);
-#else
-      register_code(KC_LCTL);
-#endif  // MAC_HOTKEYS
+      const uint16_t code = isMac ? KC_LALT : KC_LCTL;
+      register_code(code);
       if (state == STATE_NONE) {
         SEND_STRING(SS_TAP(X_RGHT) SS_TAP(X_LEFT));
       }
@@ -60,11 +62,11 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
 #ifndef NO_ACTION_ONESHOT
         clear_oneshot_mods();
 #endif  // NO_ACTION_ONESHOT
-#ifdef MAC_HOTKEYS
-        SEND_STRING(SS_LCTL("a" SS_LSFT("e")));
-#else
-        SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)));
-#endif  // MAC_HOTKEYS
+	if (isMac) {
+          SEND_STRING(SS_LCTL("a" SS_LSFT("e")));
+	} else {
+          SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)));
+	}
         set_mods(mods);
         state = STATE_FIRST_LINE;
       } else {
@@ -80,11 +82,8 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
     case STATE_WORD:
       unregister_code(KC_RGHT);
       unregister_code(KC_LSFT);
-#ifdef MAC_HOTKEYS
-      unregister_code(KC_LALT);
-#else
-      unregister_code(KC_LCTL);
-#endif  // MAC_HOTKEYS
+      uint16_t code = isMac ? KC_LALT : KC_LCTL;
+      unregister_code(code);
       state = STATE_SELECTED;
       break;
 

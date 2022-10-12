@@ -30,6 +30,11 @@
  * default. Uncomment the `#define MAC_HOTKEYS` line in select_word.c for Mac
  * hotkeys. The Mac implementation is untested, let me know if it has problems.
  *
+ * @note Added support for using CG_TOGG to toggle between Mac and Win/Linux mode,
+ * removing the need to change the source, compile, and flash new firmware when
+ * switching OS. For documentation on CG_TOGG, see
+ * <https://docs.qmk.fm/#/keycodes_magic>
+ *
  * For full documentation, see
  * <https://getreuer.info/posts/keyboards/select-word>
  */
@@ -44,7 +49,7 @@ extern "C" {
 
 /** Handler function for select word. */
 bool process_select_word(uint16_t keycode, keyrecord_t* record,
-                         uint16_t sel_keycode);
+                         uint16_t sel_keycode, bool isMac);
 
 #ifdef __cplusplus
 }
