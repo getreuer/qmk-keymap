@@ -7,7 +7,8 @@
 This is my [Quantum Mechanical Keyboard (QMK)](https://docs.qmk.fm) keymap for
 the [Dactyl
 Ergodox](https://ohkeycaps.com/products/built-to-order-dactyl-manuform-keyboard).
-Who knew a keyboard could do so much?
+Who knew a keyboard [could do so
+much?](https://getreuer.info/posts/keyboards/tour/index.html)
 
 ### Topics
 
@@ -44,6 +45,10 @@ Who knew a keyboard could do so much?
 * [Triggers: reacting to interesting
   events](https://getreuer.info/posts/keyboards/triggers/index.html) &ndash;
   layer changes, tap vs. long press, etc.
+
+* [Typing non-English
+  letters](https://getreuer.info/posts/keyboards/non-english/index.html) &ndash;
+  several approaches to type symbols like &auml;, &ccedil;, &lambda;
 
  
 **General**
