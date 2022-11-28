@@ -203,7 +203,7 @@ const uint16_t caps_combo[] PROGMEM = {KC_DOT, KC_C, COMBO_END};
 const uint16_t end_sentence_combo[] PROGMEM = {KC_COMM, KC_DOT, COMBO_END};
 combo_t key_combos[] = {
     // . and C => activate Caps Word.
-    COMBO(caps_combo, CAPSWRD),
+    COMBO(caps_combo, CW_TOGG),
     // , and . => types a period, space, and sets one-shot mod for shift.
     // This combo is useful to flow between sentences.
     COMBO(end_sentence_combo, END_SENTENCE),
