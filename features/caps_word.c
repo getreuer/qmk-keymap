@@ -54,7 +54,7 @@ void caps_word_task(void) {
 
 bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
 #ifdef CAPS_WORD_TOGGLE_KEY
-  if (keycode == CAPSWRD) {  // Pressing CAPSWRD toggles Caps Word.
+  if (keycode == CW_TOGG) {  // Pressing CW_TOGG toggles Caps Word.
     if (record->event.pressed) {
       caps_word_toggle();
     }
