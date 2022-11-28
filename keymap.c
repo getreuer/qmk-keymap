@@ -61,6 +61,7 @@ enum custom_keycodes {
   JOINLN,
   TMUXESC,
   SRCHSEL,
+  USRNAME,
   DASH,
   ARROW,
   THMBUP,
@@ -148,7 +149,7 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
 
   [SYM] = LAYOUT_LR(  // Symbol layer.
     _______, KC_F7  , KC_F8  , KC_F9  , KC_F10 , KC_F5  ,
-    _______, KC_QUOT, KC_LABK, KC_RABK, KC_DQUO, KC_DOT ,
+    USRNAME, KC_QUOT, KC_LABK, KC_RABK, KC_DQUO, KC_DOT ,
     _______, KC_EXLM, KC_MINS, KC_PLUS, KC_EQL , KC_HASH,
     _______, KC_CIRC, KC_SLSH, KC_ASTR, KC_BSLS, UPDIR,
     _______, _______, _______, C(KC_END), C(KC_HOME),
@@ -298,10 +299,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_select_word(keycode, record, SELWORD)) { return false; }
 
 #ifndef NO_ACTION_ONESHOT
-  const bool shifted = (get_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT;
+  const uint8_t mods = get_mods() | get_oneshot_mods();
 #else
-  const bool shifted = get_mods() & MOD_MASK_SHIFT;
+  const uint8_t mods = get_mods();
 #endif  // NO_ACTION_ONESHOT
+  const bool shifted = mods & MOD_MASK_SHIFT;
 
   if (record->event.pressed) {
     switch (keycode) {
@@ -346,6 +348,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
             // Replace the selection with a single space.
             SS_TAP(X_SPC));
         return false;
+
+      case USRNAME: {  // Type my username, or if Shift is held, my last name.
+        static const char username[] PROGMEM = "getreuer";
+        static const char last_name[] PROGMEM = "Getreuer";
+        unregister_mods(mods);  // Clear mods before send_string.
+        send_string_P(shifted ? last_name : username);
+        register_mods(mods);  // Restore mods.
+      } break;
 
       // The following cases type a few Unicode symbols.
       //
