@@ -109,4 +109,3 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record);
 #ifdef __cplusplus
 }
 #endif
-

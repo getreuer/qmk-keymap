@@ -189,4 +189,3 @@ static inline bool caps_word_get(void) { return is_caps_word_on(); }
 #ifdef __cplusplus
 }
 #endif
-

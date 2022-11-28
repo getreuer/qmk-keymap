@@ -23,6 +23,7 @@
 #include "autocorrection.h"
 
 #include <string.h>
+
 #include "autocorrection_data.h"
 
 #if AUTOCORRECTION_MIN_LENGTH < 4
@@ -38,7 +39,9 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
   static uint8_t typo_buffer_size = 0;
 
   // Ignore key release; we only process key presses.
-  if (!record->event.pressed) { return true; }
+  if (!record->event.pressed) {
+    return true;
+  }
 
 #ifndef NO_ACTION_ONESHOT
   const uint8_t mods = get_mods() | get_oneshot_mods();
@@ -62,7 +65,9 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
     case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
 #endif  // NO_ACTION_LAYER
       // Ignore when tap-hold keys are held.
-      if (record->tap.count == 0) { return true; }
+      if (record->tap.count == 0) {
+        return true;
+      }
       // Otherwise when tapped, get the basic keycode.
       // Fallthrough intended.
 #endif  // NO_ACTION_TAPPING
@@ -73,11 +78,12 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
       keycode &= 0xff;  // Get the basic keycode.
       break;
 
-    // NOTE: Space Cadet keys expose no info to check whether they are being
-    // tapped vs. held. This makes autocorrection ambiguous, e.g. KC_LCPO might
-    // be '(', which we would treat as a word break, or it might be shift, which
-    // we would treat as having no effect. To behave cautiously, we allow Space
-    // Cadet keycodes to fall to the logic below and clear autocorrection state.
+      // NOTE: Space Cadet keys expose no info to check whether they are being
+      // tapped vs. held. This makes autocorrection ambiguous, e.g. KC_LCPO
+      // might be '(', which we would treat as a word break, or it might be
+      // shift, which we would treat as having no effect. To behave cautiously,
+      // we allow Space Cadet keycodes to fall to the logic below and clear
+      // autocorrection state.
   }
 
   switch (keycode) {
@@ -99,17 +105,23 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
 
   if (keycode == KC_QUOT) {
     // Treat " (shifted ') as a word boundary.
-    if ((mods & MOD_MASK_SHIFT) != 0) { keycode = KC_SPC; }
+    if ((mods & MOD_MASK_SHIFT) != 0) {
+      keycode = KC_SPC;
+    }
   } else if (!(KC_A <= keycode && keycode <= KC_Z)) {
     if (keycode == KC_BSPC) {
       // Remove last character from the buffer.
-      if (typo_buffer_size > 0) { --typo_buffer_size; }
+      if (typo_buffer_size > 0) {
+        --typo_buffer_size;
+      }
       return true;
     } else if (KC_1 <= keycode && keycode <= KC_SLSH && keycode != KC_ESC) {
       // Set a word boundary if space, period, digit, etc. is pressed.
       // Behave more conservatively for the enter key. Reset, so that enter
       // can't be used on a word ending.
-      if (keycode == KC_ENT) { typo_buffer_size = 0; }
+      if (keycode == KC_ENT) {
+        typo_buffer_size = 0;
+      }
       keycode = KC_SPC;
     } else {
       // Clear state if some other non-alpha key is pressed.
@@ -126,9 +138,11 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
 
   // Append `keycode` to the buffer.
   // NOTE: `keycode` must be a basic keycode (0-255) by this point.
-  typo_buffer[typo_buffer_size++] = (uint8_t) keycode;
+  typo_buffer[typo_buffer_size++] = (uint8_t)keycode;
   // Early return if not many characters have been buffered so far.
-  if (typo_buffer_size < AUTOCORRECTION_MIN_LENGTH) { return true; }
+  if (typo_buffer_size < AUTOCORRECTION_MIN_LENGTH) {
+    return true;
+  }
 
   // Check whether the buffer ends in a typo. This is done using a trie
   // stored in `autocorrection_data`.
@@ -137,18 +151,22 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
   for (int i = typo_buffer_size - 1; i >= 0; --i) {
     const uint8_t key_i = typo_buffer[i];
 
-    if (code & 64) { // Check for match in node with multiple children.
+    if (code & 64) {  // Check for match in node with multiple children.
       code &= 63;
       for (; code != key_i;
-          code = pgm_read_byte(autocorrection_data + (state += 3))) {
-        if (!code) { return true; }
+           code = pgm_read_byte(autocorrection_data + (state += 3))) {
+        if (!code) {
+          return true;
+        }
       }
 
       // Follow link to child node.
-      state = (uint16_t)(
-          (uint_fast16_t)pgm_read_byte(autocorrection_data + state + 1)
-          | (uint_fast16_t)pgm_read_byte(autocorrection_data + state + 2) << 8);
-    // Otherwise check for match in node with a single child.
+      state = (uint16_t)((uint_fast16_t)pgm_read_byte(autocorrection_data +
+                                                      state + 1) |
+                         (uint_fast16_t)pgm_read_byte(autocorrection_data +
+                                                      state + 2)
+                             << 8);
+      // Otherwise check for match in node with a single child.
     } else if (code != key_i) {
       return true;
     } else if (!(code = pgm_read_byte(autocorrection_data + (++state)))) {
@@ -164,10 +182,12 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
     // Read first byte of the next node.
     code = pgm_read_byte(autocorrection_data + state);
 
-    if (code & 128) { // A typo was found! Apply autocorrection.
+    if (code & 128) {  // A typo was found! Apply autocorrection.
       const int backspaces = code & 63;
-      for (int i = 0; i < backspaces; ++i) { tap_code(KC_BSPC); }
-        send_string_P((char const*)(autocorrection_data + state + 1));
+      for (int i = 0; i < backspaces; ++i) {
+        tap_code(KC_BSPC);
+      }
+      send_string_P((char const*)(autocorrection_data + state + 1));
 
       if (keycode == KC_SPC) {
         typo_buffer[0] = KC_SPC;

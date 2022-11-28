@@ -31,7 +31,9 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
                          uint16_t sel_keycode) {
   static uint8_t state = STATE_NONE;
 
-  if (keycode == KC_LSFT || keycode == KC_RSFT) { return true; }
+  if (keycode == KC_LSFT || keycode == KC_RSFT) {
+    return true;
+  }
 
   if (keycode == sel_keycode && record->event.pressed) {  // On key press.
     const uint8_t mods = get_mods();
@@ -108,4 +110,3 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
 
   return true;
 }
-
