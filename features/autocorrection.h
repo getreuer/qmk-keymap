@@ -19,6 +19,9 @@
  * Overview
  * --------
  *
+ * @note Autocorrect is now a core QMK feature! See
+ * <https://docs.qmk.fm/#/feature_autocorrect>
+ *
  * Some words are more prone to typos than others. This userspace QMK library
  * implements rudimentary autocorrection, automatically detecting and fixing
  * some misspellings.

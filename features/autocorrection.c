@@ -26,6 +26,9 @@
 
 #include "autocorrection_data.h"
 
+#pragma message \
+    "Autocorrect is now a core QMK feature! To use it, update your QMK set up and see https://docs.qmk.fm/#/feature_autocorrect"
+
 #if AUTOCORRECTION_MIN_LENGTH < 4
 // Odd output or hard locks on the board have been observed when the min typo
 // length is 3 or lower (https://github.com/getreuer/qmk-keymap/issues/2).
