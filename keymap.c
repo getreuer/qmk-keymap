@@ -27,6 +27,7 @@
  *                                  here is my approach
  *  * features/layer_lock.h: macro to stay in the current layer
  *  * features/mouse_turbo_click.h: macro that clicks the mouse rapidly
+ *  * features/sentence_case.h: capitalize first letter of sentences
  *  * features/select_word.h: macro for convenient word or line selection
  *
  * License
@@ -43,6 +44,7 @@
 #include "features/autocorrection.h"
 #include "features/custom_shift_keys.h"
 #include "features/select_word.h"
+#include "features/sentence_case.h"
 #include "layout.h"
 
 enum layers {
@@ -56,7 +58,6 @@ enum custom_keycodes {
   UPDIR = SAFE_RANGE,
   EXIT,
   SCOPE,
-  END_SENTENCE,
   SELWORD,
   JOINLN,
   TMUXESC,
@@ -201,13 +202,9 @@ uint8_t NUM_CUSTOM_SHIFT_KEYS =
     sizeof(custom_shift_keys) / sizeof(*custom_shift_keys);
 
 const uint16_t caps_combo[] PROGMEM = {KC_DOT, KC_C, COMBO_END};
-const uint16_t end_sentence_combo[] PROGMEM = {KC_COMM, KC_DOT, COMBO_END};
 combo_t key_combos[] = {
     // . and C => activate Caps Word.
     COMBO(caps_combo, CW_TOGG),
-    // , and . => types a period, space, and sets one-shot mod for shift.
-    // This combo is useful to flow between sentences.
-    COMBO(end_sentence_combo, END_SENTENCE),
 };
 uint16_t COMBO_LEN = sizeof(key_combos) / sizeof(*key_combos);
 
@@ -291,12 +288,44 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
   return 800;  // Otherwise use a timeout of 800 ms.
 }
 
+char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
+                              uint8_t mods) {
+  if ((mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT))) == 0) {
+    const bool shifted = mods & MOD_MASK_SHIFT;
+    switch (keycode) {
+      case QK_MODS ... QK_MODS_MAX:  // Mod keys.
+        return '\0';  // These keys are ignored.
+
+      case KC_A ... KC_Z:
+        return 'a';  // Letter key.
+
+      case KC_DOT:  // Both . and Shift . (?) punctuate sentence endings.
+        return '.';
+      case KC_COMM:  // Shift , (!) is a sentence ending.
+        return shifted ? '.' : '#';
+
+      case KC_1 ... KC_0:  // 1 2 3 4 5 6 7 8 9 0
+      case KC_MINS ... KC_GRV:  // - = [ ] ; ' ` backslash
+      case KC_SLSH:
+        return '#';  // Symbol key.
+
+      case KC_SPC:
+        return ' ';  // Space key.
+    }
+  }
+
+  // Otherwise clear Sentence Case to initial state.
+  sentence_case_clear();
+  return '\0';
+}
+
 // clang-format off
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_achordion(keycode, record)) { return false; }
   if (!process_autocorrection(keycode, record)) { return false; }
   if (!process_custom_shift_keys(keycode, record)) { return false; }
   if (!process_select_word(keycode, record, SELWORD)) { return false; }
+  if (!process_sentence_case(keycode, record)) { return false; }
 
 #ifndef NO_ACTION_ONESHOT
   const uint8_t mods = get_mods() | get_oneshot_mods();
@@ -309,11 +338,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
     switch (keycode) {
       case EXIT:
         layer_off(ADJUST);
-        return false;
-
-      case END_SENTENCE:
-        SEND_STRING(". ");
-        add_oneshot_mods(MOD_BIT(KC_LSFT));  // Set one-shot mod for shift.
         return false;
 
       case SCOPE:
@@ -385,5 +409,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 
 void matrix_scan_user(void) {
   achordion_task();
+  sentence_case_task();
 }
 
