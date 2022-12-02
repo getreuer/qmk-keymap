@@ -13,7 +13,6 @@
 # limitations under the License.
 
 SRC += features/achordion.c
-SRC += features/autocorrection.c
 SRC += features/custom_shift_keys.c
 SRC += features/select_word.c
 SRC += features/sentence_case.c
@@ -43,6 +42,7 @@ BLUETOOTH_ENABLE = no      # Enable Bluetooth with the Adafruit EZ-Key HID
 RGBLIGHT_ENABLE = no       # Enable WS2812 RGB underlight.
 SPACE_CADET_ENABLE = no
 GRAVE_ESC_ENABLE = no
+AUTOCORRECT_ENABLE = yes
 CAPS_WORD_ENABLE = yes
 
 UNICODEMAP_ENABLE = yes

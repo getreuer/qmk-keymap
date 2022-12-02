@@ -41,7 +41,6 @@
 #include QMK_KEYBOARD_H
 
 #include "features/achordion.h"
-#include "features/autocorrection.h"
 #include "features/custom_shift_keys.h"
 #include "features/select_word.h"
 #include "features/sentence_case.h"
@@ -322,7 +321,6 @@ char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
 // clang-format off
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_achordion(keycode, record)) { return false; }
-  if (!process_autocorrection(keycode, record)) { return false; }
   if (!process_custom_shift_keys(keycode, record)) { return false; }
   if (!process_select_word(keycode, record, SELWORD)) { return false; }
   if (!process_sentence_case(keycode, record)) { return false; }
