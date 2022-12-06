@@ -292,7 +292,7 @@ char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
   if ((mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT))) == 0) {
     const bool shifted = mods & MOD_MASK_SHIFT;
     switch (keycode) {
-      case QK_MODS ... QK_MODS_MAX:  // Mod keys.
+      case KC_LCTL ... KC_RGUI:  // Mod keys.
         return '\0';  // These keys are ignored.
 
       case KC_A ... KC_Z:
@@ -304,12 +304,16 @@ char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
         return shifted ? '.' : '#';
 
       case KC_1 ... KC_0:  // 1 2 3 4 5 6 7 8 9 0
-      case KC_MINS ... KC_GRV:  // - = [ ] ; ' ` backslash
+      case KC_MINS ... KC_SCLN:  // - = [ ] ; ` backslash
+      case KC_GRV:
       case KC_SLSH:
         return '#';  // Symbol key.
 
       case KC_SPC:
         return ' ';  // Space key.
+
+      case KC_QUOT:
+        return '\'';  // Quote key.
     }
   }
 

@@ -26,6 +26,7 @@
  *   "a. a"
  *   "a.  a"
  *   "a? a"
+ *   "a!' 'a"
  *
  * but not
  *
@@ -160,6 +161,8 @@ bool sentence_case_just_typed_P(const uint16_t* buffer, const uint16_t* pattern,
  *
  *   ' '  Key is a space. Default: KC_SPC
  *
+ *  '\''  Key is a quote or double quote character. Default: KC_QUOT.
+ *
  *  '\0'  Sentence Case should ignore this key.
  *
  * If a hotkey or navigation key is pressed (or another key that performs an
@@ -174,24 +177,28 @@ bool sentence_case_just_typed_P(const uint16_t* buffer, const uint16_t* pattern,
  *       if ((mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT))) == 0) {
  *         const bool shifted = mods & MOD_MASK_SHIFT;
  *         switch (keycode) {
- *           // These keys are ignored.
- *           case QK_MODS ... QK_MODS_MAX:  // Mod keys.
- *             return '\0';
+ *           case KC_LCTL ... KC_RGUI:  // Mod keys.
+ *             return '\0';  // These keys are ignored.
  *
  *           case KC_A ... KC_Z:
- *             return 'a';
+ *             return 'a';  // Letter key.
  *
  *           case KC_DOT:  // . is punctuation, Shift . is a symbol (>)
  *             return !shifted ? '.' : '#';
  *           case KC_1:
  *           case KC_SLSH:
  *             return shifted ? '.' : '#';
- *           case KC_2 ... KC_0:        // 2 3 4 5 6 7 8 9 0
- *           case KC_MINS ... KC_COMM:  // - = [ ] ; ' ` , backslash
- *             return '#';
+ *           case KC_2 ... KC_0:  // 2 3 4 5 6 7 8 9 0
+ *           case KC_MINS ... KC_SCLN:  // - = [ ] ; backslash
+ *           case KC_GRV:
+ *           case KC_COMM:
+ *             return '#';  // Symbol key.
  *
  *           case KC_SPC:
- *             return ' ';
+ *             return ' ';  // Space key.
+ *
+ *           case KC_QUOT:
+ *             return '\'';  // Quote key.
  *         }
  *       }
  *

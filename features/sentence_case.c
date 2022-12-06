@@ -39,7 +39,6 @@
 enum {
   STATE_INIT,     /**< Initial enabled state. */
   STATE_WORD,     /**< Within a word. */
-  STATE_MATCHED,  /**< Matched the start of a sentence. */
   STATE_ABBREV,   /**< Within an abbreviation like "e.g.". */
   STATE_ENDING,   /**< Sentence ended. */
   STATE_PRIMED,   /**< "Primed" state, in the space following an ending. */
@@ -62,7 +61,7 @@ static void set_sentence_state(uint8_t new_state) {
 #ifndef NO_DEBUG
   if (debug_enable && sentence_state != new_state) {
     static const char* state_names[] = {
-        "INIT", "WORD", "MATCHED", "ABBREV", "ENDING", "PRIMED", "DISABLED",
+        "INIT", "WORD", "ABBREV", "ENDING", "PRIMED", "DISABLED",
     };
     dprintf("Sentence case: %s\n", state_names[new_state]);
   }
@@ -180,15 +179,16 @@ bool process_sentence_case(uint16_t keycode, keyrecord_t* record) {
   // matches things like "a. a" and "a.  a" but not "a.. a" or "a.a. a". The
   // state transition matrix is:
   //
-  //             'a'       '.'      ' '
-  //           +----------------------------
-  //   INIT    | WORD      INIT     INIT
-  //   WORD    | WORD      ENDING   INIT
-  //   MATCHED | WORD      ENDING   INIT
-  //   ABBREV  | ABBREV    ABBREV   INIT
-  //   ENDING  | ABBREV    INIT     PRIMED
-  //   PRIMED  | MATCHED   INIT     PRIMED
-  switch (sentence_case_press_user(keycode, record, mods)) {
+  //             'a'       '.'      ' '      '\''
+  //           +-------------------------------------
+  //   INIT    | WORD      INIT     INIT     INIT
+  //   WORD    | WORD      ENDING   INIT     WORD
+  //   ABBREV  | ABBREV    ABBREV   INIT     ABBREV
+  //   ENDING  | ABBREV    INIT     PRIMED   ENDING
+  //   PRIMED  | match!    INIT     PRIMED   PRIMED
+  char code = sentence_case_press_user(keycode, record, mods);
+  dprintf("Sentence Case: code = '%c' (%d)\n", code, (int)code);
+  switch (code) {
     case '\0':  // Current key should be ignored.
       return true;
 
@@ -204,7 +204,7 @@ bool process_sentence_case(uint16_t keycode, keyrecord_t* record) {
           if (keycode != suppress_key) {
             suppress_key = keycode;
             set_oneshot_mods(MOD_BIT(KC_LSFT));  // Shift mod to capitalize.
-            new_state = STATE_MATCHED;
+            new_state = STATE_WORD;
           }
           break;
 
@@ -216,7 +216,6 @@ bool process_sentence_case(uint16_t keycode, keyrecord_t* record) {
     case '.':  // Current key is sentence-ending punctuation.
       switch (sentence_state) {
         case STATE_WORD:
-        case STATE_MATCHED:
           new_state = STATE_ENDING;
           break;
 
@@ -235,6 +234,10 @@ bool process_sentence_case(uint16_t keycode, keyrecord_t* record) {
         new_state = STATE_PRIMED;
         suppress_key = KC_NO;
       }
+      break;
+
+    case '\'':  // Current key is a quote.
+      new_state = sentence_state;
       break;
   }
 
@@ -295,7 +298,7 @@ __attribute__((weak)) char sentence_case_press_user(uint16_t keycode,
   if ((mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT))) == 0) {
     const bool shifted = mods & MOD_MASK_SHIFT;
     switch (keycode) {
-      case QK_MODS ... QK_MODS_MAX:  // Mod keys.
+      case KC_LCTL ... KC_RGUI:  // Mod keys.
         return '\0';  // These keys are ignored.
 
       case KC_A ... KC_Z:
@@ -307,11 +310,16 @@ __attribute__((weak)) char sentence_case_press_user(uint16_t keycode,
       case KC_SLSH:
         return shifted ? '.' : '#';
       case KC_2 ... KC_0:  // 2 3 4 5 6 7 8 9 0
-      case KC_MINS ... KC_COMM:  // - = [ ] ; ' ` , backslash
+      case KC_MINS ... KC_SCLN:  // - = [ ] ; backslash
+      case KC_GRV:
+      case KC_COMM:
         return '#';  // Symbol key.
 
       case KC_SPC:
         return ' ';  // Space key.
+
+      case KC_QUOT:
+        return '\'';  // Quote key.
     }
   }
 
