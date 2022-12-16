@@ -26,33 +26,42 @@
 // enabled, which we check for here. Enable them in your rules.mk by setting:
 //   MOUSEKEY_ENABLE = yes
 //   DEFERRED_EXEC_ENABLE = yes
-#if !defined(MOUSEKEY_ENABLE)
+// If `MOUSE_TURBO_CLICK_KEY` has been defined to click a non-mouse key instead,
+// then mouse keys is no longer required.
+#if !defined(MOUSEKEY_ENABLE) && !defined(MOUSE_TURBO_CLICK_KEY)
 #error "mouse_turbo_click: Please set `MOUSEKEY_ENABLE = yes` in rules.mk."
 #elif !defined(DEFERRED_EXEC_ENABLE)
 #error "mouse_turbo_click: Please set `DEFERRED_EXEC_ENABLE = yes` in rules.mk."
 #else
+
+// The keycode to be repeatedly clicked, `KC_MS_BTN1` mouse button 1 by default.
+#ifndef MOUSE_TURBO_CLICK_KEY
+#define MOUSE_TURBO_CLICK_KEY KC_MS_BTN1
+#endif  // MOUSE_TURBO_CLICK_KEY
 
 // The click period in milliseconds. For instance a period of 200 ms would be 5
 // clicks per second. Smaller period implies faster clicking.
 //
 // WARNING: The keyboard might become unresponsive if the period is too small.
 // I suggest setting this no smaller than 10.
-#define CLICK_PERIOD_MS 80
+#ifndef MOUSE_TURBO_CLICK_PERIOD
+#define MOUSE_TURBO_CLICK_PERIOD 80
+#endif  // MOUSE_TURBO_CLICK_PERIOD
 
 static deferred_token click_token = INVALID_DEFERRED_TOKEN;
 static bool click_registered = false;
 
 // Callback used with deferred execution. It alternates between registering and
-// unregistering (pressing and releasing) the mouse button.
+// unregistering (pressing and releasing) `MOUSE_TURBO_CLICK_KEY`.
 static uint32_t turbo_click_callback(uint32_t trigger_time, void* cb_arg) {
   if (click_registered) {
-    unregister_code(KC_MS_BTN1);
+    unregister_code16(MOUSE_TURBO_CLICK_KEY);
     click_registered = false;
   } else {
     click_registered = true;
-    register_code(KC_MS_BTN1);
+    register_code16(MOUSE_TURBO_CLICK_KEY);
   }
-  return CLICK_PERIOD_MS / 2;  // Execute callback again in half a period.
+  return MOUSE_TURBO_CLICK_PERIOD / 2;  // Execute again in half a period.
 }
 
 // Starts Turbo Click, begins the `turbo_click_callback()` callback.
@@ -69,8 +78,8 @@ static void turbo_click_stop(void) {
     cancel_deferred_exec(click_token);
     click_token = INVALID_DEFERRED_TOKEN;
     if (click_registered) {
-      // If mouse button is currently registered, release it.
-      unregister_code(KC_MS_BTN1);
+      // If `MOUSE_TURBO_CLICK_KEY` is currently registered, release it.
+      unregister_code16(MOUSE_TURBO_CLICK_KEY);
       click_registered = false;
     }
   }
