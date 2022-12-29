@@ -27,6 +27,7 @@
  *                                  here is my approach
  *  * features/layer_lock.h: macro to stay in the current layer
  *  * features/mouse_turbo_click.h: macro that clicks the mouse rapidly
+ *  * features/repeat_key.h: a "repeat last key" implementation
  *  * features/sentence_case.h: capitalize first letter of sentences
  *  * features/select_word.h: macro for convenient word or line selection
  *
@@ -42,6 +43,7 @@
 
 #include "features/achordion.h"
 #include "features/custom_shift_keys.h"
+#include "features/repeat_key.h"
 #include "features/select_word.h"
 #include "features/sentence_case.h"
 #include "layout.h"
@@ -65,6 +67,8 @@ enum custom_keycodes {
   DASH,
   ARROW,
   THMBUP,
+  REPEAT,
+  REVREP,
 };
 
 // This keymap uses home row mods. In addition to mods, I have home row
@@ -114,17 +118,17 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
     KC_LSFT, HOME_SC, KC_Q   , KC_J   , KC_K   , KC_X   ,
     KC_LCTL, KC_PGUP, KC_PGDN, KC_DOWN, KC_UP  ,
                                                           MO(SYM), KC_UNDS,
-                                                                   KC_BTN2,
+                                                                   KC_WH_D,
                                                  KC_DEL , KC_SPC , KC_BTN1,
 
                       KC_6   , KC_1   , KC_2   , KC_3   , KC_4   , KC_BSLS,
                       KC_F   , KC_G   , KC_C   , KC_R   , KC_L   , KC_SLSH,
-                      KC_D   , HOME_H , HOME_T , HOME_N , HOME_S , KC_MINS,
+                      KC_D   , HOME_H , HOME_T , HOME_N , HOME_S , KC_BSPC,
                       KC_B   , KC_M   , KC_W   , KC_V   , HOME_Z , KC_RSFT,
                                KC_LEFT, KC_RGHT, DASH   , ARROW  , THMBUP ,
-    KC_BSLS, TMUXESC,
-    JOINLN ,
-    SELWORD, KC_BSPC, KC_ENT
+    KC_MINS, REVREP ,
+    KC_BSLS,
+    SELWORD, REPEAT , KC_ENT
   ),
 
   [QWERTY] = LAYOUT_LR(  // Alternative base layer: QWERTY.
@@ -139,10 +143,10 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
 
                       _______, _______, _______, _______, _______, _______,
                       KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_MINS,
-                      KC_H   , QHOME_J, QHOME_K, QHOME_L, QHOME_SC, KC_QUOT,
+                      KC_H   , QHOME_J, QHOME_K, QHOME_L, QHOME_SC, _______,
                       KC_N   , KC_M   , KC_COMM, KC_DOT , QHOME_SL, _______,
                                _______, _______, _______, _______, _______,
-    _______, _______,
+    KC_QUOT, _______,
     _______,
     _______, _______, _______
   ),
@@ -150,7 +154,7 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
   [SYM] = LAYOUT_LR(  // Symbol layer.
     _______, KC_F7  , KC_F8  , KC_F9  , KC_F10 , KC_F5  ,
     USRNAME, KC_QUOT, KC_LABK, KC_RABK, KC_DQUO, KC_DOT ,
-    _______, KC_EXLM, KC_MINS, KC_PLUS, KC_EQL , KC_HASH,
+    TMUXESC, KC_EXLM, KC_MINS, KC_PLUS, KC_EQL , KC_HASH,
     _______, KC_CIRC, KC_SLSH, KC_ASTR, KC_BSLS, UPDIR,
     _______, _______, _______, C(KC_END), C(KC_HOME),
                                                           _______, _______,
@@ -206,6 +210,58 @@ combo_t key_combos[] = {
     COMBO(caps_combo, CW_TOGG),
 };
 uint16_t COMBO_LEN = sizeof(key_combos) / sizeof(*key_combos);
+
+// Opposing keycode pairs for Reverse Repeat Key.
+const uint16_t rev_repeat_key_pairs[][2] PROGMEM = {
+  {KC_LEFT, KC_RGHT},             // Left / Right Arrow.
+  {KC_UP  , KC_DOWN},             // Up / Down Arrow.
+  {S(KC_LEFT), S(KC_RGHT)},       // Shift + Left / Right Arrow.
+  {S(KC_UP), S(KC_DOWN)},         // Shift + Up / Down Arrow.
+  {C(KC_LEFT), C(KC_RGHT)},       // Ctrl + Left / Right Arrow.
+  {C(S(KC_LEFT)), C(S(KC_RGHT))}, // Ctrl + Shift + Left / Right Arrow.
+  {KC_HOME, KC_END },             // Home / End.
+  {KC_PGUP, KC_PGDN},             // Page Up / Page Down.
+  {C(KC_PGUP), C(KC_PGDN)},       // Ctrl + Page Up / Page Down.
+  {KC_TAB , S(KC_TAB)},           // Tab / Shift + Tab.
+  {KC_WBAK, KC_WFWD},             // Browser Back / Forward.
+  {KC_MNXT, KC_MPRV},             // Next / Previous Media Track.
+  {KC_MFFD, KC_MRWD},             // Fast Forward / Rewind Media.
+  {KC_VOLU, KC_VOLD},             // Volume Up / Down.
+  {KC_BRIU, KC_BRID},             // Brightness Up / Down.
+
+  // Navigation hotkeys in Vim, Emacs, and other programs.
+  {KC_H   , KC_L   },             // Left / Right.
+  {KC_J   , KC_K   },             // Down / Up.
+  {KC_W   , KC_B   },             // Forward / Backward by word.
+  {C(KC_N), C(KC_P)},             // Next / Previous.
+  {C(KC_D), C(KC_U)},             // Down / Up.
+  {C(KC_F), C(KC_B)},             // Forward / Backward.
+  {A(KC_F), A(KC_B)},             // Forward / Backward by word.
+
+  // Mouse keys (if enabled).
+#ifdef MOUSEKEY_ENABLE
+  {KC_MS_L, KC_MS_R},             // Mouse Cursor Left / Right.
+  {KC_MS_U, KC_MS_D},             // Mouse Cursor Up / Down.
+  {KC_WH_L, KC_WH_R},             // Mouse Wheel Left / Right.
+  {KC_WH_U, KC_WH_D},             // Mouse Wheel Up / Down.
+  {S(KC_WH_U), S(KC_WH_D)},       // Shift + Mouse Wheel Up / Down.
+  {C(KC_WH_U), C(KC_WH_D)},       // Ctrl + Mouse Wheel Up / Down.
+#endif  // MOUSEKEY_ENABLE
+
+  // Lighting keys (if enabled).
+#ifdef BACKLIGHT_ENABLE
+  {BL_UP  , BL_DOWN},             // Increase / decrease backlight level.
+#endif  // BACKLIGHT_ENABLE
+#if defined(RGBLIGHT_ENABLE) || defined(RGB_MATRIX_ENABLE)
+  {RGB_MOD, RGB_RMOD},            // Cycle effect mode forward / backward.
+  {RGB_HUI, RGB_HUD},             // Increase / decrease hue.
+  {RGB_SAI, RGB_SAD},             // Increase / decrease saturation.
+  {RGB_VAI, RGB_VAD},             // Increase / decrease value.
+  {RGB_SPI, RGB_SPD},             // Increase / decrease effect speed.
+#endif  // defined(RGBLIGHT_ENABLE) || defined(RGB_MATRIX_ENABLE)
+};
+const uint16_t NUM_REV_REPEAT_KEY_PAIRS =
+  sizeof(rev_repeat_key_pairs) / sizeof(*rev_repeat_key_pairs);
 
 bool get_tapping_force_hold(uint16_t keycode, keyrecord_t* record) {
   // If you quickly hold a tap-hold key after tapping it, the tap action is
@@ -326,6 +382,9 @@ char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_achordion(keycode, record)) { return false; }
   if (!process_custom_shift_keys(keycode, record)) { return false; }
+  if (!process_repeat_key_with_rev(keycode, record, REPEAT, REVREP)) {
+    return false;
+  }
   if (!process_select_word(keycode, record, SELWORD)) { return false; }
   if (!process_sentence_case(keycode, record)) { return false; }
 

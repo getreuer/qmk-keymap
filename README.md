@@ -34,6 +34,9 @@ much?](https://getreuer.info/posts/keyboards/tour/index.html)
   Click](https://getreuer.info/posts/keyboards/mouse-turbo-click/index.html)
   &ndash; macro that clicks the mouse rapidly
 
+* [Repeat Key](https://getreuer.info/posts/keyboards/repeat-key/index.html)
+  &ndash; an extensible "repeat last key" implementation
+
 * [Sentence Case](https://getreuer.info/posts/keyboards/sentence-case/index.html)
   &ndash; automatically capitalize the first letter of sentences
 
