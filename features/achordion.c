@@ -94,7 +94,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
         hold_timer = record->event.time + timeout;
 
         if (is_mt) {  // Apply mods immediately if they are "eager."
-          uint8_t mod = (tap_hold_keycode >> 8) & 0x1f;
+          uint8_t mod = QK_MOD_TAP_GET_MODS(tap_hold_keycode);
           if (achordion_eager_mod(mod)) {
             eager_mods = ((mod & 0x10) == 0) ? mod : (mod << 4);
             register_mods(eager_mods);
