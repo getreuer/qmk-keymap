@@ -381,10 +381,10 @@ char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
 // clang-format off
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_achordion(keycode, record)) { return false; }
-  if (!process_custom_shift_keys(keycode, record)) { return false; }
   if (!process_repeat_key_with_rev(keycode, record, REPEAT, REVREP)) {
     return false;
   }
+  if (!process_custom_shift_keys(keycode, record)) { return false; }
   if (!process_select_word(keycode, record, SELWORD)) { return false; }
   if (!process_sentence_case(keycode, record)) { return false; }
 

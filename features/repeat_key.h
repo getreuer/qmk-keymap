@@ -47,6 +47,11 @@ extern "C" {
  * Handler function for Repeat Key. Call either this function or
  * `process_repeat_key_with_rev()` (but not both) from `process_record_user()`
  * to implement Repeat Key in your keymap.
+ *
+ * If your `process_record_user()` has other handlers or macros, Repeat Key’s
+ * handler `process_repeat_key()` should preferably be called before anything
+ * else. (If you also use Achordion, then call Achordion's handler first, Repeat
+ * Key's handler second, and then other handlers.)
  */
 bool process_repeat_key(uint16_t keycode, keyrecord_t* record,
                         uint16_t repeat_keycode);
