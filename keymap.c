@@ -60,7 +60,6 @@ enum custom_keycodes {
   EXIT,
   SCOPE,
   SELWORD,
-  JOINLN,
   TMUXESC,
   SRCHSEL,
   USRNAME,
@@ -416,22 +415,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
       case SRCHSEL:  // Searches the current selection in a new tab.
         // Mac users, change LCTL to LGUI.
         SEND_STRING(SS_LCTL("ct") SS_DELAY(100) SS_LCTL("v") SS_TAP(X_ENTER));
-        return false;
-
-      case JOINLN:  // Join lines like Vim's `J` command.
-        SEND_STRING( // Go to the end of the line and tap delete.
-            SS_TAP(X_END) SS_TAP(X_DEL)
-            // In case this has joined two words together, insert one space.
-            SS_TAP(X_SPC)
-            SS_LCTL(
-              // Go to the beginning of the next word.
-              SS_TAP(X_RGHT) SS_TAP(X_LEFT)
-              // Select back to the end of the previous word. This should select
-              // all spaces and tabs between the joined lines from indentation
-              // or trailing whitespace, including the space inserted earlier.
-              SS_LSFT(SS_TAP(X_LEFT) SS_TAP(X_RGHT)))
-            // Replace the selection with a single space.
-            SS_TAP(X_SPC));
         return false;
 
       case USRNAME: {  // Type my username, or if Shift is held, my last name.
