@@ -1,4 +1,4 @@
-// Copyright 2021-2022 Google LLC
+// Copyright 2021-2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,24 +40,29 @@ bool process_custom_shift_keys(uint16_t keycode, keyrecord_t *record) {
 #else
     if ((mods | get_weak_mods()) & MOD_MASK_SHIFT) {  // Shift is held.
 #endif  // NO_ACTION_ONESHOT
-      // Search for a custom key with keycode equal to `keycode`.
+      // Continue default handling if this is a tap-hold key being held.
+      if ((IS_QK_MOD_TAP(keycode) || IS_QK_LAYER_TAP(keycode)) &&
+          record->tap.count == 0) {
+        return true;
+      }
+
+      // Search for a custom shift key whose keycode is `keycode`.
       for (int i = 0; i < NUM_CUSTOM_SHIFT_KEYS; ++i) {
         if (keycode == custom_shift_keys[i].keycode) {
-          // Continue default handling if this is a tap-hold key being held.
-          if (((QK_MOD_TAP <= keycode && keycode <= QK_MOD_TAP_MAX) ||
-               (QK_LAYER_TAP <= keycode && keycode <= QK_LAYER_TAP_MAX)) &&
-              record->tap.count == 0) {
-            return true;
-          }
-#ifndef NO_ACTION_ONESHOT
-          del_oneshot_mods(MOD_MASK_SHIFT);
-#endif  // NO_ACTION_ONESHOT
-          del_mods(MOD_MASK_SHIFT);
-          del_weak_mods(MOD_MASK_SHIFT);
-          send_keyboard_report();
           registered_keycode = custom_shift_keys[i].shifted_keycode;
-          register_code16(registered_keycode);
-          set_mods(mods);  // Restore the mods.
+          if (IS_QK_MODS(registered_keycode) &&  // Should keycode be shifted?
+              (QK_MODS_GET_MODS(registered_keycode) & MOD_LSFT) != 0) {
+            register_code16(registered_keycode);  // If so, press it directly.
+          } else {
+            // Otherwise cancel shift mods, press the key, and restore mods.
+            del_weak_mods(MOD_MASK_SHIFT);
+#ifndef NO_ACTION_ONESHOT
+            del_oneshot_mods(MOD_MASK_SHIFT);
+#endif  // NO_ACTION_ONESHOT
+            unregister_mods(MOD_MASK_SHIFT);
+            register_code16(registered_keycode);
+            set_mods(mods);
+          }
           return false;
         }
       }
