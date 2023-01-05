@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC
+// Copyright 2022-2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -129,8 +129,8 @@ uint8_t repeat_key_mods(void);
  *
  *     #ifdef SWAP_HANDS_ENABLE
  *         case QK_SWAP_HANDS ... QK_SWAP_HANDS_MAX:
- *           if (keycode > 0x56f0 || record->tap.count == 0) {
- *             return false;
+ *           if (IS_SWAP_HANDS_KEYCODE(keycode) || record->tap.count == 0) {
+ *             return true;
  *           }
  *           break;
  *     #endif  // SWAP_HANDS_ENABLE

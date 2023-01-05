@@ -1,4 +1,4 @@
-// Copyright 2021-2022 Google LLC
+// Copyright 2021-2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
           // * For Shift + AltGr (MOD_RSFT | MOD_RALT), pass RSFT(KC_RALT).
           // * AltGr (MOD_RALT) is ignored.
           // * Otherwise stop Caps Word.
-          const uint8_t mods = (keycode >> 8) & 0x1f;
+          const uint8_t mods = QK_MOD_TAP_GET_MODS(keycode);
           switch (mods) {
             case MOD_LSFT:
               keycode = KC_LSFT;
@@ -125,7 +125,7 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
               return true;
           }
         } else {
-          keycode &= 0xff;
+          keycode = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
         }
         break;
 
@@ -135,16 +135,16 @@ bool process_caps_word(uint16_t keycode, keyrecord_t* record) {
         if (record->tap.count == 0) {
           return true;
         }
-        keycode &= 0xff;
+        keycode = QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
         break;
 #endif  // NO_ACTION_TAPPING
 
 #ifdef SWAP_HANDS_ENABLE
       case QK_SWAP_HANDS ... QK_SWAP_HANDS_MAX:
-        if (keycode > 0x56F0 || record->tap.count == 0) {
+        if (IS_SWAP_HANDS_KEYCODE(keycode) || record->tap.count == 0) {
           return true;
         }
-        keycode &= 0xff;
+        keycode = QK_SWAP_HANDS_GET_TAP_KEYCODE(keycode);
         break;
 #endif  // SWAP_HANDS_ENABLE
     }

@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC
+// Copyright 2022-2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -138,22 +138,27 @@ bool process_sentence_case(uint16_t keycode, keyrecord_t* record) {
   switch (keycode) {
 #ifndef NO_ACTION_TAPPING
     case QK_MOD_TAP ... QK_MOD_TAP_MAX:
+      if (record->tap.count == 0) {
+        return true;
+      }
+      keycode = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
+      break;
 #ifndef NO_ACTION_LAYER
     case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
 #endif  // NO_ACTION_LAYER
       if (record->tap.count == 0) {
         return true;
       }
-      keycode &= 0xff;
+      keycode = QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
       break;
 #endif  // NO_ACTION_TAPPING
 
 #ifdef SWAP_HANDS_ENABLE
     case QK_SWAP_HANDS ... QK_SWAP_HANDS_MAX:
-      if (keycode > 0x56f0 || record->tap.count == 0) {
+      if (IS_SWAP_HANDS_KEYCODE(keycode) || record->tap.count == 0) {
         return true;
       }
-      keycode &= 0xff;
+      keycode = QK_SWAP_HANDS_GET_TAP_KEYCODE(keycode);
       break;
 #endif  // SWAP_HANDS_ENABLE
   }

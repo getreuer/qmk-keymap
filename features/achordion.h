@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC
+// Copyright 2022-2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -134,22 +134,15 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode);
  * key is still being settled. This is helpful to reduce delay particularly when
  * using mod-tap keys with an external mouse.
  *
- * Define this callback in your keymap.c. The default callback is
+ * Define this callback in your keymap.c. The default callback is eager for
+ * Shift and Ctrl, and not for Alt and GUI:
  *
  *     bool achordion_eager_mod(uint8_t mod) {
- *       switch (mod) {
- *         case MOD_LSFT:
- *         case MOD_RSFT:
- *         case MOD_LCTL:
- *         case MOD_RCTL:
- *           return true;  // Eagerly apply Shift and Ctrl mods.
- *
- *        default:
- *          return false;
- *       }
+ *       return (mod & (MOD_LALT | MOD_LGUI)) == 0;
  *     }
  *
- * @note `mod` should be compared with `MOD_` prefixed codes, not `KC_` codes.
+ * @note `mod` should be compared with `MOD_` prefixed codes, not `KC_` codes,
+ * described at <https://docs.qmk.fm/#/mod_tap>.
  *
  * @param mod Modifier `MOD_` code.
  * @return True if the modifier should be eagerly applied.

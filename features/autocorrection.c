@@ -1,4 +1,4 @@
-// Copyright 2021-2022 Google LLC
+// Copyright 2021-2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ bool process_autocorrection(uint16_t keycode, keyrecord_t* record) {
     // Handle shifted keys, e.g. symbols like KC_EXLM = S(KC_1).
     case QK_LSFT ... QK_LSFT + 255:
     case QK_RSFT ... QK_RSFT + 255:
-      keycode &= 0xff;  // Get the basic keycode.
+      keycode = QK_MODS_GET_BASIC_KEYCODE(keycode);
       break;
 
       // NOTE: Space Cadet keys expose no info to check whether they are being

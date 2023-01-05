@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC
+// Copyright 2022-2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -74,12 +74,11 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   }
 
   // Determine whether the current event is for a mod-tap or layer-tap key.
-  const bool is_mt = QK_MOD_TAP <= keycode && keycode <= QK_MOD_TAP_MAX;
-  const bool is_tap_hold =
-      is_mt || (QK_LAYER_TAP <= keycode && keycode <= QK_LAYER_TAP_MAX);
+  const bool is_mt = IS_QK_MOD_TAP(keycode);
+  const bool is_tap_hold = is_mt || IS_QK_LAYER_TAP(keycode);
   // Check key position to avoid acting on combos.
-  const bool is_physical_pos =
-      (record->event.key.row < 254 && record->event.key.col < 254);
+  const bool is_physical_pos = (record->event.key.row < KEYLOC_COMBO &&
+                                record->event.key.col < KEYLOC_COMBO);
 
   if (achordion_state == STATE_RELEASED) {
     if (is_tap_hold && record->tap.count == 0 && record->event.pressed &&
@@ -94,7 +93,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
         hold_timer = record->event.time + timeout;
 
         if (is_mt) {  // Apply mods immediately if they are "eager."
-          uint8_t mod = QK_MOD_TAP_GET_MODS(tap_hold_keycode);
+          uint8_t mod = mod_config(QK_MOD_TAP_GET_MODS(tap_hold_keycode));
           if (achordion_eager_mod(mod)) {
             eager_mods = ((mod & 0x10) == 0) ? mod : (mod << 4);
             register_mods(eager_mods);
@@ -210,16 +209,7 @@ __attribute__((weak)) uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
   return 1000;
 }
 
-// By default, hold Shift and Ctrl mods eagerly.
+// By default, Shift and Ctrl mods are eager, and Alt and GUI are not.
 __attribute__((weak)) bool achordion_eager_mod(uint8_t mod) {
-  switch (mod) {
-    case MOD_LSFT:
-    case MOD_RSFT:
-    case MOD_LCTL:
-    case MOD_RCTL:
-      return true;
-
-    default:
-      return false;
-  }
+  return (mod & (MOD_LALT | MOD_LGUI)) == 0;
 }
