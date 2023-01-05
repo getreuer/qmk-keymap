@@ -130,7 +130,7 @@ uint8_t repeat_key_mods(void);
  *     #ifdef SWAP_HANDS_ENABLE
  *         case QK_SWAP_HANDS ... QK_SWAP_HANDS_MAX:
  *           if (IS_SWAP_HANDS_KEYCODE(keycode) || record->tap.count == 0) {
- *             return true;
+ *             return false;
  *           }
  *           break;
  *     #endif  // SWAP_HANDS_ENABLE
