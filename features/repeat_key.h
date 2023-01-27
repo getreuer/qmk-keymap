@@ -62,42 +62,41 @@ bool process_repeat_key_with_rev(uint16_t keycode, keyrecord_t* record,
                                  uint16_t rev_repeat_keycode);
 
 /**
- * Registers (presses down) the Repeat Key. This is useful for invoking Repeat
- * as part of a tap dance or other custom handler. Note that if doing so, you
- * likely want to define `repeat_key_press_user()` to ignore the key associated
- * with that handler so that the Repeat Key does not attempt to repeat itself.
+ * @brief Signed count of times the key has been repeated or reverse repeated.
+ *
+ * @note The count is nonzero only while a repeated or reverse-repeated key is
+ *       being processed.
+ *
+ * When a key is pressed normally, the count is 0. When the Repeat Key is used
+ * to repeat a key, the count is 1 on the first repeat, 2 on the second repeat,
+ * and continuing up to 127.
+ *
+ * Negative counts are used similarly for reverse repeating. When the Reverse
+ * Repeat Key is used, the count is -1 on the first reverse repeat, -2 on the
+ * second, continuing down to -127.
  */
-void repeat_key_register(void);
+int8_t get_repeat_key_count(void);
 
-/** Unregisters (releases) the Repeat Key. */
-void repeat_key_unregister(void);
-
-/** Taps the Repeat Key with a delay of `TAP_CODE_DELAY`. */
-void repeat_key_tap(void);
+/** @brief Keycode of the key to be repeated. */
+uint16_t get_repeat_key_keycode(void);
+/** @brief Mods to be applied when repeating. */
+uint8_t get_repeat_key_mods(void);
+/** @brief Sets the keycode to repeat. */
+void set_repeat_key_keycode(uint16_t keycode);
+/** @brief Sets the mods to repeat. */
+void set_repeat_key_mods(uint8_t mods);
 
 /**
- * The number of times the last key has been repeated. When a key is pressed
- * normally, the count is 0. When the Repeat Key is used to repeat a key, the
- * count is 1 on the first repeat, 2 on the second repeat, an so on.
- */
-uint8_t repeat_key_count(void);
-
-/** Keycode of the last pressed key to be repeated. */
-uint16_t repeat_key_keycode(void);
-
-/** Modifiers to be applied when repeating. */
-uint8_t repeat_key_mods(void);
-
-/**
- * Optional callback defining which keys are eligible for repeating. The
- * callback is called on every key press. Returning true means the key may be
- * repeated, and returning false means the key is ignored.
+ * @brief Callback defining which keys are eligible for repeating.
+ *
+ * The callback is called on every key press. Returning true means the key may
+ * be repeated, and returning false means the key is ignored.
  *
  * Here is the default implementation, which ignores modifier and layer switch
  * keys so that it is possible to set some mods and change layers between
  * pressing a key and repeating it:
  *
- *     bool repeat_key_press_user(uint16_t keycode, keyrecord_t* record) {
+ *     bool get_repeat_key_eligible(uint16_t keycode, keyrecord_t* record) {
  *       switch (keycode) {
  *         // Ignore MO, TO, TG, and TT layer switch keys.
  *         case QK_MOMENTARY ... QK_MOMENTARY_MAX:
@@ -141,7 +140,41 @@ uint8_t repeat_key_mods(void);
  *
  * To customize, copy the above function into your keymap and edit.
  */
-bool repeat_key_press_user(uint16_t keycode, keyrecord_t* record);
+bool get_repeat_key_eligible(uint16_t keycode, keyrecord_t* record);
+
+/**
+ * @brief Keycode to be used for reverse repeating.
+ *
+ * Reverse Repeat performs this keycode based on the last eligible pressed key
+ * and mods, get_repeat_key_keycode() and get_repeat_key_mods(). For example,
+ * when the last key was KC_UP, this function returns KC_DOWN. The function
+ * returns KC_NO if the last key doesn't have a defined reverse.
+ */
+uint16_t get_rev_repeat_key_keycode(void);
+
+/**
+ * @brief Optional user callback to define additional reverse keys.
+ *
+ * When `get_rev_repeat_key_keycode()` is called, it first calls this callback.
+ * It should return a keycode representing the "reverse" of the given keycode
+ * and mods. Returning KC_NO defers to the default definitions in
+ * `get_rev_repeat_key_keycode()`.
+ */
+uint16_t get_rev_repeat_key_keycode_user(uint16_t keycode, uint8_t mods);
+
+/**
+ * Registers (presses down) the Repeat Key. This is useful for invoking Repeat
+ * as part of a tap dance or other custom handler. Note that if doing so, you
+ * likely want to define `repeat_key_press_user()` to ignore the key associated
+ * with that handler so that the Repeat Key does not attempt to repeat itself.
+ */
+void repeat_key_register(void);
+
+/** Unregisters (releases) the Repeat Key. */
+void repeat_key_unregister(void);
+
+/** Taps the Repeat Key with a delay of `TAP_CODE_DELAY`. */
+void repeat_key_tap(void);
 
 /**
  * Registers (presses down) the Reverse Repeat Key, performing the reverse, if
@@ -166,81 +199,23 @@ bool rev_repeat_key_unregister(void);
  */
 bool rev_repeat_key_tap(void);
 
-/**
- * Finds the keycode to be performed by Reverse Repeat Key.
- *
- * The Reverse Repeat keycode is found by searching for `repeat_key_keycode()`
- * in the `rev_repeat_key_pairs` table, and returning the other element in the
- * pair. If no match is found, `KC_NO` is returned.
- *
- * When `repeat_key_keycode()` is a basic keycode, `repeat_key_mods()` is
- * considered in the lookup as well so that for instance "B" is distinct from
- * "Ctrl + B." Handness of mods is ignored except for Right Alt (AltGr).
- */
-uint16_t rev_repeat_key_keycode(void);
+// Deprecated APIs.
 
-/**
- * Table of opposing keycode pairs for Reverse Repeat. To use the Reverse Repeat
- * Key, define this table in your keymap and define `NUM_REV_REPEAT_KEY_PAIRS`
- * as the number of pairs in the table. A suggested definition:
- *
- *     const uint16_t rev_repeat_key_pairs[][2] PROGMEM = {
- *       {KC_LEFT, KC_RGHT},             // Left / Right Arrow.
- *       {KC_UP  , KC_DOWN},             // Up / Down Arrow.
- *       {S(KC_LEFT), S(KC_RGHT)},       // Shift + Left / Right Arrow.
- *       {S(KC_UP), S(KC_DOWN)},         // Shift + Up / Down Arrow.
- *       {C(KC_LEFT), C(KC_RGHT)},       // Ctrl + Left / Right Arrow.
- *       {C(S(KC_LEFT)), C(S(KC_RGHT))}, // Ctrl + Shift + Left / Right Arrow.
- *       {KC_HOME, KC_END },             // Home / End.
- *       {KC_PGUP, KC_PGDN},             // Page Up / Page Down.
- *       {C(KC_PGUP), C(KC_PGDN)},       // Ctrl + Page Up / Page Down.
- *       {KC_TAB , S(KC_TAB)},           // Tab / Shift + Tab.
- *       {KC_WBAK, KC_WFWD},             // Browser Back / Forward.
- *       {KC_MNXT, KC_MPRV},             // Next / Previous Media Track.
- *       {KC_MFFD, KC_MRWD},             // Fast Forward / Rewind Media.
- *       {KC_VOLU, KC_VOLD},             // Volume Up / Down.
- *       {KC_BRIU, KC_BRID},             // Brightness Up / Down.
- *
- *       // Navigation hotkeys in Vim, Emacs, and other programs.
- *       {KC_H   , KC_L   },             // Left / Right.
- *       {KC_J   , KC_K   },             // Down / Up.
- *       {KC_W   , KC_B   },             // Forward / Backward by word.
- *       {C(KC_N), C(KC_P)},             // Next / Previous.
- *       {C(KC_D), C(KC_U)},             // Down / Up.
- *       {C(KC_F), C(KC_B)},             // Forward / Backward.
- *       {A(KC_F), A(KC_B)},             // Forward / Backward by word.
- *
- *       // Mouse keys (if enabled).
- *     #ifdef MOUSEKEY_ENABLE
- *       {KC_MS_L, KC_MS_R},             // Mouse Cursor Left / Right.
- *       {KC_MS_U, KC_MS_D},             // Mouse Cursor Up / Down.
- *       {KC_WH_L, KC_WH_R},             // Mouse Wheel Left / Right.
- *       {KC_WH_U, KC_WH_D},             // Mouse Wheel Up / Down.
- *       {S(KC_WH_U), S(KC_WH_D)},       // Shift + Mouse Wheel Up / Down.
- *       {C(KC_WH_U), C(KC_WH_D)},       // Ctrl + Mouse Wheel Up / Down.
- *     #endif  // MOUSEKEY_ENABLE
- *
- *       // Lighting keys (if enabled).
- *     #ifdef BACKLIGHT_ENABLE
- *       {BL_UP  , BL_DOWN},             // Increase / decrease backlight.
- *     #endif  // BACKLIGHT_ENABLE
- *     #if defined(RGBLIGHT_ENABLE) || defined(RGB_MATRIX_ENABLE)
- *       {RGB_MOD, RGB_RMOD},            // Effect mode forward / backward.
- *       {RGB_HUI, RGB_HUD},             // Increase / decrease hue.
- *       {RGB_SAI, RGB_SAD},             // Increase / decrease saturation.
- *       {RGB_VAI, RGB_VAD},             // Increase / decrease value.
- *       {RGB_SPI, RGB_SPD},             // Increase / decrease effect speed.
- *     #endif  // defined(RGBLIGHT_ENABLE) || defined(RGB_MATRIX_ENABLE)
- *     };
- *     const uint16_t NUM_REV_REPEAT_KEY_PAIRS =
- *       sizeof(rev_repeat_key_pairs) / sizeof(*rev_repeat_key_pairs);
- *
- * The Reverse Repeat Key searches this table for an entry matching the keycode
- * of the last key pressed and uses the other key in pair, as documented above
- * for `rev_repeat_key_keycode()`.
- */
-extern const uint16_t rev_repeat_key_pairs[][2] PROGMEM;
-extern const uint16_t NUM_REV_REPEAT_KEY_PAIRS;
+/** @deprecated Use `get_repeat_key_count()` instead. */
+static inline int8_t repeat_key_count(void) { return get_repeat_key_count(); }
+
+/** @deprecated Use `get_repeat_key_keycode()` instead. */
+static inline uint16_t repeat_key_keycode(void) {
+  return get_repeat_key_keycode();
+}
+
+/** @deprecated Use `get_repeat_key_mods()` instead. */
+static inline uint8_t repeat_key_mods(void) { return get_repeat_key_mods(); }
+
+/** @deprecated Use `get_rev_repeat_key_keycode()` instead. */
+static inline uint16_t rev_repeat_key_keycode(void) {
+  return get_rev_repeat_key_keycode();
+}
 
 #ifdef __cplusplus
 }

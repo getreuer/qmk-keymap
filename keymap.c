@@ -1,4 +1,4 @@
-// Copyright 2021-2022 Google LLC
+// Copyright 2021-2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -210,58 +210,6 @@ combo_t key_combos[] = {
 };
 uint16_t COMBO_LEN = sizeof(key_combos) / sizeof(*key_combos);
 
-// Opposing keycode pairs for Reverse Repeat Key.
-const uint16_t rev_repeat_key_pairs[][2] PROGMEM = {
-  {KC_LEFT, KC_RGHT},             // Left / Right Arrow.
-  {KC_UP  , KC_DOWN},             // Up / Down Arrow.
-  {S(KC_LEFT), S(KC_RGHT)},       // Shift + Left / Right Arrow.
-  {S(KC_UP), S(KC_DOWN)},         // Shift + Up / Down Arrow.
-  {C(KC_LEFT), C(KC_RGHT)},       // Ctrl + Left / Right Arrow.
-  {C(S(KC_LEFT)), C(S(KC_RGHT))}, // Ctrl + Shift + Left / Right Arrow.
-  {KC_HOME, KC_END },             // Home / End.
-  {KC_PGUP, KC_PGDN},             // Page Up / Page Down.
-  {C(KC_PGUP), C(KC_PGDN)},       // Ctrl + Page Up / Page Down.
-  {KC_TAB , S(KC_TAB)},           // Tab / Shift + Tab.
-  {KC_WBAK, KC_WFWD},             // Browser Back / Forward.
-  {KC_MNXT, KC_MPRV},             // Next / Previous Media Track.
-  {KC_MFFD, KC_MRWD},             // Fast Forward / Rewind Media.
-  {KC_VOLU, KC_VOLD},             // Volume Up / Down.
-  {KC_BRIU, KC_BRID},             // Brightness Up / Down.
-
-  // Navigation hotkeys in Vim, Emacs, and other programs.
-  {KC_H   , KC_L   },             // Left / Right.
-  {KC_J   , KC_K   },             // Down / Up.
-  {KC_W   , KC_B   },             // Forward / Backward by word.
-  {C(KC_N), C(KC_P)},             // Next / Previous.
-  {C(KC_D), C(KC_U)},             // Down / Up.
-  {C(KC_F), C(KC_B)},             // Forward / Backward.
-  {A(KC_F), A(KC_B)},             // Forward / Backward by word.
-
-  // Mouse keys (if enabled).
-#ifdef MOUSEKEY_ENABLE
-  {KC_MS_L, KC_MS_R},             // Mouse Cursor Left / Right.
-  {KC_MS_U, KC_MS_D},             // Mouse Cursor Up / Down.
-  {KC_WH_L, KC_WH_R},             // Mouse Wheel Left / Right.
-  {KC_WH_U, KC_WH_D},             // Mouse Wheel Up / Down.
-  {S(KC_WH_U), S(KC_WH_D)},       // Shift + Mouse Wheel Up / Down.
-  {C(KC_WH_U), C(KC_WH_D)},       // Ctrl + Mouse Wheel Up / Down.
-#endif  // MOUSEKEY_ENABLE
-
-  // Lighting keys (if enabled).
-#ifdef BACKLIGHT_ENABLE
-  {BL_UP  , BL_DOWN},             // Increase / decrease backlight level.
-#endif  // BACKLIGHT_ENABLE
-#if defined(RGBLIGHT_ENABLE) || defined(RGB_MATRIX_ENABLE)
-  {RGB_MOD, RGB_RMOD},            // Cycle effect mode forward / backward.
-  {RGB_HUI, RGB_HUD},             // Increase / decrease hue.
-  {RGB_SAI, RGB_SAD},             // Increase / decrease saturation.
-  {RGB_VAI, RGB_VAD},             // Increase / decrease value.
-  {RGB_SPI, RGB_SPD},             // Increase / decrease effect speed.
-#endif  // defined(RGBLIGHT_ENABLE) || defined(RGB_MATRIX_ENABLE)
-};
-const uint16_t NUM_REV_REPEAT_KEY_PAIRS =
-  sizeof(rev_repeat_key_pairs) / sizeof(*rev_repeat_key_pairs);
-
 bool get_tapping_force_hold(uint16_t keycode, keyrecord_t* record) {
   // If you quickly hold a tap-hold key after tapping it, the tap action is
   // repeated. Key repeating is useful e.g. for Vim navigation keys, but can
@@ -387,12 +335,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_select_word(keycode, record, SELWORD)) { return false; }
   if (!process_sentence_case(keycode, record)) { return false; }
 
-#ifndef NO_ACTION_ONESHOT
-  const uint8_t mods = get_mods() | get_oneshot_mods();
-#else
   const uint8_t mods = get_mods();
+  const bool shifted = (mods | get_weak_mods()
+#ifndef NO_ACTION_ONESHOT
+                        | get_oneshot_mods()
 #endif  // NO_ACTION_ONESHOT
-  const bool shifted = mods & MOD_MASK_SHIFT;
+                       ) & MOD_MASK_SHIFT;
 
   if (record->event.pressed) {
     switch (keycode) {
@@ -420,6 +368,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
       case USRNAME: {  // Type my username, or if Shift is held, my last name.
         static const char username[] PROGMEM = "getreuer";
         static const char last_name[] PROGMEM = "Getreuer";
+        clear_weak_mods();
         unregister_mods(mods);  // Clear mods before send_string.
         send_string_P(shifted ? last_name : username);
         register_mods(mods);  // Restore mods.
@@ -455,4 +404,3 @@ void matrix_scan_user(void) {
   achordion_task();
   sentence_case_task();
 }
-
