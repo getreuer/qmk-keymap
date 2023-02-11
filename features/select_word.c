@@ -25,7 +25,30 @@
 // Mac users, uncomment this line:
 // #define MAC_HOTKEYS
 
-enum { STATE_NONE, STATE_SELECTED, STATE_WORD, STATE_FIRST_LINE, STATE_LINE };
+// clang-format off
+enum {
+    STATE_NONE,        // No selection.
+    STATE_SELECTED,    // Macro released with something selected.
+    STATE_WORD,        // Macro held with word(s) selected.
+    STATE_FIRST_LINE,  // Macro held with one line selected.
+    STATE_LINE         // Macro held with multiple lines selected.
+};
+// clang-format on
+
+// Logs the state when debugging is on (https://docs.qmk.fm/#/faq_debug).
+static void dprint_state(uint8_t state) {
+#ifndef NO_DEBUG
+  static uint8_t prev_state = STATE_NONE;
+
+  if (debug_enable && prev_state != state) {
+    static const char* state_names[] = {
+        "NONE", "SELECTED", "WORD", "FIRST_LINE", "LINE",
+    };
+    dprintf("Select word: %s\n", state_names[state]);
+    prev_state = state;
+  }
+#endif  // NO_DEBUG
+}
 
 bool process_select_word(uint16_t keycode, keyrecord_t* record,
                          uint16_t sel_keycode) {
@@ -46,13 +69,16 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
 
     if (!shifted) {  // Select word.
 #ifdef MAC_HOTKEYS
-      set_mods(MOD_BIT(KC_LALT));
+      set_mods(MOD_BIT(KC_LALT));  // Hold Left Alt (Option).
 #else
-      set_mods(MOD_BIT(KC_LCTL));
+      set_mods(MOD_BIT(KC_LCTL));  // Hold Left Ctrl.
 #endif  // MAC_HOTKEYS
       if (state == STATE_NONE) {
+        // On first use, tap Ctrl+Right then Ctrl+Left (or with Alt on Mac) to
+        // ensure the cursor is positioned at the beginning of the word.
         send_keyboard_report();
         tap_code(KC_RGHT);
+        wait_ms(TAP_CODE_DELAY);
         tap_code(KC_LEFT);
       }
       register_mods(MOD_BIT(KC_LSFT));
@@ -61,15 +87,19 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
     } else {  // Select line.
       if (state == STATE_NONE) {
 #ifdef MAC_HOTKEYS
+        // Tap GUI (Command) + Left, then Shift + GUI + Right.
         set_mods(MOD_BIT(KC_LGUI));
         send_keyboard_report();
         tap_code(KC_LEFT);
+        wait_ms(TAP_CODE_DELAY);
         register_mods(MOD_BIT(KC_LSFT));
         tap_code(KC_RGHT);
 #else
+        // Tap Home, then Shift + End.
         clear_mods();
         send_keyboard_report();
         tap_code(KC_HOME);
+        wait_ms(TAP_CODE_DELAY);
         register_mods(MOD_BIT(KC_LSFT));
         tap_code(KC_END);
 #endif  // MAC_HOTKEYS
@@ -80,6 +110,7 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
         state = STATE_LINE;
       }
     }
+    dprint_state(state);
     return false;
   }
 
@@ -108,6 +139,7 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
       if (keycode == KC_ESC) {
         tap_code(KC_RGHT);
         state = STATE_NONE;
+        dprint_state(state);
         return false;
       }
       // Fallthrough intended.
@@ -115,5 +147,6 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
       state = STATE_NONE;
   }
 
+  dprint_state(state);
   return true;
 }
