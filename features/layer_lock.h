@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC
+// Copyright 2022-2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@
  *  * `LT(layer, key)` layer tap
  *  * `OSL(layer)` one-shot layer
  *  * `TT(layer)` layer tap toggle
+ *  * `LM(layer, mod)` layer-mod key (the layer is locked, but not the mods)
  *
  * Tapping the Layer Lock key again unlocks and turns off the layer.
  *

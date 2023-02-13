@@ -71,8 +71,22 @@ bool process_layer_lock(uint16_t keycode, keyrecord_t* record,
   switch (keycode) {
     case QK_MOMENTARY ... QK_MOMENTARY_MAX:  // `MO(layer)` keys.
       return handle_mo_or_tt(QK_MOMENTARY_GET_LAYER(keycode), record);
+
     case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX:  // `TT(layer)`.
       return handle_mo_or_tt(QK_LAYER_TAP_TOGGLE_GET_LAYER(keycode), record);
+
+    case QK_LAYER_MOD ... QK_LAYER_MOD_MAX: {  // `LM(layer, mod)`.
+      uint8_t layer = QK_LAYER_MOD_GET_LAYER(keycode);
+      if (is_layer_locked(layer)) {
+        if (record->event.pressed) {  // On press, unlock the layer.
+          layer_lock_invert(layer);
+        } else {  // On release, clear the mods.
+          clear_mods();
+          send_keyboard_report();
+        }
+        return false;  // Skip default handling.
+      }
+    } break;
 
 #ifndef NO_ACTION_TAPPING
     case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:  // `LT(layer, key)` keys.
