@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC
+// Copyright 2022-2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,6 +38,17 @@ void layer_lock_task(void) {
 }
 #endif  // LAYER_LOCK_IDLE_TIMEOUT > 0
 
+// Handles an event on an `MO` or `TT` layer switch key.
+static bool handle_mo_or_tt(uint8_t layer, keyrecord_t* record) {
+  if (is_layer_locked(layer)) {
+    if (record->event.pressed) {  // On press, unlock the layer.
+      layer_lock_invert(layer);
+    }
+    return false;  // Skip default handling.
+  }
+  return true;
+}
+
 bool process_layer_lock(uint16_t keycode, keyrecord_t* record,
                         uint16_t lock_keycode) {
 #if LAYER_LOCK_IDLE_TIMEOUT > 0
@@ -59,21 +70,14 @@ bool process_layer_lock(uint16_t keycode, keyrecord_t* record,
 
   switch (keycode) {
     case QK_MOMENTARY ... QK_MOMENTARY_MAX:  // `MO(layer)` keys.
-    case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX: {  // `TT(layer)`.
-      const uint8_t layer = keycode & 255;
-      if (is_layer_locked(layer)) {
-        // Event on `MO` or `TT` key where layer is locked.
-        if (record->event.pressed) {  // On press, unlock the layer.
-          layer_lock_invert(layer);
-        }
-        return false;  // Skip default handling.
-      }
-    } break;
+      return handle_mo_or_tt(QK_MOMENTARY_GET_LAYER(keycode), record);
+    case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX:  // `TT(layer)`.
+      return handle_mo_or_tt(QK_LAYER_TAP_TOGGLE_GET_LAYER(keycode), record);
 
 #ifndef NO_ACTION_TAPPING
     case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:  // `LT(layer, key)` keys.
       if (record->tap.count == 0 && !record->event.pressed &&
-          is_layer_locked((keycode >> 8) & 15)) {
+          is_layer_locked(QK_LAYER_TAP_GET_LAYER(keycode))) {
         // Release event on a held layer-tap key where the layer is locked.
         return false;  // Skip default handling so that layer stays on.
       }
