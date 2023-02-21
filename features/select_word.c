@@ -34,29 +34,28 @@ enum {
     STATE_LINE         // Macro held with multiple lines selected.
 };
 // clang-format on
+static uint8_t state = STATE_NONE;
 
-// Logs the state when debugging is on (https://docs.qmk.fm/#/faq_debug).
-static void dprint_state(uint8_t state) {
-#ifndef NO_DEBUG
-  static uint8_t prev_state = STATE_NONE;
+// Idle timeout timer to disable Select Word after a period of inactivity.
+#if SELECT_WORD_TIMEOUT > 0
+static uint16_t idle_timer = 0;
 
-  if (debug_enable && prev_state != state) {
-    static const char* state_names[] = {
-        "NONE", "SELECTED", "WORD", "FIRST_LINE", "LINE",
-    };
-    dprintf("Select word: %s\n", state_names[state]);
-    prev_state = state;
+void select_word_task(void) {
+  if (state && timer_expired(timer_read(), idle_timer)) {
+    state = STATE_NONE;
   }
-#endif  // NO_DEBUG
 }
+#endif  // SELECT_WORD_TIMEOUT > 0
 
 bool process_select_word(uint16_t keycode, keyrecord_t* record,
                          uint16_t sel_keycode) {
-  static uint8_t state = STATE_NONE;
-
   if (keycode == KC_LSFT || keycode == KC_RSFT) {
     return true;
   }
+
+#if SELECT_WORD_TIMEOUT > 0
+  idle_timer = record->event.time + SELECT_WORD_TIMEOUT;
+#endif  // SELECT_WORD_TIMEOUT > 0
 
   if (keycode == sel_keycode && record->event.pressed) {  // On key press.
     const uint8_t mods = get_mods();
@@ -78,7 +77,6 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
         // ensure the cursor is positioned at the beginning of the word.
         send_keyboard_report();
         tap_code(KC_RGHT);
-        wait_ms(TAP_CODE_DELAY);
         tap_code(KC_LEFT);
       }
       register_mods(MOD_BIT(KC_LSFT));
@@ -91,7 +89,6 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
         set_mods(MOD_BIT(KC_LGUI));
         send_keyboard_report();
         tap_code(KC_LEFT);
-        wait_ms(TAP_CODE_DELAY);
         register_mods(MOD_BIT(KC_LSFT));
         tap_code(KC_RGHT);
 #else
@@ -99,7 +96,6 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
         clear_mods();
         send_keyboard_report();
         tap_code(KC_HOME);
-        wait_ms(TAP_CODE_DELAY);
         register_mods(MOD_BIT(KC_LSFT));
         tap_code(KC_END);
 #endif  // MAC_HOTKEYS
@@ -110,7 +106,6 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
         state = STATE_LINE;
       }
     }
-    dprint_state(state);
     return false;
   }
 
@@ -139,7 +134,6 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
       if (keycode == KC_ESC) {
         tap_code(KC_RGHT);
         state = STATE_NONE;
-        dprint_state(state);
         return false;
       }
       // Fallthrough intended.
@@ -147,6 +141,5 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
       state = STATE_NONE;
   }
 
-  dprint_state(state);
   return true;
 }

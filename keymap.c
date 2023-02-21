@@ -402,5 +402,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 
 void matrix_scan_user(void) {
   achordion_task();
+  select_word_task();
   sentence_case_task();
 }

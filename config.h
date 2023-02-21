@@ -34,5 +34,8 @@
 // When idle, turn off Caps Word after 5 seconds.
 #define CAPS_WORD_IDLE_TIMEOUT 5000
 
+// When idle, turn off Select Word after 2 seconds.
+#define SELECT_WORD_TIMEOUT 2000
+
 // When idle, turn off Sentence Case after 2 seconds.
 #define SENTENCE_CASE_TIMEOUT 2000
