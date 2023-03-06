@@ -67,7 +67,7 @@ enum custom_keycodes {
   ARROW,
   THMBUP,
   REPEAT,
-  REVREP,
+  ALTREP,
 };
 
 // This keymap uses home row mods. In addition to mods, I have home row
@@ -125,7 +125,7 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
                       KC_D   , HOME_H , HOME_T , HOME_N , HOME_S , KC_BSPC,
                       KC_B   , KC_M   , KC_W   , KC_V   , HOME_Z , KC_RSFT,
                                KC_LEFT, KC_RGHT, DASH   , ARROW  , THMBUP ,
-    KC_MINS, REVREP ,
+    KC_MINS, ALTREP ,
     KC_BSLS,
     SELWORD, REPEAT , KC_ENT
   ),
@@ -328,7 +328,7 @@ char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
 // clang-format off
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_achordion(keycode, record)) { return false; }
-  if (!process_repeat_key_with_rev(keycode, record, REPEAT, REVREP)) {
+  if (!process_repeat_key_with_alt(keycode, record, REPEAT, ALTREP)) {
     return false;
   }
   if (!process_custom_shift_keys(keycode, record)) { return false; }

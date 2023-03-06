@@ -23,8 +23,9 @@
  * if the last press key was Ctrl + Z, then Shift + Repeat Key performs Ctrl +
  * Shift + Z.
  *
- * Also included is a Reverse Repeat Key, performing the "reverse" if there is
- * one for the last key. If Page Down was the last key, the Reverse Repeat
+ * Also included is an Alternate Repeat Key, performing the "alternate" if there
+ * is one for the last key. By default it is defined for navigation keys to act
+ * in the reverse direction. If Page Down was the last key, the Alternate Repeat
  * performs Page Up.
  *
  * The implementation is a generic event-plumbing strategy that interoperates
@@ -56,24 +57,24 @@ extern "C" {
 bool process_repeat_key(uint16_t keycode, keyrecord_t* record,
                         uint16_t repeat_keycode);
 
-/** Handler function for Repeat Key and Reverse Repeat Key. */
-bool process_repeat_key_with_rev(uint16_t keycode, keyrecord_t* record,
+/** Handler function for Repeat Key and Alternate Repeat Key. */
+bool process_repeat_key_with_alt(uint16_t keycode, keyrecord_t* record,
                                  uint16_t repeat_keycode,
-                                 uint16_t rev_repeat_keycode);
+                                 uint16_t alt_repeat_keycode);
 
 /**
- * @brief Signed count of times the key has been repeated or reverse repeated.
+ * @brief Signed count of times the key has been repeated or alternate repeated.
  *
- * @note The count is nonzero only while a repeated or reverse-repeated key is
- *       being processed.
+ * @note The count is nonzero only while a repeated or alternate-repeated key is
+ * being processed.
  *
  * When a key is pressed normally, the count is 0. When the Repeat Key is used
  * to repeat a key, the count is 1 on the first repeat, 2 on the second repeat,
  * and continuing up to 127.
  *
- * Negative counts are used similarly for reverse repeating. When the Reverse
- * Repeat Key is used, the count is -1 on the first reverse repeat, -2 on the
- * second, continuing down to -127.
+ * Negative counts are used similarly for alternate repeating. When the
+ * Alternate Repeat Key is used, the count is -1 on the first alternate repeat,
+ * -2 on the second, continuing down to -127.
  */
 int8_t get_repeat_key_count(void);
 
@@ -143,24 +144,30 @@ void set_repeat_key_mods(uint8_t mods);
 bool get_repeat_key_eligible(uint16_t keycode, keyrecord_t* record);
 
 /**
- * @brief Keycode to be used for reverse repeating.
+ * @brief Keycode to be used for alternate repeating.
  *
- * Reverse Repeat performs this keycode based on the last eligible pressed key
+ * Alternate Repeat performs this keycode based on the last eligible pressed key
  * and mods, get_repeat_key_keycode() and get_repeat_key_mods(). For example,
  * when the last key was KC_UP, this function returns KC_DOWN. The function
- * returns KC_NO if the last key doesn't have a defined reverse.
+ * returns KC_NO if the last key doesn't have a defined alternate.
  */
-uint16_t get_rev_repeat_key_keycode(void);
+uint16_t get_alt_repeat_key_keycode(void);
 
 /**
- * @brief Optional user callback to define additional reverse keys.
+ * @brief Optional user callback to define additional alternate keys.
  *
- * When `get_rev_repeat_key_keycode()` is called, it first calls this callback.
- * It should return a keycode representing the "reverse" of the given keycode
+ * When `get_alt_repeat_key_keycode()` is called, it first calls this callback.
+ * It should return a keycode representing the "alternate" of the given keycode
  * and mods. Returning KC_NO defers to the default definitions in
- * `get_rev_repeat_key_keycode()`.
+ * `get_alt_repeat_key_keycode()`.
+ *
+ * This callback can be used to define additional pairs of keys that "reverse"
+ * each other. More generally, Alternate Repeat can be configured to perform an
+ * action that "complements" the last key---Alternate Repeat not limited to
+ * reverse repeating, and it need not be symmetric. For instance, you can use it
+ * to eliminate the worst same-finger bigrams in your layout.
  */
-uint16_t get_rev_repeat_key_keycode_user(uint16_t keycode, uint8_t mods);
+uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods);
 
 /**
  * Registers (presses down) the Repeat Key. This is useful for invoking Repeat
@@ -177,29 +184,38 @@ void repeat_key_unregister(void);
 void repeat_key_tap(void);
 
 /**
- * Registers (presses down) the Reverse Repeat Key, performing the reverse, if
- * there is one, for the last pressed key. If no reverse is found, the function
- * takes no action and returns false.
+ * Registers (presses down) the Alternate Repeat Key, performing the alternate,
+ * if there is one, for the last pressed key. If no alternate is found, the
+ * function takes no action and returns false.
  *
- * @return True if a reverse key was found.
+ * @return True if an alternate key was found.
  */
-bool rev_repeat_key_register(void);
+bool alt_repeat_key_register(void);
 
 /**
- * Unregisters (releases) the Reverse Repeat Key.
+ * Unregisters (releases) the Alternate Repeat Key.
  *
- * @return True if a reverse key was found.
+ * @return True if an alternate key was found.
  */
-bool rev_repeat_key_unregister(void);
+bool alt_repeat_key_unregister(void);
 
 /**
- * Taps the Reverse Repeat Key with a delay of TAP_CODE_DELAY.
+ * Taps the Alternate Repeat Key with a delay of TAP_CODE_DELAY.
  *
- * @return True if a reverse key was found.
+ * @return True if an alternate key was found.
  */
-bool rev_repeat_key_tap(void);
+bool alt_repeat_key_tap(void);
 
 // Deprecated APIs.
+
+/** @deprecated Use `process_repeat_key_with_alt()` instead. */
+static inline bool process_repeat_key_with_rev(
+    uint16_t keycode, keyrecord_t* record,
+    uint16_t repeat_keycode,
+    uint16_t rev_repeat_keycode) {
+  return process_repeat_key_with_alt(keycode, record,
+      repeat_keycode, rev_repeat_keycode);
+}
 
 /** @deprecated Use `get_repeat_key_count()` instead. */
 static inline int8_t repeat_key_count(void) { return get_repeat_key_count(); }
@@ -212,9 +228,32 @@ static inline uint16_t repeat_key_keycode(void) {
 /** @deprecated Use `get_repeat_key_mods()` instead. */
 static inline uint8_t repeat_key_mods(void) { return get_repeat_key_mods(); }
 
-/** @deprecated Use `get_rev_repeat_key_keycode()` instead. */
+/** @deprecated Use `get_alt_repeat_key_keycode()` instead. */
 static inline uint16_t rev_repeat_key_keycode(void) {
-  return get_rev_repeat_key_keycode();
+  return get_alt_repeat_key_keycode();
+}
+
+/** @deprecated Use `get_alt_repeat_key_keycode()` instead. */
+static inline uint16_t get_rev_repeat_key_keycode(void) {
+  return get_alt_repeat_key_keycode();
+}
+
+/** @deprecated Use `get_alt_repeat_key_keycode_user()` instead. */
+uint16_t get_rev_repeat_key_keycode_user(uint16_t keycode, uint8_t mods);
+
+/** @deprecated Use `alt_repeat_key_register()` instead. */
+static inline bool rev_repeat_key_register(void) {
+  return alt_repeat_key_register();
+}
+
+/** @deprecated Use `alt_repeat_key_unregister()` instead. */
+static inline bool rev_repeat_key_unregister(void) {
+  return alt_repeat_key_unregister();
+}
+
+/** @deprecated Use `alt_repeat_key_tap()` instead. */
+static inline bool rev_repeat_key_tap(void) {
+  return alt_repeat_key_tap();
 }
 
 #ifdef __cplusplus

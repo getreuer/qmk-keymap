@@ -30,9 +30,9 @@
 // Variables saving the state of the last key press.
 static keyrecord_t last_record = {0};
 static uint8_t last_mods = 0;
-// Signed count of the number of times the last key has been repeated or reverse
+// Signed count of the number of times the last key has been repeated or alternate
 // repeated: it is 0 when a key is pressed normally, positive when repeated,
-// and negative when reverse repeated.
+// and negative when alternate repeated.
 static int8_t last_repeat_count = 0;
 
 // The repeat_count, but set to 0 outside of repeat_key_invoke() so that it is
@@ -89,19 +89,19 @@ static void repeat_key_invoke(const keyevent_t* event) {
 }
 
 /**
- * @brief Find reverse keycode from a table of opposing keycode pairs.
+ * @brief Find alternate keycode from a table of opposing keycode pairs.
  * @param table Array of pairs of basic keycodes, declared as PROGMEM.
  * @param table_size_bytes The size of the table in bytes.
  * @param target The basic keycode to find.
- * @return The reverse basic keycode, or KC_NO if none was found.
+ * @return The alternate basic keycode, or KC_NO if none was found.
  *
  * @note The table keycodes and target must be basic keycodes.
  *
- * This helper is used several times below to define reverse keys. Given a table
+ * This helper is used several times below to define alternate keys. Given a table
  * of pairs of basic keycodes, the function finds the pair containing `target`
  * and returns the other keycode in the pair.
  */
-static uint8_t find_rev_keycode(const uint8_t (*table)[2],
+static uint8_t find_alt_keycode(const uint8_t (*table)[2],
                                 uint8_t table_size_bytes, uint8_t target) {
   const uint8_t* keycodes = (const uint8_t*)table;
   for (uint8_t i = 0; i < table_size_bytes; ++i) {
@@ -113,7 +113,7 @@ static uint8_t find_rev_keycode(const uint8_t (*table)[2],
   return KC_NO;
 }
 
-static void rev_repeat_key_invoke(const keyevent_t* event) {
+static void alt_repeat_key_invoke(const keyevent_t* event) {
   static keyrecord_t registered_record = {0};
   static int8_t registered_repeat_count = 0;
   // Since this function calls process_record(), it may recursively call itself.
@@ -129,11 +129,11 @@ static void rev_repeat_key_invoke(const keyevent_t* event) {
         .tap.interrupted = false,
         .tap.count = 0,
 #endif
-        .keycode = get_rev_repeat_key_keycode(),
+        .keycode = get_alt_repeat_key_keycode(),
     };
   }
 
-  // Early return if there is no reverse key defined.
+  // Early return if there is no alternate key defined.
   if (!registered_record.keycode) {
     return;
   }
@@ -172,11 +172,11 @@ bool process_repeat_key(uint16_t keycode, keyrecord_t* record,
   return true;
 }
 
-bool process_repeat_key_with_rev(uint16_t keycode, keyrecord_t* record,
+bool process_repeat_key_with_alt(uint16_t keycode, keyrecord_t* record,
                                  uint16_t repeat_keycode,
-                                 uint16_t rev_repeat_keycode) {
-  if (keycode == rev_repeat_keycode) {
-    rev_repeat_key_invoke(&record->event);
+                                 uint16_t alt_repeat_keycode) {
+  if (keycode == alt_repeat_keycode) {
+    alt_repeat_key_invoke(&record->event);
     return false;
   }
 
@@ -200,16 +200,16 @@ void set_repeat_key_keycode(uint16_t keycode) {
 
 void set_repeat_key_mods(uint8_t mods) { last_mods = mods; }
 
-uint16_t get_rev_repeat_key_keycode(void) {
+uint16_t get_alt_repeat_key_keycode(void) {
   uint16_t keycode = last_record.keycode;
   uint8_t mods = last_mods;
 
   // Call the user callback first to give it a chance to override the default
-  // reverse key definitions that follow.
-  uint16_t rev_keycode = get_rev_repeat_key_keycode_user(keycode, mods);
+  // alternate key definitions that follow.
+  uint16_t alt_keycode = get_alt_repeat_key_keycode_user(keycode, mods);
 
-  if (rev_keycode) {
-    return rev_keycode;
+  if (alt_keycode) {
+    return alt_keycode;
   }
 
   // Convert 8-bit mods to the 5-bit format used in keycodes. This is lossy: if
@@ -260,7 +260,7 @@ uint16_t get_rev_repeat_key_keycode(void) {
           {KC_A   , KC_E   },  // Home / End.
       };
       // clang-format on
-      rev_keycode = find_rev_keycode(pairs, sizeof(pairs), keycode);
+      alt_keycode = find_alt_keycode(pairs, sizeof(pairs), keycode);
     } else {
       // The last key was pressed with no mods or only Shift. The following map
       // a few more Vim hotkeys.
@@ -273,10 +273,10 @@ uint16_t get_rev_repeat_key_keycode(void) {
           {KC_E   , KC_B   },  // Forward / Backward by word.
       };
       // clang-format on
-      rev_keycode = find_rev_keycode(pairs, sizeof(pairs), keycode);
+      alt_keycode = find_alt_keycode(pairs, sizeof(pairs), keycode);
     }
 
-    if (!rev_keycode) {
+    if (!alt_keycode) {
       // The following key pairs are considered with any mods.
       // clang-format off
       static const uint8_t pairs[][2] PROGMEM = {
@@ -301,16 +301,16 @@ uint16_t get_rev_repeat_key_keycode(void) {
 #endif  // MOUSEKEY_ENABLE
       };
       // clang-format on
-      rev_keycode = find_rev_keycode(pairs, sizeof(pairs), keycode);
+      alt_keycode = find_alt_keycode(pairs, sizeof(pairs), keycode);
     }
 
-    if (rev_keycode) {
+    if (alt_keycode) {
       // Combine basic keycode with mods.
-      return (mods << 8) | rev_keycode;
+      return (mods << 8) | alt_keycode;
     }
   }
 
-  return KC_NO;  // No reverse key found.
+  return KC_NO;  // No alternate key found.
 }
 
 void repeat_key_register(void) {
@@ -327,27 +327,27 @@ void repeat_key_tap(void) {
   repeat_key_unregister();
 }
 
-bool rev_repeat_key_register(void) {
-  if (get_rev_repeat_key_keycode()) {
-    rev_repeat_key_invoke(&MAKE_KEYEVENT(0, 0, true));
+bool alt_repeat_key_register(void) {
+  if (get_alt_repeat_key_keycode()) {
+    alt_repeat_key_invoke(&MAKE_KEYEVENT(0, 0, true));
     return true;
   }
   return false;
 }
 
-bool rev_repeat_key_unregister(void) {
-  if (get_rev_repeat_key_keycode()) {
-    rev_repeat_key_invoke(&MAKE_KEYEVENT(0, 0, false));
+bool alt_repeat_key_unregister(void) {
+  if (get_alt_repeat_key_keycode()) {
+    alt_repeat_key_invoke(&MAKE_KEYEVENT(0, 0, false));
     return true;
   }
   return false;
 }
 
-bool rev_repeat_key_tap(void) {
-  if (get_rev_repeat_key_keycode()) {
-    rev_repeat_key_register();
+bool alt_repeat_key_tap(void) {
+  if (get_alt_repeat_key_keycode()) {
+    alt_repeat_key_register();
     wait_ms(TAP_CODE_DELAY);
-    rev_repeat_key_unregister();
+    alt_repeat_key_unregister();
     return true;
   }
   return false;
@@ -397,7 +397,13 @@ __attribute__((weak)) bool get_repeat_key_eligible(uint16_t keycode,
   return true;
 }
 
-// Default implementation of get_rev_repeat_key_keycode_user().
+// Default implementation of get_alt_repeat_key_keycode_user().
+__attribute__((weak)) uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode,
+                                                               uint8_t mods) {
+  return get_rev_repeat_key_keycode_user(keycode, mods);
+}
+
+// Default implementation of deprecated callback.
 __attribute__((weak)) uint16_t get_rev_repeat_key_keycode_user(uint16_t keycode,
                                                                uint8_t mods) {
   return KC_NO;
