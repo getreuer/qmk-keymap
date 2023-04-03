@@ -30,9 +30,9 @@
 // Variables saving the state of the last key press.
 static keyrecord_t last_record = {0};
 static uint8_t last_mods = 0;
-// Signed count of the number of times the last key has been repeated or alternate
-// repeated: it is 0 when a key is pressed normally, positive when repeated,
-// and negative when alternate repeated.
+// Signed count of the number of times the last key has been repeated or
+// alternate repeated: it is 0 when a key is pressed normally, positive when
+// repeated, and negative when alternate repeated.
 static int8_t last_repeat_count = 0;
 
 // The repeat_count, but set to 0 outside of repeat_key_invoke() so that it is
@@ -97,9 +97,9 @@ static void repeat_key_invoke(const keyevent_t* event) {
  *
  * @note The table keycodes and target must be basic keycodes.
  *
- * This helper is used several times below to define alternate keys. Given a table
- * of pairs of basic keycodes, the function finds the pair containing `target`
- * and returns the other keycode in the pair.
+ * This helper is used several times below to define alternate keys. Given a
+ * table of pairs of basic keycodes, the function finds the pair containing
+ * `target` and returns the other keycode in the pair.
  */
 static uint8_t find_alt_keycode(const uint8_t (*table)[2],
                                 uint8_t table_size_bytes, uint8_t target) {
@@ -150,6 +150,59 @@ static void alt_repeat_key_invoke(const keyevent_t* event) {
   processing_repeat_count = 0;
 }
 
+__attribute__((weak)) bool get_repeat_key_eligible(uint16_t keycode,
+                                                   keyrecord_t* record) {
+  switch (keycode) {
+    // Ignore MO, TO, TG, TT, and TL layer switch keys.
+    case QK_MOMENTARY ... QK_MOMENTARY_MAX:
+    case QK_TO ... QK_TO_MAX:
+    case QK_TOGGLE_LAYER ... QK_TOGGLE_LAYER_MAX:
+    case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX:
+      // Ignore mod keys.
+    case KC_LCTL ... KC_RGUI:
+    case KC_HYPR:
+    case KC_MEH:
+#ifndef NO_ACTION_ONESHOT  // Ignore one-shot keys.
+    case QK_ONE_SHOT_LAYER ... QK_ONE_SHOT_LAYER_MAX:
+    case QK_ONE_SHOT_MOD ... QK_ONE_SHOT_MOD_MAX:
+#endif  // NO_ACTION_ONESHOT
+#ifdef TRI_LAYER_ENABLE  // Ignore Tri Layer keys.
+    case QK_TRI_LAYER_LOWER:
+    case QK_TRI_LAYER_UPPER:
+#endif  // TRI_LAYER_ENABLE
+      return false;
+
+      // Ignore hold events on tap-hold keys.
+#ifndef NO_ACTION_TAPPING
+    case QK_MOD_TAP ... QK_MOD_TAP_MAX:
+#ifndef NO_ACTION_LAYER
+    case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+#endif  // NO_ACTION_LAYER
+      if (record->tap.count == 0) {
+        return false;
+      }
+      break;
+#endif  // NO_ACTION_TAPPING
+
+#ifdef SWAP_HANDS_ENABLE
+    case QK_SWAP_HANDS ... QK_SWAP_HANDS_MAX:
+      if (IS_SWAP_HANDS_KEYCODE(keycode) || record->tap.count == 0) {
+        return false;
+      }
+      break;
+#endif  // SWAP_HANDS_ENABLE
+  }
+
+  return true;
+}
+
+static bool get_repeat_key_eligible_wrapper(uint16_t keycode,
+                                            keyrecord_t* record,
+                                            uint8_t* remembered_mods) {
+  return get_repeat_key_eligible(keycode, record) &&
+         get_repeat_key_eligible_user(keycode, record, remembered_mods);
+}
+
 bool process_repeat_key(uint16_t keycode, keyrecord_t* record,
                         uint16_t repeat_keycode) {
   if (get_repeat_key_count()) {
@@ -159,14 +212,16 @@ bool process_repeat_key(uint16_t keycode, keyrecord_t* record,
   if (keycode == repeat_keycode) {
     repeat_key_invoke(&record->event);
     return false;
-  } else if (record->event.pressed &&
-             get_repeat_key_eligible(keycode, record)) {
-    set_repeat_key_record(keycode, record);
-    set_repeat_key_mods(get_mods() | get_weak_mods()
+  } else if (record->event.pressed) {
+    uint8_t remembered_mods = get_mods() | get_weak_mods();
 #ifndef NO_ACTION_ONESHOT
-                        | get_oneshot_mods()
+    remembered_mods |= get_oneshot_mods();
 #endif  // NO_ACTION_ONESHOT
-    );
+
+    if (get_repeat_key_eligible_wrapper(keycode, record, &remembered_mods)) {
+      set_repeat_key_record(keycode, record);
+      set_repeat_key_mods(remembered_mods);
+    }
   }
 
   return true;
@@ -208,7 +263,7 @@ uint16_t get_alt_repeat_key_keycode(void) {
   // alternate key definitions that follow.
   uint16_t alt_keycode = get_alt_repeat_key_keycode_user(keycode, mods);
 
-  if (alt_keycode) {
+  if (alt_keycode != KC_TRNS) {
     return alt_keycode;
   }
 
@@ -353,47 +408,9 @@ bool alt_repeat_key_tap(void) {
   return false;
 }
 
-// Default implementation of get_repeat_key_eligible().
-__attribute__((weak)) bool get_repeat_key_eligible(uint16_t keycode,
-                                                   keyrecord_t* record) {
-  switch (keycode) {
-    // Ignore MO, TO, TG, and TT layer switch keys.
-    case QK_MOMENTARY ... QK_MOMENTARY_MAX:
-    case QK_TO ... QK_TO_MAX:
-    case QK_TOGGLE_LAYER ... QK_TOGGLE_LAYER_MAX:
-    case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX:
-    // Ignore mod keys.
-    case KC_LCTL ... KC_RGUI:
-    case KC_HYPR:
-    case KC_MEH:
-      // Ignore one-shot keys.
-#ifndef NO_ACTION_ONESHOT
-    case QK_ONE_SHOT_LAYER ... QK_ONE_SHOT_LAYER_MAX:
-    case QK_ONE_SHOT_MOD ... QK_ONE_SHOT_MOD_MAX:
-#endif  // NO_ACTION_ONESHOT
-      return false;
-
-      // Ignore hold events on tap-hold keys.
-#ifndef NO_ACTION_TAPPING
-    case QK_MOD_TAP ... QK_MOD_TAP_MAX:
-#ifndef NO_ACTION_LAYER
-    case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-#endif  // NO_ACTION_LAYER
-      if (record->tap.count == 0) {
-        return false;
-      }
-      break;
-#endif  // NO_ACTION_TAPPING
-
-#ifdef SWAP_HANDS_ENABLE
-    case QK_SWAP_HANDS ... QK_SWAP_HANDS_MAX:
-      if (IS_SWAP_HANDS_KEYCODE(keycode) || record->tap.count == 0) {
-        return false;
-      }
-      break;
-#endif  // SWAP_HANDS_ENABLE
-  }
-
+// Default implementation of get_repeat_key_eligible_user().
+__attribute__((weak)) bool get_repeat_key_eligible_user(
+    uint16_t keycode, keyrecord_t* record, uint8_t* remembered_mods) {
   return true;
 }
 
@@ -406,7 +423,7 @@ __attribute__((weak)) uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode,
 // Default implementation of deprecated callback.
 __attribute__((weak)) uint16_t get_rev_repeat_key_keycode_user(uint16_t keycode,
                                                                uint8_t mods) {
-  return KC_NO;
+  return KC_TRNS;
 }
 
 #endif
