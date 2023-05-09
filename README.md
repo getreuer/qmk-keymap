@@ -88,7 +88,8 @@ much?](https://getreuer.info/posts/keyboards/tour/index.html)
 Here is a [KLE visualization](http://www.keyboard-layout-editor.com/) of my
 keymap. See the [keymap.c](keymap.c) itself for full details.
 
-**Base layer** (Dvorak with home row mods)
+**Base layer** ([Magic
+Sturdy](https://github.com/Ikcelaks/keyboard_layouts/blob/main/magic_sturdy/magic_sturdy.md) with home row mods)
 
 ![Base layer](doc/layout_base.png)
 
