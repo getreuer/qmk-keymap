@@ -313,6 +313,7 @@ uint16_t get_alt_repeat_key_keycode(void) {
           {KC_D   , KC_U   },  // Down / Up.
           {KC_N   , KC_P   },  // Next / Previous.
           {KC_A   , KC_E   },  // Home / End.
+          {KC_O   , KC_I   },  // Vim jumplist Older / Newer.
       };
       // clang-format on
       alt_keycode = find_alt_keycode(pairs, sizeof(pairs), keycode);
