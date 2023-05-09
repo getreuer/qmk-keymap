@@ -18,9 +18,10 @@
 #define MASTER_RIGHT
 
 // Tap-hold configuration for home row mods.
-#define TAPPING_TERM 180
+#define TAPPING_TERM 175
+#define TAPPING_TERM_PER_KEY
 #define PERMISSIVE_HOLD
-#define TAPPING_FORCE_HOLD_PER_KEY
+#define QUICK_TAP_TERM_PER_KEY
 
 #define NO_ACTION_MACRO
 #define NO_ACTION_FUNCTION

@@ -71,6 +71,10 @@ much?](https://getreuer.info/posts/keyboards/tour/index.html)
   keyboards](https://getreuer.info/posts/keyboards/40-percent-ergo/index.html)
   &ndash; smaller is not necessarily better
 
+* [PSA: Thumbs can get overuse
+  injuries](https://getreuer.info/posts/keyboards/thumb-ergo/index.html) &ndash;
+  anecdotes, common injuries, countermeasures
+
 * [Keyboard FAQS](https://getreuer.info/posts/keyboards/faqs/index.html) &ndash;
   thoughts on topics that come up regularly
 

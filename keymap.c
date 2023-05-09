@@ -68,6 +68,15 @@ enum custom_keycodes {
   THMBUP,
   REPEAT,
   ALTREP,
+  M_ION,
+  M_NION,
+  M_MENT,
+  M_QUEN,
+  M_TMENT,
+  M_THE,
+  M_UPDIR,
+  M_INCLUDE,
+  M_DOCSTR,
 };
 
 // This keymap uses home row mods. In addition to mods, I have home row
@@ -81,17 +90,17 @@ enum custom_keycodes {
 // |  Gui  |                                                   |  Gui  |
 // +-------+                                                   +-------+
 
-// Home row mods for Dvorak layer.
-#define HOME_A LT(SYM, KC_A)
-#define HOME_O LALT_T(KC_O)
-#define HOME_E LSFT_T(KC_E)
-#define HOME_U LCTL_T(KC_U)
-#define HOME_H RCTL_T(KC_H)
-#define HOME_T RSFT_T(KC_T)
-#define HOME_N LALT_T(KC_N)
+// Home row mods for Magic Sturdy layer.
 #define HOME_S LT(SYM, KC_S)
-#define HOME_SC LGUI_T(KC_SCLN)
-#define HOME_Z RGUI_T(KC_Z)
+#define HOME_T LALT_T(KC_T)
+#define HOME_R LSFT_T(KC_R)
+#define HOME_D LCTL_T(KC_D)
+#define HOME_N RCTL_T(KC_N)
+#define HOME_E RSFT_T(KC_E)
+#define HOME_A LALT_T(KC_A)
+#define HOME_I LT(SYM, KC_I)
+#define HOME_X LGUI_T(KC_X)
+#define HOME_SC RGUI_T(KC_SCLN)
 
 // Home row mods for QWERTY layer.
 #define QHOME_A LT(SYM, KC_A)
@@ -105,28 +114,34 @@ enum custom_keycodes {
 #define QHOME_Z LGUI_T(KC_Z)
 #define QHOME_SL RGUI_T(KC_SLSH)
 
+// Alternate Repeat is the "magic" key.
+#define MAGIC ALTREP
+
 // I have F13 bound to toggle Redshift (http://jonls.dk/redshift/).
 #define REDSHFT KC_F13
 
 // clang-format off
 const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
-  [BASE] = LAYOUT_LR(  // Base layer: Dvorak with home row mods.
+  // The base layer is Ikcelaks' Magic Sturdy layout, a variation of Oxey's
+  // Sturdy, plus a few tweaks of my own.
+  // https://github.com/Ikcelaks/keyboard_layouts/blob/main/magic_sturdy/magic_sturdy.md
+  [BASE] = LAYOUT_LR(
     KC_GRV , KC_7   , KC_8   , KC_9   , KC_0   , KC_5   ,
-    KC_TAB , KC_QUOT, KC_COMM, KC_DOT , KC_P   , KC_Y   ,
-    KC_ESC , HOME_A , HOME_O , HOME_E , HOME_U , KC_I   ,
-    KC_LSFT, HOME_SC, KC_Q   , KC_J   , KC_K   , KC_X   ,
+    KC_TAB , KC_V   , KC_M   , KC_L   , KC_C   , KC_P   ,
+    KC_ESC , HOME_S , HOME_T , HOME_R , HOME_D , KC_Y   ,
+    KC_LSFT, HOME_X , KC_K   , KC_J   , KC_G   , KC_W   ,
     KC_LCTL, KC_PGUP, KC_PGDN, KC_DOWN, KC_UP  ,
                                                           MO(SYM), KC_UNDS,
-                                                                   KC_WH_D,
+                                                                   KC_BSLS,
                                                  KC_DEL , KC_SPC , KC_BTN1,
 
-                      KC_6   , KC_1   , KC_2   , KC_3   , KC_4   , KC_BSLS,
-                      KC_F   , KC_G   , KC_C   , KC_R   , KC_L   , KC_SLSH,
-                      KC_D   , HOME_H , HOME_T , HOME_N , HOME_S , KC_BSPC,
-                      KC_B   , KC_M   , KC_W   , KC_V   , HOME_Z , KC_RSFT,
+                      KC_6   , KC_1   , KC_2   , KC_3   , KC_4   , KC_SLSH,
+                      KC_B   , MAGIC  , KC_U   , KC_O   , KC_Q   , KC_MINS,
+                      KC_F   , HOME_N , HOME_E , HOME_A , HOME_I , KC_BSPC,
+                      KC_Z   , KC_H   , KC_COMM, KC_DOT , HOME_SC, KC_ENT ,
                                KC_LEFT, KC_RGHT, DASH   , ARROW  , THMBUP ,
-    KC_MINS, ALTREP ,
-    KC_BSLS,
+    KC_QUOT, TMUXESC,
+    SCOPE  ,
     SELWORD, REPEAT , KC_ENT
   ),
 
@@ -152,18 +167,18 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
 
   [SYM] = LAYOUT_LR(  // Symbol layer.
     _______, KC_F7  , KC_F8  , KC_F9  , KC_F10 , KC_F5  ,
-    USRNAME, KC_QUOT, KC_LABK, KC_RABK, KC_DQUO, KC_DOT ,
-    TMUXESC, KC_EXLM, KC_MINS, KC_PLUS, KC_EQL , KC_HASH,
-    _______, KC_CIRC, KC_SLSH, KC_ASTR, KC_BSLS, UPDIR,
+    TMUXESC, _______, KC_LABK, KC_RABK, KC_AT  , KC_DOT ,
+    _______, KC_EXLM, KC_MINS, KC_PLUS, KC_EQL , KC_HASH,
+    _______, _______, KC_SLSH, KC_ASTR, KC_CIRC, UPDIR,
     _______, _______, _______, C(KC_END), C(KC_HOME),
                                                           _______, _______,
                                                                    _______,
                                                  SRCHSEL, _______, _______,
 
                       KC_F6  , KC_F1  , KC_F2  , KC_F3  , KC_F4  , KC_F11 ,
-                      KC_AMPR, SCOPE  , KC_LBRC, KC_RBRC, KC_PERC, KC_F12 ,
-                      KC_PIPE, KC_COLN, KC_LPRN, KC_RPRN, KC_QUES, TO(ADJUST),
-                      KC_TILD, KC_DLR , KC_LCBR, KC_RCBR, KC_AT  , _______,
+                      KC_AMPR, _______, KC_LBRC, KC_RBRC, _______, KC_F12 ,
+                      KC_PIPE, KC_COLN, KC_LPRN, KC_RPRN, KC_PERC, TO(ADJUST),
+                      KC_TILD, KC_DLR , KC_LCBR, KC_RCBR, _______, _______,
                                KC_HOME, KC_END , _______, _______, _______,
     _______, _______,
     _______,
@@ -203,31 +218,45 @@ const custom_shift_key_t custom_shift_keys[] = {
 uint8_t NUM_CUSTOM_SHIFT_KEYS =
     sizeof(custom_shift_keys) / sizeof(*custom_shift_keys);
 
-const uint16_t caps_combo[] PROGMEM = {KC_DOT, KC_C, COMBO_END};
+const uint16_t caps_combo[] PROGMEM = {KC_J, KC_COMM, COMBO_END};
 combo_t key_combos[] = {
-    // . and C => activate Caps Word.
+    // J and , => activate Caps Word.
     COMBO(caps_combo, CW_TOGG),
 };
 uint16_t COMBO_LEN = sizeof(key_combos) / sizeof(*key_combos);
 
-bool get_tapping_force_hold(uint16_t keycode, keyrecord_t* record) {
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t* record) {
+  switch (keycode) {
+    // Increase the tapping term a little for slower ring and pinky fingers.
+    case HOME_S:
+    case HOME_T:
+    case HOME_A:
+    case HOME_I:
+    case QHOME_A:
+    case QHOME_S:
+    case QHOME_L:
+    case QHOME_SC:
+      return TAPPING_TERM + 15;
+
+    default:
+      return TAPPING_TERM;
+  }
+}
+
+uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t* record) {
   // If you quickly hold a tap-hold key after tapping it, the tap action is
   // repeated. Key repeating is useful e.g. for Vim navigation keys, but can
-  // lead to missed triggers in fast typing. Here, returning true means we
+  // lead to missed triggers in fast typing. Here, returning 0 means we
   // instead want to "force hold" and disable key repeating.
   switch (keycode) {
+    case HOME_N:
     // Repeating is useful for Vim navigation keys.
-    case HOME_U:
-    case HOME_H:
     case QHOME_J:
     case QHOME_K:
     case QHOME_L:
-    // Repeating Z is useful for spamming undo.
-    case HOME_Z:
-    case QHOME_Z:
-      return false;  // Enable key repeating.
+      return QUICK_TAP_TERM;  // Enable key repeating.
     default:
-      return true;  // Otherwise, force hold and disable key repeating.
+      return 0;  // Otherwise, force hold and disable key repeating.
   }
 }
 
@@ -255,16 +284,10 @@ bool caps_word_press_user(uint16_t keycode) {
 bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
                      uint16_t other_keycode, keyrecord_t* other_record) {
   // Exceptionally consider the following chords as holds, even though they
-  // are on the same hand in Dvorak.
+  // are on the same hand in Magic Sturdy.
   switch (tap_hold_keycode) {
-    case HOME_A:  // A + U.
-      if (other_keycode == HOME_U) {
-        return true;
-      }
-      break;
-
-    case HOME_S:  // S + H and S + G.
-      if (other_keycode == HOME_H || other_keycode == KC_G) {
+    case HOME_S:  // S + D.
+      if (other_keycode == HOME_D) {
         return true;
       }
       break;
@@ -282,8 +305,10 @@ bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
 
 uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
   switch (tap_hold_keycode) {
+    case HOME_X:
     case HOME_SC:
-    case HOME_Z:
+    case QHOME_Z:
+    case QHOME_SL:
       return 0;  // Bypass Achordion for these keys.
   }
 
@@ -323,6 +348,86 @@ char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
   // Otherwise clear Sentence Case to initial state.
   sentence_case_clear();
   return '\0';
+}
+
+uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
+  if ((mods & ~MOD_MASK_SHIFT) == 0) {
+    switch (keycode) {
+      // Behavior for Magic Sturdy's "magic" key.
+      case HOME_A:  // A -> O
+        return KC_O;
+      case KC_C:  // C -> Y
+        return KC_Y;
+      case HOME_D:  // D -> Y
+        return KC_Y;
+      case HOME_E:  // E -> U
+        return KC_U;
+      case KC_G:  // G -> Y
+        return KC_Y;
+      case HOME_I:  // I -> ON
+        return M_ION;
+      case KC_L:  // L -> K
+        return KC_K;
+      case KC_M:  // M -> ENT
+        return M_MENT;
+      case HOME_N:  // N -> ION
+        return M_NION;
+      case KC_N:
+        return KC_N;
+      case KC_O:  // O -> A
+        return KC_A;
+      case KC_P:  // P -> Y
+        return KC_Y;
+      case KC_Q:  // Q -> UEN
+        return M_QUEN;
+      case HOME_R:  // R -> L
+        return KC_L;
+      case HOME_S:  // S -> K
+        return KC_K;
+      case HOME_T:  // T -> MENT
+        return M_TMENT;
+      case KC_U:  // U -> E
+        return KC_E;
+      case KC_Y:  // Y -> P
+        return KC_P;
+
+      case KC_SPC:  // spc -> THE
+        return M_THE;
+      case KC_DOT:  // . -> ./
+        return M_UPDIR;
+      case KC_HASH:  // # -> include
+        return M_INCLUDE;
+      case KC_QUOT:
+        if ((mods & MOD_MASK_SHIFT) != 0) {
+          // " -> ""<cursor>""" (for Python doc strings)
+          return M_DOCSTR;
+        }
+        return KC_NO;
+    }
+  } else if ((mods & MOD_MASK_CTRL)) {
+    switch (keycode) {
+      case HOME_A:  // Ctrl+A -> Ctrl+C
+        return C(KC_C);
+      case KC_C:  // Ctrl+C -> Ctrl+V
+        return C(KC_V);
+    }
+  }
+  return KC_TRNS;
+}
+
+bool get_repeat_key_eligible_user(uint16_t keycode, keyrecord_t* record,
+                                  uint8_t* remembered_mods) {
+  // Forget Shift on letter keys A-Y when Shift or AltGr are the only mods.
+  // Exceptionally, I want to remember Shift on Z for "ZZ" in Vim.
+  switch (keycode) {
+    case KC_A ... KC_Y:
+      if ((*remembered_mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT))) == 0) {
+        *remembered_mods &= ~MOD_MASK_SHIFT;
+      }
+      break;
+  }
+
+  return true;
 }
 
 // clang-format off
@@ -365,15 +470,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
         SEND_STRING(SS_LCTL("ct") SS_DELAY(100) SS_LCTL("v") SS_TAP(X_ENTER));
         return false;
 
-      case USRNAME: {  // Type my username, or if Shift is held, my last name.
-        static const char username[] PROGMEM = "getreuer";
-        static const char last_name[] PROGMEM = "Getreuer";
-        clear_weak_mods();
-        unregister_mods(mods);  // Clear mods before send_string.
-        send_string_P(shifted ? last_name : username);
-        register_mods(mods);  // Restore mods.
-      } break;
-
       // The following cases type a few Unicode symbols.
       //
       // `send_unicode_hex_string()` is deprecated. The docs suggest to ensure
@@ -394,6 +490,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
       case THMBUP:  // Thumbs up emoji, or party emoji when shifted.
         send_unicode_string(shifted ? "\xf0\x9f\xa5\xb3" : "\xf0\x9f\x91\x8d");
         return false;
+
+      // Macros invoked through the MAGIC key.
+      case M_ION:     SEND_STRING(/*i*/"on"); break;
+      case M_NION:    SEND_STRING(/*n*/"ion"); break;
+      case M_MENT:    SEND_STRING(/*m*/"ent"); break;
+      case M_QUEN:    SEND_STRING(/*q*/"uen"); break;
+      case M_TMENT:   SEND_STRING(/*t*/"ment"); break;
+      case M_THE:     SEND_STRING(/* */"the"); break;
+      case M_UPDIR:   SEND_STRING(/*.*/"./"); break;
+      case M_INCLUDE: SEND_STRING(/*#*/"include"); break;
+      case M_DOCSTR:
+        SEND_STRING(/*"*/"\"\"\"\"\""
+            SS_TAP(X_LEFT) SS_TAP(X_LEFT) SS_TAP(X_LEFT));
+        break;
     }
   }
 
