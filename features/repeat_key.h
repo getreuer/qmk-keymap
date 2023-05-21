@@ -78,28 +78,28 @@ bool process_repeat_key_with_alt(uint16_t keycode, keyrecord_t* record,
  */
 int8_t get_repeat_key_count(void);
 
-/** @brief Keycode of the key to be repeated. */
-uint16_t get_repeat_key_keycode(void);
-/** @brief Mods to be applied when repeating. */
-uint8_t get_repeat_key_mods(void);
-/** @brief Sets the keycode to repeat. */
-void set_repeat_key_keycode(uint16_t keycode);
-/** @brief Sets the mods to repeat. */
-void set_repeat_key_mods(uint8_t mods);
+/** @brief Keycode of the last key. */
+uint16_t get_last_keycode(void);
+/** @brief Mods that were active with the last key. */
+uint8_t get_last_mods(void);
+/** @brief Sets the last keycode. */
+void set_last_keycode(uint16_t keycode);
+/** @brief Sets the last mods. */
+void set_last_mods(uint8_t mods);
 
 /**
- * @brief Callback defining which keys are eligible for repeating.
+ * @brief Callback defining which keys are remembered.
  *
  * @param keycode          Keycode that was just pressed
  * @param record           keyrecord_t structure
  * @param remembered_mods  Mods that will be remembered with this key
- * @return true            Key is eligible for repeating
+ * @return true            Key is remembered (eligible for repeating)
  * @return false           Key is ignored
  *
  * Modifier and layer switch keys are always ignored. For all other keys, this
- * callback is called on every key press. Returning true means that the key
- * is eligible for repeating, false means it is ignored. By default, all
- * non-modifier, non-layer switch keys are eligible.
+ * callback is called on every key press. Returning true means that the key is
+ * remembered, false means it is ignored. By default, all non-modifier,
+ * non-layer switch keys are remembered.
  *
  * The `remembered_mods` arg represents the mods that will be remembered with
  * this key. It can be modified to forget certain mods, for instance to forget
@@ -111,16 +111,16 @@ void set_repeat_key_mods(uint8_t mods);
  *       *remembered_mods = 0;
  *     }
  */
-bool get_repeat_key_eligible_user(uint16_t keycode, keyrecord_t* record,
-                                  uint8_t* remembered_mods);
+bool remember_last_key_user(uint16_t keycode, keyrecord_t* record,
+                            uint8_t* remembered_mods);
 
 /**
  * @brief Keycode to be used for alternate repeating.
  *
  * Alternate Repeat performs this keycode based on the last eligible pressed key
- * and mods, get_repeat_key_keycode() and get_repeat_key_mods(). For example,
- * when the last key was KC_UP, this function returns KC_DOWN. The function
- * returns KC_NO if the last key doesn't have a defined alternate.
+ * and mods, get_last_keycode() and get_last_mods(). For example, when the last
+ * key was KC_UP, this function returns KC_DOWN. The function returns KC_NO if
+ * the last key doesn't have a defined alternate.
  */
 uint16_t get_alt_repeat_key_keycode(void);
 
@@ -188,25 +188,36 @@ static inline bool process_repeat_key_with_rev(uint16_t keycode,
                                      rev_repeat_keycode);
 }
 
-/** @deprecated Use `get_repeat_key_eligible_user()` instead. */
-bool get_repeat_key_eligible(uint16_t keycode, keyrecord_t* record);
-
 /** @deprecated Use `get_repeat_key_count()` instead. */
 static inline int8_t repeat_key_count(void) { return get_repeat_key_count(); }
 
-/** @deprecated Use `get_repeat_key_keycode()` instead. */
-static inline uint16_t repeat_key_keycode(void) {
-  return get_repeat_key_keycode();
+/** @deprecated Use `get_last_keycode()` instead. */
+static inline uint16_t get_repeat_key_keycode(void) {
+  return get_last_keycode();
 }
+/** @deprecated Use `get_last_keycode()` instead. */
+static inline uint16_t repeat_key_keycode(void) { return get_last_keycode(); }
+/** @deprecated Use `get_last_mods()` instead. */
+static inline uint8_t get_repeat_key_mods(void) { return get_last_mods(); }
+/** @deprecated Use `get_last_mods()` instead. */
+static inline uint8_t repeat_key_mods(void) { return get_last_mods(); }
+/** @deprecated Use `set_last_keycode()` instead. */
+static inline void set_repeat_key_keycode(uint16_t keycode) {
+  set_last_keycode(keycode);
+}
+/** @deprecated Use `set_last_mods()` instead. */
+static inline void set_repeat_key_mods(uint8_t mods) { set_last_mods(mods); }
 
-/** @deprecated Use `get_repeat_key_mods()` instead. */
-static inline uint8_t repeat_key_mods(void) { return get_repeat_key_mods(); }
+/** @deprecated Use `remember_last_key_user()` instead. */
+bool get_repeat_key_eligible_user(uint16_t keycode, keyrecord_t* record,
+                                  uint8_t* remembered_mods);
+/** @deprecated Use `remember_last_key_user()` instead. */
+bool get_repeat_key_eligible(uint16_t keycode, keyrecord_t* record);
 
 /** @deprecated Use `get_alt_repeat_key_keycode()` instead. */
 static inline uint16_t rev_repeat_key_keycode(void) {
   return get_alt_repeat_key_keycode();
 }
-
 /** @deprecated Use `get_alt_repeat_key_keycode()` instead. */
 static inline uint16_t get_rev_repeat_key_keycode(void) {
   return get_alt_repeat_key_keycode();

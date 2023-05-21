@@ -48,7 +48,7 @@ static void update_last_repeat_count(int8_t dir) {
   }
 }
 
-static void set_repeat_key_record(uint16_t keycode, keyrecord_t* record) {
+static void set_last_record(uint16_t keycode, keyrecord_t* record) {
   last_record = *record;
   last_record.keycode = keycode;
   last_repeat_count = 0;
@@ -196,11 +196,10 @@ __attribute__((weak)) bool get_repeat_key_eligible(uint16_t keycode,
   return true;
 }
 
-static bool get_repeat_key_eligible_wrapper(uint16_t keycode,
-                                            keyrecord_t* record,
-                                            uint8_t* remembered_mods) {
+static bool remember_last_key_wrapper(uint16_t keycode, keyrecord_t* record,
+                                      uint8_t* remembered_mods) {
   return get_repeat_key_eligible(keycode, record) &&
-         get_repeat_key_eligible_user(keycode, record, remembered_mods);
+         remember_last_key_user(keycode, record, remembered_mods);
 }
 
 bool process_repeat_key(uint16_t keycode, keyrecord_t* record,
@@ -218,9 +217,9 @@ bool process_repeat_key(uint16_t keycode, keyrecord_t* record,
     remembered_mods |= get_oneshot_mods();
 #endif  // NO_ACTION_ONESHOT
 
-    if (get_repeat_key_eligible_wrapper(keycode, record, &remembered_mods)) {
-      set_repeat_key_record(keycode, record);
-      set_repeat_key_mods(remembered_mods);
+    if (remember_last_key_wrapper(keycode, record, &remembered_mods)) {
+      set_last_record(keycode, record);
+      set_last_mods(remembered_mods);
     }
   }
 
@@ -240,20 +239,20 @@ bool process_repeat_key_with_alt(uint16_t keycode, keyrecord_t* record,
 
 int8_t get_repeat_key_count(void) { return processing_repeat_count; }
 
-uint16_t get_repeat_key_keycode(void) { return last_record.keycode; }
+uint16_t get_last_keycode(void) { return last_record.keycode; }
 
-uint8_t get_repeat_key_mods(void) { return last_mods; }
+uint8_t get_last_mods(void) { return last_mods; }
 
-void set_repeat_key_keycode(uint16_t keycode) {
-  set_repeat_key_record(keycode, &(keyrecord_t){
+void set_last_keycode(uint16_t keycode) {
+  set_last_record(keycode, &(keyrecord_t){
 #ifndef NO_ACTION_TAPPING
-                                     .tap.interrupted = false,
-                                     .tap.count = 1,
+                               .tap.interrupted = false,
+                               .tap.count = 1,
 #endif
-                                 });
+                           });
 }
 
-void set_repeat_key_mods(uint8_t mods) { last_mods = mods; }
+void set_last_mods(uint8_t mods) { last_mods = mods; }
 
 uint16_t get_alt_repeat_key_keycode(void) {
   uint16_t keycode = last_record.keycode;
@@ -409,7 +408,14 @@ bool alt_repeat_key_tap(void) {
   return false;
 }
 
-// Default implementation of get_repeat_key_eligible_user().
+// Default implementation of remember_last_key_user().
+__attribute__((weak)) bool remember_last_key_user(uint16_t keycode,
+                                                  keyrecord_t* record,
+                                                  uint8_t* remembered_mods) {
+  return get_repeat_key_eligible_user(keycode, record, remembered_mods);
+}
+
+// Default implementation of deprecated callback.
 __attribute__((weak)) bool get_repeat_key_eligible_user(
     uint16_t keycode, keyrecord_t* record, uint8_t* remembered_mods) {
   return true;
