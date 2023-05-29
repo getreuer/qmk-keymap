@@ -19,6 +19,9 @@
 
 #include "repeat_key.h"
 
+#pragma message \
+    "Repeat Key is now a core QMK feature! To use it, update your QMK set up and see https://docs.qmk.fm/#/feature_repeat_key"
+
 // This library makes use of keyrecord_t's `.keycode` field. This field is only
 // present when Combos are enabled, which we check here. Enable Combos in your
 // rules.mk by setting:
