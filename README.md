@@ -43,7 +43,7 @@ much?](https://getreuer.info/posts/keyboards/tour/index.html)
 * [Word selection](https://getreuer.info/posts/keyboards/select-word/index.html)
   &ndash; macro for convenient word or line selection
 
-**Tutorials**
+**QMK**
 
 * [Macro buttons](https://getreuer.info/posts/keyboards/macros/index.html)
   &ndash; an assortment of practical QMK macros
@@ -56,6 +56,9 @@ much?](https://getreuer.info/posts/keyboards/tour/index.html)
   letters](https://getreuer.info/posts/keyboards/non-english/index.html) &ndash;
   several approaches to type symbols like &auml;, &ccedil;, &lambda;
 
+* [QMK song
+  player](https://getreuer.info/posts/keyboards/qmk-song-player/index.html)
+  &ndash; play QMK song code in your browser 
  
 **General**
 

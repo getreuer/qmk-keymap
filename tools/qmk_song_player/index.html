@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!--
+Copyright 2023 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+  <title>QMK song player</title>
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="author" content="Pascal Getreuer" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,1,0" />
+<link rel="stylesheet" href="./site.css" type="text/css" />
+<style>
+.song-player {
+  display: inline-block;
+  width: calc(100% - 10pt - 3px);
+  border: 1px solid #aaa;
+  padding:5pt;
+  background: #eee;
+}
+
+button {
+  font-family: sans;
+  border: 0;
+  background-color: #eee;
+  width: 7em;
+  height: 4em;
+  padding: 8pt 0;
+  cursor: pointer;
+  user-select: none;
+}
+button span {
+  vertical-align: middle;
+}
+.code-error {
+  color: #c00;
+}
+
+#song-info {
+  display: inline-block;
+  width: 21em;
+  height: 4em;
+  font-size: 85%;
+  font-family: sans;
+  vertical-align: middle;
+  margin-left: 0.6em;
+  overflow: clip;
+}
+
+textarea {
+  min-width: calc(100% - 6px);
+  max-width: calc(100% - 6px);
+  border: 1px solid black;
+  min-height: 5em;
+  margin-top: 8pt;
+  padding: 2px;
+}
+
+#toast {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+}
+
+#toast, #toast span {
+  vertical-align: middle;
+}
+
+#toast.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  -webkit-animation-fill-mode: forwards;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation-fill-mode: forwards;
+}
+
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0 }
+  to {bottom: 1em; opacity; 1}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0 }
+  to {bottom: 1em; opacity; 1}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 1em; opacity; 1}
+  to {bottom: 0; opacity: 0 }
+}
+
+@keyframes fadeout {
+  from {bottom: 1em; opacity; 1}
+  to {bottom: 0; opacity: 0 }
+}
+
+@media only screen and (min-width: 1020px) {
+  body {
+    background-color: #fff;
+  }
+  #content {
+    border: none;
+    box-shadow: none;
+  }
+}
+</style>
+</head>
+<body>
+<div id="content">
+
+<div class="eqscroll">
+<h1 id="song-title">QMK song player</h1>
+</div>
+
+<div id="toast">
+<span id="toast-icon" class="material-symbols-outlined" style="padding-right:5pt"></span><span id="toast-message"></span>
+</div>
+
+<div class="song-player">
+<div>
+<button id="play-button">
+  <span id="play-button-icon" class="material-symbols-outlined" style="padding-right:5pt">play_arrow</span>
+  <span>Play</span>
+</button>
+<button id="share-button">
+  <span class="material-symbols-outlined" style="padding-right:5pt">share</span>
+  <span>Share</span>
+</button>
+<span id="song-info">Duration: 12.4 seconds<br>Firmware size: 1528 bytes</span>
+</div>
+
+<textarea id="song-code" rows="15" autocomplete="off" spellcheck="false">
+#define MOONLIGHT ED_NOTE(_CS2), ED_NOTE(_GS2), SD_NOTE(_CS3), SD_NOTE(_GS2), ED_NOTE(_E3), SD_NOTE(_GS3), SD_NOTE(_CS2), ED_NOTE(_CS3), SD_NOTE(_E3), SD_NOTE(_GS2), ED_NOTE(_GS3), SD_NOTE(_CS4), SD_NOTE(_CS2), ED_NOTE(_E3), SD_NOTE(_GS3), SD_NOTE(_GS2), ED_NOTE(_CS4), SD_NOTE(_E4), SD_NOTE(_CS2), ED_NOTE(_GS3), SD_NOTE(_CS4), SD_NOTE(_GS2), ED_NOTE(_E4), SD_NOTE(_GS4), SD_NOTE(_CS2), ED_NOTE(_CS4), SD_NOTE(_E4), ED_NOTE(_GS2), ED_NOTE(_GS4), SD_NOTE(_CS5), SD_NOTE(_CS2), ED_NOTE(_E4), SD_NOTE(_GS4), SD_NOTE(_GS2), ED_NOTE(_CS5), SD_NOTE(_E5), SD_NOTE(_CS2), ED_NOTE(_GS4), SD_NOTE(_CS5), SD_NOTE(_GS2), ED_NOTE(_E5), SD_NOTE(_GS4), SD_NOTE(_CS5), ED_NOTE(_GS5), SD_NOTE(_CS5), SD_NOTE(_E5), ED_NOTE(_GS5), ED_NOTE(_C2), ED_NOTE(_GS2), SD_NOTE(_C3), SD_NOTE(_GS2), ED_NOTE(_DS3), SD_NOTE(_GS3), SD_NOTE(_C2), ED_NOTE(_C3), SD_NOTE(_DS3), SD_NOTE(_GS2), ED_NOTE(_GS3), SD_NOTE(_C4), SD_NOTE(_C2), ED_NOTE(_DS3), SD_NOTE(_GS3), SD_NOTE(_GS2), ED_NOTE(_C4), SD_NOTE(_DS4), SD_NOTE(_C2), ED_NOTE(_GS3), SD_NOTE(_C4), SD_NOTE(_GS2), ED_NOTE(_DS4), SD_NOTE(_GS4), SD_NOTE(_C2), ED_NOTE(_C4), SD_NOTE(_DS4), SD_NOTE(_GS2), ED_NOTE(_GS4), SD_NOTE(_C5), SD_NOTE(_C2), ED_NOTE(_DS4), SD_NOTE(_GS4), SD_NOTE(_GS2), ED_NOTE(_C5), SD_NOTE(_DS5), SD_NOTE(_C2), ED_NOTE(_GS5), SD_NOTE(_C5), SD_NOTE(_GS2), ED_NOTE(_DS5), SD_NOTE(_GS4), SD_NOTE(_C5), ED_NOTE(_GS5), SD_NOTE(_C5), SD_NOTE(_DS5), ED_NOTE(_GS5), ED_NOTE(_B1), ED_NOTE(_CS3), SD_NOTE(_F3), SD_NOTE(_GS2), ED_NOTE(_GS3), SD_NOTE(_CS4), SD_NOTE(_B1), ED_NOTE(_CS3), SD_NOTE(_GS3), SD_NOTE(_GS2), ED_NOTE(_CS4), SD_NOTE(_F4), SD_NOTE(_B1), ED_NOTE(_GS3), SD_NOTE(_CS4), SD_NOTE(_GS2), ED_NOTE(_F4), SD_NOTE(_GS4), SD_NOTE(_B1), ED_NOTE(_CS4), SD_NOTE(_F4), SD_NOTE(_GS2), ED_NOTE(_GS4), SD_NOTE(_CS5), SD_NOTE(_B1), ED_NOTE(_F4), SD_NOTE(_GS4), SD_NOTE(_GS2), ED_NOTE(_CS5), SD_NOTE(_F5), SD_NOTE(_B1), ED_NOTE(_GS4), SD_NOTE(_CS5), SD_NOTE(_GS2), ED_NOTE(_F5), SD_NOTE(_GS5), SD_NOTE(_B1), ED_NOTE(_CS5), SD_NOTE(_F5), SD_NOTE(_GS2), ED_NOTE(_GS5), SD_NOTE(_CS5), SD_NOTE(_F5), ED_NOTE(_CS6), SD_NOTE(_F5), SD_NOTE(_GS5), ED_NOTE(_CS6), ED_NOTE(_A1), ED_NOTE(_CS3), SD_NOTE(_FS3), SD_NOTE(_A2), ED_NOTE(_A3), SD_NOTE(_CS4), SD_NOTE(_A1), ED_NOTE(_CS4), SD_NOTE(_FS4), SD_NOTE(_A2), ED_NOTE(_A4), SD_NOTE(_CS5), SD_NOTE(_A1), ED_NOTE(_CS5), SD_NOTE(_FS5), SD_NOTE(_A2), ED_NOTE(_A5), SD_NOTE(_CS5), SD_NOTE(_FS5), ED_NOTE(_CS6), SD_NOTE(_CS5), SD_NOTE(_FS5), ED_NOTE(_CS6), ED_NOTE(_A1), ED_NOTE(_CS3), SD_NOTE(_E3), SD_NOTE(_A2), ED_NOTE(_G3), SD_NOTE(_CS4), SD_NOTE(_A1), ED_NOTE(_CS4), SD_NOTE(_E4), SD_NOTE(_A2), ED_NOTE(_G4), SD_NOTE(_CS5), SD_NOTE(_A1), ED_NOTE(_CS5), SD_NOTE(_E5), SD_NOTE(_A2), ED_NOTE(_G5), SD_NOTE(_CS5), SD_NOTE(_FS5), ED_NOTE(_CS6), SD_NOTE(_CS5), SD_NOTE(_FS5), ED_NOTE(_CS6), SD_NOTE(_GS1), SD_NOTE(_C5), SD_NOTE(_GS5), H__NOTE(_C6)
+</textarea>
+</div>
+
+<p><b>What is this?</b> The box above is a QMK song player.
+If you have a QMK keyboard with a speaker, you can use <a href="https://docs.qmk.fm/#/feature_audio">
+the audio feature</a> to play simple songs.</p>
+
+<script src="./main.min.js"></script>
+
+<p>&nbsp;</p>
+</div>
+</body>
+</html>
+
