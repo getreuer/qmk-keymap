@@ -14,7 +14,6 @@
 
 SRC += features/achordion.c
 SRC += features/custom_shift_keys.c
-SRC += features/repeat_key.c
 SRC += features/select_word.c
 SRC += features/sentence_case.c
 
@@ -48,6 +47,7 @@ CAPS_WORD_ENABLE = yes
 
 UNICODEMAP_ENABLE = yes
 COMBO_ENABLE = yes
+REPEAT_KEY_ENABLE = yes
 TAP_DANCE_ENABLE = no
 LTO_ENABLE = yes
 

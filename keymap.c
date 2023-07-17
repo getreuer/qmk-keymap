@@ -43,7 +43,6 @@
 
 #include "features/achordion.h"
 #include "features/custom_shift_keys.h"
-#include "features/repeat_key.h"
 #include "features/select_word.h"
 #include "features/sentence_case.h"
 #include "layout.h"
@@ -66,8 +65,6 @@ enum custom_keycodes {
   DASH,
   ARROW,
   THMBUP,
-  REPEAT,
-  ALTREP,
   M_ION,
   M_NION,
   M_MENT,
@@ -115,7 +112,7 @@ enum custom_keycodes {
 #define QHOME_SL RGUI_T(KC_SLSH)
 
 // Alternate Repeat is the "magic" key.
-#define MAGIC ALTREP
+#define MAGIC QK_AREP
 
 // I have F13 bound to toggle Redshift (http://jonls.dk/redshift/).
 #define REDSHFT KC_F13
@@ -142,7 +139,7 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
                                KC_LEFT, KC_RGHT, DASH   , ARROW  , THMBUP ,
     KC_QUOT, TMUXESC,
     SCOPE  ,
-    SELWORD, REPEAT , KC_ENT
+    SELWORD, QK_REP , KC_ENT
   ),
 
   [QWERTY] = LAYOUT_LR(  // Alternative base layer: QWERTY.
@@ -433,9 +430,6 @@ bool get_repeat_key_eligible_user(uint16_t keycode, keyrecord_t* record,
 // clang-format off
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_achordion(keycode, record)) { return false; }
-  if (!process_repeat_key_with_alt(keycode, record, REPEAT, ALTREP)) {
-    return false;
-  }
   if (!process_custom_shift_keys(keycode, record)) { return false; }
   if (!process_select_word(keycode, record, SELWORD)) { return false; }
   if (!process_sentence_case(keycode, record)) { return false; }
