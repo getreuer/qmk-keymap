@@ -74,6 +74,8 @@ enum custom_keycodes {
   M_UPDIR,
   M_INCLUDE,
   M_DOCSTR,
+  M_MKGRVS,
+  M_EQEQ,
 };
 
 // This keymap uses home row mods. In addition to mods, I have home row
@@ -392,14 +394,20 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
         return M_THE;
       case KC_DOT:  // . -> ./
         return M_UPDIR;
-      case KC_HASH:  // # -> include
-        return M_INCLUDE;
+      case KC_COMM:                   // ! -> ==
+        if ((mods & MOD_MASK_SHIFT) == 0) {
+          return KC_NO;
+        }
+        // Fall through intended.
+      case KC_EQL: return M_EQEQ;     // = -> ==
+      case KC_HASH: return M_INCLUDE; // # -> include
       case KC_QUOT:
         if ((mods & MOD_MASK_SHIFT) != 0) {
-          // " -> ""<cursor>""" (for Python doc strings)
-          return M_DOCSTR;
+          return M_DOCSTR;  // " -> ""<cursor>"""
         }
         return KC_NO;
+      case KC_GRV:  // ` -> ``<cursor>``` (for Markdown code)
+        return M_MKGRVS;
     }
   } else if ((mods & MOD_MASK_CTRL)) {
     switch (keycode) {
@@ -427,6 +435,25 @@ bool get_repeat_key_eligible_user(uint16_t keycode, keyrecord_t* record,
   return true;
 }
 
+// A Caps Word sensitive version of SEND_STRING: if Caps Word is active, the
+// Shift key is held while sending the string.
+#define CW_SEND_STRING(s) cw_send_string_P(PSTR(s))
+static void cw_send_string_P(const char* str) {
+  uint8_t saved_mods = 0;
+  // If Caps Word is on, save the mods and hold Shift.
+  if (is_caps_word_on()) {
+    saved_mods = get_mods();
+    register_mods(MOD_BIT(KC_LSFT));
+  }
+
+  send_string_P(str);  // Send the string.
+
+  // If Caps Word is on, restore the mods.
+  if (is_caps_word_on()) {
+    set_mods(saved_mods);
+  }
+}
+
 // clang-format off
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_achordion(keycode, record)) { return false; }
@@ -440,6 +467,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
                         | get_oneshot_mods()
 #endif  // NO_ACTION_ONESHOT
                        ) & MOD_MASK_SHIFT;
+
+  // If alt repeating a key A-Z with no mods other than Shift, set the last key
+  // to KC_N. Above, alternate repeat of KC_N is defined to be again KC_N. This
+  // way, either tapping alt repeat and then repeat (or equivalently double
+  // tapping alt repeat) is useful in certain would be SFBs:
+  //
+  //   D <altrep> <rep> -> DYN
+  //   E <altrep> <rep> -> EUN
+  if (get_repeat_key_count() < 0 &&
+      KC_A <= keycode && keycode <= KC_Z &&
+      (mods & ~MOD_MASK_SHIFT) == 0) {
+    set_last_keycode(KC_N);
+  }
 
   if (record->event.pressed) {
     switch (keycode) {
@@ -486,17 +526,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
         return false;
 
       // Macros invoked through the MAGIC key.
-      case M_ION:     SEND_STRING(/*i*/"on"); break;
-      case M_NION:    SEND_STRING(/*n*/"ion"); break;
-      case M_MENT:    SEND_STRING(/*m*/"ent"); break;
-      case M_QUEN:    SEND_STRING(/*q*/"uen"); break;
-      case M_TMENT:   SEND_STRING(/*t*/"ment"); break;
-      case M_THE:     SEND_STRING(/* */"the"); break;
+      case M_ION:     CW_SEND_STRING(/*i*/"on"); break;
+      case M_NION:    CW_SEND_STRING(/*n*/"ion"); break;
+      case M_MENT:    CW_SEND_STRING(/*m*/"ent"); break;
+      case M_QUEN:    CW_SEND_STRING(/*q*/"uen"); break;
+      case M_TMENT:   CW_SEND_STRING(/*t*/"ment"); break;
+      case M_THE:
+        SEND_STRING(/* */"the");
+        set_last_keycode(KC_N);
+        break;
       case M_UPDIR:   SEND_STRING(/*.*/"./"); break;
       case M_INCLUDE: SEND_STRING(/*#*/"include"); break;
       case M_DOCSTR:
         SEND_STRING(/*"*/"\"\"\"\"\""
             SS_TAP(X_LEFT) SS_TAP(X_LEFT) SS_TAP(X_LEFT));
+        break;
+      case M_MKGRVS:
+        SEND_STRING(/*`*/"``\n\n```" SS_TAP(X_UP));
         break;
     }
   }
