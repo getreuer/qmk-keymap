@@ -1,0 +1,8 @@
+user_song_list.h
+tools/qmk_song_player/main.js
+tools/qmk_song_player/song.js
+tools/qmk_song_player/song_test.js
+*.js.map
+**/node_modules
+**/package-lock.json
+
