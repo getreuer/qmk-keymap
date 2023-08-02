@@ -74,18 +74,22 @@ static void set_sentence_state(uint8_t new_state) {
   sentence_state = new_state;
 }
 
-void sentence_case_clear(void) {
+static void clear_state_history(void) {
 #if SENTENCE_CASE_TIMEOUT > 0
   idle_timer = 0;
 #endif  // SENTENCE_CASE_TIMEOUT > 0
-#if SENTENCE_CASE_BUFFER_SIZE > 1
-  memset(key_buffer, 0, sizeof(key_buffer));
-#endif  // SENTENCE_CASE_BUFFER_SIZE > 1
-  memset(state_history, 0, sizeof(state_history));
-  suppress_key = KC_NO;
+  memset(state_history, STATE_INIT, sizeof(state_history));
   if (sentence_state != STATE_DISABLED) {
     set_sentence_state(STATE_INIT);
   }
+}
+
+void sentence_case_clear(void) {
+  clear_state_history();
+  suppress_key = KC_NO;
+#if SENTENCE_CASE_BUFFER_SIZE > 1
+  memset(key_buffer, 0, sizeof(key_buffer));
+#endif  // SENTENCE_CASE_BUFFER_SIZE > 1
 }
 
 void sentence_case_on(void) {
@@ -120,7 +124,7 @@ bool is_sentence_case_on(void) { return sentence_state != STATE_DISABLED; }
 
 void sentence_case_task(void) {
   if (idle_timer && timer_expired(timer_read(), idle_timer)) {
-    sentence_case_clear();  // Timed out; clear all state.
+    clear_state_history();  // Timed out; clear all state.
   }
 }
 #endif  // SENTENCE_CASE_TIMEOUT > 0
