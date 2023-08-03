@@ -78,6 +78,48 @@ enum custom_keycodes {
   M_EQEQ,
 };
 
+// This keymap uses Ikcelaks' Magic Sturdy layout for the base layer (see
+// https://github.com/Ikcelaks/keyboard_layouts). I've also made some twists of
+// my own. The "magic" is a key whose function depends on the last pressed key,
+// implemented using the Alternate Repeat Key. This key is used to remove the
+// top SFBs and type common n-grams.
+//
+// The following describes the functionality, where * is the magic key and @ the
+// repeat key. For example, tapping A and then the magic key types "ao".
+//
+// SFB removal and common n-grams:
+//
+//     A * -> AO     L * -> LK      S * -> SK
+//     C * -> CY     M * -> MENT    T * -> TMENT
+//     D * -> DY     O * -> OA      U * -> UE
+//     E * -> EU     P * -> PY      Y * -> YP
+//     G * -> GY     Q * -> QUEN    spc * -> THE
+//     I * -> ION    R * -> RL
+//
+// When the magic key types a letter, following it with the repeat key produces
+// "n". This is useful to type certain patterns without SFBs.
+//
+//     A * @ -> AON             (like "kaon")
+//     D * @ -> DYN             (like "dynamic")
+//     E * @ -> EUN             (like "reunite")
+//     O * @ -> OAN             (like "loan")
+//
+// Other patterns:
+//
+//     spc * @ -> THEN
+//     I * @ -> IONS            (like "nations")
+//     M * @ -> MENTS           (like "moments")
+//     Q * @ -> QUENC           (like "frequency")
+//     T * @ -> TMENTS          (lite "adjustments")
+//     = *   -> ===             (JS code)
+//     ! *   -> !==             (JS code)
+//     " *   -> """<cursor>"""  (Python code)
+//     ` *   -> ```<cursor>```  (Markdown code)
+//     # *   -> #include        (C code)
+//     . *   -> ../             (shell)
+//     . * @ -> ../../
+#define MAGIC QK_AREP  // The "magic" key is Alternate Repeat.
+
 // This keymap uses home row mods. In addition to mods, I have home row
 // layer-tap keys for the SYM layer. The key arrangement is a variation on
 // "GASC-order" home row mods:
@@ -113,18 +155,12 @@ enum custom_keycodes {
 #define QHOME_Z LGUI_T(KC_Z)
 #define QHOME_SL RGUI_T(KC_SLSH)
 
-// Alternate Repeat is the "magic" key.
-#define MAGIC QK_AREP
-
 // I have F13 bound to toggle Redshift (http://jonls.dk/redshift/).
 #define REDSHFT KC_F13
 
 // clang-format off
 const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
-  // The base layer is Ikcelaks' Magic Sturdy layout, a variation of Oxey's
-  // Sturdy, plus a few tweaks of my own.
-  // https://github.com/Ikcelaks/keyboard_layouts/blob/main/magic_sturdy/magic_sturdy.md
-  [BASE] = LAYOUT_LR(
+  [BASE] = LAYOUT_LR(  // Base layer: Magic Sturdy.
     KC_GRV , KC_7   , KC_8   , KC_9   , KC_0   , KC_5   ,
     KC_TAB , KC_V   , KC_M   , KC_L   , KC_C   , KC_P   ,
     KC_ESC , HOME_S , HOME_T , HOME_R , HOME_D , KC_Y   ,
@@ -273,6 +309,11 @@ bool caps_word_press_user(uint16_t keycode) {
     // I have a dedicated underscore key, so no need to shift KC_MINS.
     case KC_MINS:
     case KC_UNDS:
+    // These magic patterns work with Caps Word.
+    case M_ION:
+    case M_MENT:
+    case M_QUEN:
+    case M_TMENT:
       return true;
 
     default:
@@ -285,8 +326,8 @@ bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
   // Exceptionally consider the following chords as holds, even though they
   // are on the same hand in Magic Sturdy.
   switch (tap_hold_keycode) {
-    case HOME_S:  // S + D.
-      if (other_keycode == HOME_D) {
+    case HOME_X:  // X + G.
+      if (other_keycode == KC_G) {
         return true;
       }
       break;
@@ -303,15 +344,7 @@ bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
 }
 
 uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
-  switch (tap_hold_keycode) {
-    case HOME_X:
-    case HOME_SC:
-    case QHOME_Z:
-    case QHOME_SL:
-      return 0;  // Bypass Achordion for these keys.
-  }
-
-  return 800;  // Otherwise use a timeout of 800 ms.
+  return 800;  // Use a timeout of 800 ms.
 }
 
 char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
@@ -349,51 +382,39 @@ char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
   return '\0';
 }
 
+// clang-format off
 uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
   if ((mods & ~MOD_MASK_SHIFT) == 0) {
     switch (keycode) {
-      // Behavior for Magic Sturdy's "magic" key.
-      case HOME_A:  // A -> O
-        return KC_O;
-      case KC_C:  // C -> Y
-        return KC_Y;
-      case HOME_D:  // D -> Y
-        return KC_Y;
-      case HOME_E:  // E -> U
-        return KC_U;
-      case KC_G:  // G -> Y
-        return KC_Y;
-      case HOME_I:  // I -> ON
-        return M_ION;
-      case KC_L:  // L -> K
-        return KC_K;
-      case KC_M:  // M -> ENT
-        return M_MENT;
-      case HOME_N:  // N -> ION
-        return M_NION;
-      case KC_N:
-        return KC_N;
-      case KC_O:  // O -> A
-        return KC_A;
-      case KC_P:  // P -> Y
-        return KC_Y;
-      case KC_Q:  // Q -> UEN
-        return M_QUEN;
-      case HOME_R:  // R -> L
-        return KC_L;
-      case HOME_S:  // S -> K
-        return KC_K;
-      case HOME_T:  // T -> MENT
-        return M_TMENT;
-      case KC_U:  // U -> E
-        return KC_E;
-      case KC_Y:  // Y -> P
-        return KC_P;
+      // For navigating next/previous search results in Vim:
+      // N -> Shift + N, Shift + N -> N.
+      case HOME_N:
+        if ((mods & MOD_MASK_SHIFT) == 0) {
+          return S(KC_N);
+        }
+        // Fall through intended.
+      case KC_N: return KC_N;
 
-      case KC_SPC:  // spc -> THE
-        return M_THE;
-      case KC_DOT:  // . -> ./
-        return M_UPDIR;
+      // Behavior for Magic Sturdy's "magic" key.
+      case HOME_A: return KC_O;       // A -> O
+      case KC_C: return KC_Y;         // C -> Y
+      case HOME_D: return KC_Y;       // D -> Y
+      case HOME_E: return KC_U;       // E -> U
+      case KC_G: return KC_Y;         // G -> Y
+      case HOME_I: return M_ION;      // I -> ON
+      case KC_L: return KC_K;         // L -> K
+      case KC_M: return M_MENT;       // M -> ENT
+      case KC_O: return KC_A;         // O -> A
+      case KC_P: return KC_Y;         // P -> Y
+      case KC_Q: return M_QUEN;       // Q -> UEN
+      case HOME_R: return KC_L;       // R -> L
+      case HOME_S: return KC_K;       // S -> K
+      case HOME_T: return M_TMENT;    // T -> TMENT
+      case KC_U: return KC_E;         // U -> E
+      case KC_Y: return KC_P;         // Y -> P
+      case KC_SPC: return M_THE;      // spc -> THE
+
+      case KC_DOT: return M_UPDIR;    // . -> ./
       case KC_COMM:                   // ! -> ==
         if ((mods & MOD_MASK_SHIFT) == 0) {
           return KC_NO;
@@ -413,19 +434,33 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
     switch (keycode) {
       case HOME_A:  // Ctrl+A -> Ctrl+C
         return C(KC_C);
-      case KC_C:  // Ctrl+C -> Ctrl+V
-        return C(KC_V);
     }
   }
   return KC_TRNS;
 }
+// clang-format on
 
-bool get_repeat_key_eligible_user(uint16_t keycode, keyrecord_t* record,
-                                  uint8_t* remembered_mods) {
-  // Forget Shift on letter keys A-Y when Shift or AltGr are the only mods.
-  // Exceptionally, I want to remember Shift on Z for "ZZ" in Vim.
+bool remember_last_key_user(uint16_t keycode, keyrecord_t* record,
+                            uint8_t* remembered_mods) {
+  // Unpack tapping keycode for tap-hold keys.
   switch (keycode) {
-    case KC_A ... KC_Y:
+#ifndef NO_ACTION_TAPPING
+    case QK_MOD_TAP ... QK_MOD_TAP_MAX:
+      keycode = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
+      break;
+#ifndef NO_ACTION_LAYER
+    case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+      keycode = QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
+      break;
+#endif  // NO_ACTION_LAYER
+#endif  // NO_ACTION_TAPPING
+  }
+
+  // Forget Shift on letters when Shift or AltGr are the only mods.
+  // Exceptionally, I want Shift remembered on N and Z for "NN" and "ZZ" in Vim.
+  switch (keycode) {
+    case KC_A ... KC_M:
+    case KC_O ... KC_Y:
       if ((*remembered_mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT))) == 0) {
         *remembered_mods &= ~MOD_MASK_SHIFT;
       }
@@ -435,10 +470,12 @@ bool get_repeat_key_eligible_user(uint16_t keycode, keyrecord_t* record,
   return true;
 }
 
-// A Caps Word sensitive version of SEND_STRING: if Caps Word is active, the
-// Shift key is held while sending the string.
-#define CW_SEND_STRING(s) cw_send_string_P(PSTR(s))
-static void cw_send_string_P(const char* str) {
+// An enhanced version of SEND_STRING: if Caps Word is active, the Shift key is
+// held while sending the string. Additionally, the last key is set such that if
+// the Repeat Key is pressed next, it produces `repeat_keycode`.
+#define MAGIC_STRING(str, repeat_keycode) \
+  magic_send_string_P(PSTR(str), (repeat_keycode))
+static void magic_send_string_P(const char* str, uint16_t repeat_keycode) {
   uint8_t saved_mods = 0;
   // If Caps Word is on, save the mods and hold Shift.
   if (is_caps_word_on()) {
@@ -447,6 +484,7 @@ static void cw_send_string_P(const char* str) {
   }
 
   send_string_P(str);  // Send the string.
+  set_last_keycode(repeat_keycode);
 
   // If Caps Word is on, restore the mods.
   if (is_caps_word_on()) {
@@ -470,15 +508,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 
   // If alt repeating a key A-Z with no mods other than Shift, set the last key
   // to KC_N. Above, alternate repeat of KC_N is defined to be again KC_N. This
-  // way, either tapping alt repeat and then repeat (or equivalently double
-  // tapping alt repeat) is useful in certain would be SFBs:
+  // way, either tapping alt repeat and then repeat (or double tapping alt
+  // repeat) is useful to type certain patterns without SFBs:
   //
-  //   D <altrep> <rep> -> DYN
-  //   E <altrep> <rep> -> EUN
+  //   O <altrep> <rep> -> OAN (as in "loan")
+  //   D <altrep> <rep> -> DYN (as in "dynamic")
   if (get_repeat_key_count() < 0 &&
-      KC_A <= keycode && keycode <= KC_Z &&
+      KC_A <= keycode && keycode <= KC_Z && keycode != KC_N &&
       (mods & ~MOD_MASK_SHIFT) == 0) {
     set_last_keycode(KC_N);
+    set_last_mods(0);
   }
 
   if (record->event.pressed) {
@@ -526,17 +565,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
         return false;
 
       // Macros invoked through the MAGIC key.
-      case M_ION:     CW_SEND_STRING(/*i*/"on"); break;
-      case M_NION:    CW_SEND_STRING(/*n*/"ion"); break;
-      case M_MENT:    CW_SEND_STRING(/*m*/"ent"); break;
-      case M_QUEN:    CW_SEND_STRING(/*q*/"uen"); break;
-      case M_TMENT:   CW_SEND_STRING(/*t*/"ment"); break;
-      case M_THE:
-        SEND_STRING(/* */"the");
-        set_last_keycode(KC_N);
-        break;
-      case M_UPDIR:   SEND_STRING(/*.*/"./"); break;
-      case M_INCLUDE: SEND_STRING(/*#*/"include"); break;
+      case M_ION:     MAGIC_STRING(/*i*/"on", KC_S); break;
+      case M_MENT:    MAGIC_STRING(/*m*/"ent", KC_S); break;
+      case M_QUEN:    MAGIC_STRING(/*q*/"uen", KC_C); break;
+      case M_TMENT:   MAGIC_STRING(/*t*/"ment", KC_S); break;
+      case M_THE:     MAGIC_STRING(/* */"the", KC_N); break;
+      case M_UPDIR:   MAGIC_STRING(/*.*/"./", UPDIR); break;
+      case M_INCLUDE: SEND_STRING(/*#*/"include "); break;
+      case M_EQEQ:    SEND_STRING(/*=*/"=="); break;
       case M_DOCSTR:
         SEND_STRING(/*"*/"\"\"\"\"\""
             SS_TAP(X_LEFT) SS_TAP(X_LEFT) SS_TAP(X_LEFT));
