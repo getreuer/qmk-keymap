@@ -495,9 +495,9 @@ static void magic_send_string_P(const char* str, uint16_t repeat_keycode) {
 // clang-format off
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_achordion(keycode, record)) { return false; }
+  if (!process_sentence_case(keycode, record)) { return false; }
   if (!process_custom_shift_keys(keycode, record)) { return false; }
   if (!process_select_word(keycode, record, SELWORD)) { return false; }
-  if (!process_sentence_case(keycode, record)) { return false; }
 
   const uint8_t mods = get_mods();
   const bool shifted = (mods | get_weak_mods()
