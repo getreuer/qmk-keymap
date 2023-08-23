@@ -116,6 +116,7 @@ enum custom_keycodes {
 //     " *   -> """<cursor>"""  (Python code)
 //     ` *   -> ```<cursor>```  (Markdown code)
 //     # *   -> #include        (C code)
+//     < -   -> <-              (Haskell code)
 //     . *   -> ../             (shell)
 //     . * @ -> ../../
 #define MAGIC QK_AREP  // The "magic" key is Alternate Repeat.
@@ -163,21 +164,21 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
   [BASE] = LAYOUT_LR(  // Base layer: Magic Sturdy.
     KC_GRV , KC_7   , KC_8   , KC_9   , KC_0   , KC_5   ,
     KC_TAB , KC_V   , KC_M   , KC_L   , KC_C   , KC_P   ,
-    KC_ESC , HOME_S , HOME_T , HOME_R , HOME_D , KC_Y   ,
+    KC_BSPC, HOME_S , HOME_T , HOME_R , HOME_D , KC_Y   ,
     KC_LSFT, HOME_X , KC_K   , KC_J   , KC_G   , KC_W   ,
     KC_LCTL, KC_PGUP, KC_PGDN, KC_DOWN, KC_UP  ,
                                                           MO(SYM), KC_UNDS,
                                                                    KC_BSLS,
                                                  KC_DEL , KC_SPC , KC_BTN1,
 
-                      KC_6   , KC_1   , KC_2   , KC_3   , KC_4   , KC_SLSH,
-                      KC_B   , MAGIC  , KC_U   , KC_O   , KC_Q   , KC_MINS,
-                      KC_F   , HOME_N , HOME_E , HOME_A , HOME_I , KC_BSPC,
+                      KC_6   , KC_1   , KC_2   , KC_3   , KC_4   , KC_BSLS,
+                      KC_B   , MAGIC  , KC_U   , KC_O   , KC_Q   , KC_SLSH,
+                      KC_F   , HOME_N , HOME_E , HOME_A , HOME_I , KC_MINS,
                       KC_Z   , KC_H   , KC_COMM, KC_DOT , HOME_SC, KC_ENT ,
                                KC_LEFT, KC_RGHT, DASH   , ARROW  , THMBUP ,
     KC_QUOT, TMUXESC,
     SCOPE  ,
-    SELWORD, QK_REP , KC_ENT
+    SELWORD, QK_REP , KC_ESC
   ),
 
   [QWERTY] = LAYOUT_LR(  // Alternative base layer: QWERTY.
@@ -191,11 +192,11 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
                                                  _______, _______, _______,
 
                       _______, _______, _______, _______, _______, _______,
-                      KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_MINS,
+                      KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , _______,
                       KC_H   , QHOME_J, QHOME_K, QHOME_L, QHOME_SC, _______,
                       KC_N   , KC_M   , KC_COMM, KC_DOT , QHOME_SL, _______,
                                _______, _______, _______, _______, _______,
-    KC_QUOT, _______,
+    _______, _______,
     _______,
     _______, _______, _______
   ),
@@ -215,7 +216,7 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
                       KC_PIPE, KC_COLN, KC_LPRN, KC_RPRN, KC_PERC, TO(ADJUST),
                       KC_TILD, KC_DLR , KC_LCBR, KC_RCBR, _______, _______,
                                KC_HOME, KC_END , _______, _______, _______,
-    _______, _______,
+    TMUXESC, _______,
     _______,
     _______, _______, _______
   ),
@@ -326,8 +327,8 @@ bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
   // Exceptionally consider the following chords as holds, even though they
   // are on the same hand in Magic Sturdy.
   switch (tap_hold_keycode) {
-    case HOME_X:  // X + G.
-      if (other_keycode == KC_G) {
+    case HOME_X:  // X + D and X + G.
+      if (other_keycode == HOME_D || other_keycode == KC_G) {
         return true;
       }
       break;
@@ -429,6 +430,7 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
         return KC_NO;
       case KC_GRV:  // ` -> ``<cursor>``` (for Markdown code)
         return M_MKGRVS;
+      case KC_LABK: return KC_MINS;   // < -> - (for Haskell)
     }
   } else if ((mods & MOD_MASK_CTRL)) {
     switch (keycode) {
@@ -496,8 +498,8 @@ static void magic_send_string_P(const char* str, uint16_t repeat_keycode) {
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_achordion(keycode, record)) { return false; }
   if (!process_sentence_case(keycode, record)) { return false; }
-  if (!process_custom_shift_keys(keycode, record)) { return false; }
   if (!process_select_word(keycode, record, SELWORD)) { return false; }
+  if (!process_custom_shift_keys(keycode, record)) { return false; }
 
   const uint8_t mods = get_mods();
   const bool shifted = (mods | get_weak_mods()
@@ -515,7 +517,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   //   D <altrep> <rep> -> DYN (as in "dynamic")
   if (get_repeat_key_count() < 0 &&
       KC_A <= keycode && keycode <= KC_Z && keycode != KC_N &&
-      (mods & ~MOD_MASK_SHIFT) == 0) {
+      (get_last_mods() & ~MOD_MASK_SHIFT) == 0) {
     set_last_keycode(KC_N);
     set_last_mods(0);
   }

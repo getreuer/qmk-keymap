@@ -1,4 +1,4 @@
-// Copyright 2021-2022 Google LLC
+// Copyright 2021-2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@
 // Use Left Ctrl + Right Ctrl to activate the Command feature.
 #define IS_COMMAND() (get_mods() == MOD_MASK_CTRL)
 
+// Holding Shift while Caps Word is active inverts the shift state.
+#define CAPS_WORD_INVERT_ON_SHIFT
 // When idle, turn off Caps Word after 5 seconds.
 #define CAPS_WORD_IDLE_TIMEOUT 5000
 
