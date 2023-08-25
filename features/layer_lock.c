@@ -140,6 +140,7 @@ void layer_lock_off(uint8_t layer) {
 void layer_lock_all_off(void) {
   layer_and(~locked_layers);
   locked_layers = 0;
+  layer_lock_set_user(locked_layers);
 }
 
 __attribute__((weak)) void layer_lock_set_user(layer_state_t locked_layers) {}
