@@ -22,6 +22,12 @@
 
 #include "achordion.h"
 
+#if !defined(IS_QK_MOD_TAP)
+// Attempt to detect out-of-date QMK installation, which would fail with
+// implicit-function-declaration errors in the code below.
+#error "achordion: QMK version is too old to build. Please update QMK."
+#else
+
 // Copy of the `record` and `keycode` args for the current active tap-hold key.
 static keyrecord_t tap_hold_record;
 static uint16_t tap_hold_keycode = KC_NO;
@@ -218,3 +224,5 @@ __attribute__((weak)) uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
 __attribute__((weak)) bool achordion_eager_mod(uint8_t mod) {
   return (mod & (MOD_LALT | MOD_LGUI)) == 0;
 }
+
+#endif  // version check

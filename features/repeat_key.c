@@ -22,11 +22,15 @@
 #pragma message \
     "Repeat Key is now a core QMK feature! To use it, update your QMK set up and see https://docs.qmk.fm/#/feature_repeat_key"
 
+#if !defined(IS_QK_MOD_TAP)
+// Attempt to detect out-of-date QMK installation, which would fail with
+// implicit-function-declaration errors in the code below.
+#error "repeat_key: QMK version is too old to build. Please update QMK."
+#elif !defined(COMBO_ENABLE)
 // This library makes use of keyrecord_t's `.keycode` field. This field is only
 // present when Combos are enabled, which we check here. Enable Combos in your
 // rules.mk by setting:
 //   COMBO_ENABLE = yes
-#ifndef COMBO_ENABLE
 #error "repeat_key: Please set `COMBO_ENABLE = yes` in rules.mk."
 #else
 

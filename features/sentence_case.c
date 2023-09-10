@@ -24,11 +24,15 @@
 
 #include <string.h>
 
-#ifdef NO_ACTION_ONESHOT
+#if !defined(IS_QK_MOD_TAP)
+// Attempt to detect out-of-date QMK installation, which would fail with
+// implicit-function-declaration errors in the code below.
+#error "sentence_case: QMK version is too old to build. Please update QMK."
+#elif defined(NO_ACTION_ONESHOT)
 // One-shot keys must be enabled for Sentence Case. One-shot keys are enabled
 // by default, but are disabled by `#define NO_ACTION_ONESHOT` in config.h. If
 // your config.h includes such a line, please remove it.
-#error "Sentence case: Please enable oneshot."
+#error "sentence_case: Please enable oneshot."
 #else
 
 // Number of keys of state history to retain for backspacing.
