@@ -296,6 +296,17 @@ uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t* record) {
   }
 }
 
+#ifdef AUTOCORRECT_ENABLE
+bool apply_autocorrect(uint8_t backspaces, const char* str,
+                       char* typo, char* correct) {
+  for (uint8_t i = 0; i < backspaces; ++i) {
+    tap_code(KC_BSPC);
+  }
+  send_string_with_delay_P(str, TAP_CODE_DELAY);
+  return false;
+}
+#endif  // AUTOCORRECT_ENABLE
+
 bool caps_word_press_user(uint16_t keycode) {
   switch (keycode) {
     // Keycodes that continue Caps Word, with shift applied.
@@ -485,7 +496,7 @@ static void magic_send_string_P(const char* str, uint16_t repeat_keycode) {
     register_mods(MOD_BIT(KC_LSFT));
   }
 
-  send_string_P(str);  // Send the string.
+  send_string_with_delay_P(str, TAP_CODE_DELAY);  // Send the string.
   set_last_keycode(repeat_keycode);
 
   // If Caps Word is on, restore the mods.
@@ -529,11 +540,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
         return false;
 
       case SCOPE:
-        SEND_STRING("::");
+        SEND_STRING_DELAY("::", TAP_CODE_DELAY);
         return false;
 
       case UPDIR:
-        SEND_STRING("../");
+        SEND_STRING_DELAY("../", TAP_CODE_DELAY);
         return false;
 
       case TMUXESC:  // Enter copy mode in Tmux.
@@ -542,7 +553,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 
       case SRCHSEL:  // Searches the current selection in a new tab.
         // Mac users, change LCTL to LGUI.
-        SEND_STRING(SS_LCTL("ct") SS_DELAY(100) SS_LCTL("v") SS_TAP(X_ENTER));
+        SEND_STRING_DELAY(
+            SS_LCTL("ct") SS_DELAY(100) SS_LCTL("v") SS_TAP(X_ENTER),
+            TAP_CODE_DELAY);
         return false;
 
       // The following cases type a few Unicode symbols.
@@ -573,14 +586,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
       case M_TMENT:   MAGIC_STRING(/*t*/"ment", KC_S); break;
       case M_THE:     MAGIC_STRING(/* */"the", KC_N); break;
       case M_UPDIR:   MAGIC_STRING(/*.*/"./", UPDIR); break;
-      case M_INCLUDE: SEND_STRING(/*#*/"include "); break;
-      case M_EQEQ:    SEND_STRING(/*=*/"=="); break;
+      case M_INCLUDE: SEND_STRING_DELAY(/*#*/"include ", TAP_CODE_DELAY); break;
+      case M_EQEQ:    SEND_STRING_DELAY(/*=*/"==", TAP_CODE_DELAY); break;
       case M_DOCSTR:
-        SEND_STRING(/*"*/"\"\"\"\"\""
-            SS_TAP(X_LEFT) SS_TAP(X_LEFT) SS_TAP(X_LEFT));
+        SEND_STRING_DELAY(/*"*/"\"\"\"\"\""
+            SS_TAP(X_LEFT) SS_TAP(X_LEFT) SS_TAP(X_LEFT), TAP_CODE_DELAY);
         break;
       case M_MKGRVS:
-        SEND_STRING(/*`*/"``\n\n```" SS_TAP(X_UP));
+        SEND_STRING_DELAY(/*`*/"``\n\n```" SS_TAP(X_UP), TAP_CODE_DELAY);
         break;
     }
   }
