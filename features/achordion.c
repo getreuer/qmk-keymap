@@ -86,8 +86,8 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 #ifdef IS_KEYEVENT
   const bool is_key_event = IS_KEYEVENT(record->event);
 #else
-  const bool is_key_event = (record->event.key.row < 254 &&
-                             record->event.key.col < 254);
+  const bool is_key_event =
+      (record->event.key.row < 254 && record->event.key.col < 254);
 #endif
 
   if (achordion_state == STATE_RELEASED) {
