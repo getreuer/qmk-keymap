@@ -55,17 +55,17 @@
 
 /**
  * Suppress tap-hold mods within a *typing streak* by setting the
- * ACHORDION_TYPING_STREAK_TIMEOUT to the maximum time between
+ * ACHORDION_STREAK_TIMEOUT to the maximum time between
  * key events before modifiers can be enabled. This can help preventing
  * accidental mod activation when performing a fast tapping sequence.
  * This is inspired by https://sunaku.github.io/home-row-mods.html#typing-streaks
  *
  * Enable with:
  *
- *    #define ACHORDION_TYPING_STREAK_TIMEOUT 100
+ *    #define ACHORDION_STREAK_TIMEOUT 100
  */
-#ifndef ACHORDION_TYPING_STREAK_TIMEOUT
-# define ACHORDION_TYPING_STREAK_TIMEOUT 0    /* disabled */
+#ifndef ACHORDION_STREAK_TIMEOUT
+# define ACHORDION_STREAK_TIMEOUT 0    /* disabled */
 #endif
 
 #ifdef __cplusplus

@@ -36,7 +36,7 @@ static uint16_t hold_timer = 0;
 // Eagerly applied mods, if any.
 static uint8_t eager_mods = 0;
 
-#if ACHORDION_TYPING_STREAK_TIMEOUT > 0
+#if ACHORDION_STREAK_TIMEOUT > 0
 // Timer for typing streak
 static uint16_t streak_timer = 0;
 #else
@@ -124,8 +124,8 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       }
     }
 
-#if ACHORDION_TYPING_STREAK_TIMEOUT > 0
-    streak_timer = timer_read();
+#if ACHORDION_STREAK_TIMEOUT > 0
+    streak_timer = (timer_read() + ACHORDION_STREAK_TIMEOUT) | 1;
 #endif
     return true;  // Otherwise, continue with default handling.
   }
@@ -150,9 +150,9 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   }
 
   if (achordion_state == STATE_UNSETTLED && record->event.pressed) {
-#if ACHORDION_TYPING_STREAK_TIMEOUT > 0
-    const bool is_streak = timer_elapsed(streak_timer) < ACHORDION_TYPING_STREAK_TIMEOUT;
-    streak_timer = timer_read();
+#if ACHORDION_STREAK_TIMEOUT > 0
+    const bool is_streak = (streak_timer != 0);
+    streak_timer = (timer_read() + ACHORDION_STREAK_TIMEOUT) | 1;
 #endif
 
     // Press event occurred on a key other than the active tap-hold key.
@@ -195,9 +195,9 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     return false;  // Block the original event.
   }
 
-#if ACHORDION_TYPING_STREAK_TIMEOUT > 0
+#if ACHORDION_STREAK_TIMEOUT > 0
   // update idle timer on regular keys event
-  streak_timer = timer_read();
+  streak_timer = (timer_read() + ACHORDION_STREAK_TIMEOUT) | 1;
 #endif
   return true;
 }
@@ -207,12 +207,13 @@ void achordion_task(void) {
       timer_expired(timer_read(), hold_timer)) {
     dprintln("Achordion: Timeout. Plumbing hold press.");
     settle_as_hold();  // Timeout expired, settle the key as held.
-
-#if ACHORDION_TYPING_STREAK_TIMEOUT > 0
-    // reset idle timer
-    streak_timer = timer_read();
-#endif
   }
+
+#if ACHORDION_STREAK_TIMEOUT > 0
+  if (streak_timer && timer_expired(timer_read(), streak_timer)) {
+    streak_timer = 0;  // Expired.
+  }
+#endif
 }
 
 // Returns true if `pos` on the left hand of the keyboard, false if right.
