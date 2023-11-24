@@ -21,7 +21,6 @@
  */
 
 #include "achordion.h"
-#include "timer.h"
 
 #if !defined(IS_QK_MOD_TAP)
 // Attempt to detect out-of-date QMK installation, which would fail with
@@ -39,7 +38,7 @@ static uint8_t eager_mods = 0;
 
 #if ACHORDION_TYPING_STREAK_TIMEOUT > 0
 // Timer for typing streak
-static uint16_t idle_timer = 0;
+static uint16_t streak_timer = 0;
 #else
 // When disabled, is_streak is never true
 #define is_streak false
@@ -126,7 +125,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     }
 
 #if ACHORDION_TYPING_STREAK_TIMEOUT > 0
-    idle_timer = timer_read();
+    streak_timer = timer_read();
 #endif
     return true;  // Otherwise, continue with default handling.
   }
@@ -152,8 +151,8 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 
   if (achordion_state == STATE_UNSETTLED && record->event.pressed) {
 #if ACHORDION_TYPING_STREAK_TIMEOUT > 0
-    const bool is_streak = timer_elapsed(idle_timer) < ACHORDION_TYPING_STREAK_TIMEOUT;
-    idle_timer = timer_read();
+    const bool is_streak = timer_elapsed(streak_timer) < ACHORDION_TYPING_STREAK_TIMEOUT;
+    streak_timer = timer_read();
 #endif
 
     // Press event occurred on a key other than the active tap-hold key.
@@ -198,7 +197,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 
 #if ACHORDION_TYPING_STREAK_TIMEOUT > 0
   // update idle timer on regular keys event
-  idle_timer = timer_read();
+  streak_timer = timer_read();
 #endif
   return true;
 }
@@ -211,7 +210,7 @@ void achordion_task(void) {
 
 #if ACHORDION_TYPING_STREAK_TIMEOUT > 0
     // reset idle timer
-    idle_timer = timer_read();
+    streak_timer = timer_read();
 #endif
   }
 }
