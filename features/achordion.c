@@ -36,7 +36,7 @@ static uint16_t hold_timer = 0;
 // Eagerly applied mods, if any.
 static uint8_t eager_mods = 0;
 
-#if ACHORDION_STREAK_TIMEOUT > 0
+#ifdef ACHORDION_STREAK
 // Timer for typing streak
 static uint16_t streak_timer = 0;
 #else
@@ -124,8 +124,8 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       }
     }
 
-#if ACHORDION_STREAK_TIMEOUT > 0
-    streak_timer = (timer_read() + ACHORDION_STREAK_TIMEOUT) | 1;
+#ifdef ACHORDION_STREAK
+    streak_timer = (timer_read() + achordion_streak_timeout(keycode)) | 1;
 #endif
     return true;  // Otherwise, continue with default handling.
   }
@@ -150,9 +150,9 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   }
 
   if (achordion_state == STATE_UNSETTLED && record->event.pressed) {
-#if ACHORDION_STREAK_TIMEOUT > 0
+#ifdef ACHORDION_STREAK
     const bool is_streak = (streak_timer != 0);
-    streak_timer = (timer_read() + ACHORDION_STREAK_TIMEOUT) | 1;
+    streak_timer = (timer_read() + achordion_streak_timeout(keycode)) | 1;
 #endif
 
     // Press event occurred on a key other than the active tap-hold key.
@@ -195,9 +195,9 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     return false;  // Block the original event.
   }
 
-#if ACHORDION_STREAK_TIMEOUT > 0
+#ifdef ACHORDION_STREAK
   // update idle timer on regular keys event
-  streak_timer = (timer_read() + ACHORDION_STREAK_TIMEOUT) | 1;
+  streak_timer = (timer_read() + achordion_streak_timeout(keycode)) | 1;
 #endif
   return true;
 }
@@ -209,7 +209,7 @@ void achordion_task(void) {
     settle_as_hold();  // Timeout expired, settle the key as held.
   }
 
-#if ACHORDION_STREAK_TIMEOUT > 0
+#ifdef ACHORDION_STREAK
   if (streak_timer && timer_expired(timer_read(), streak_timer)) {
     streak_timer = 0;  // Expired.
   }
@@ -250,5 +250,11 @@ __attribute__((weak)) uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
 __attribute__((weak)) bool achordion_eager_mod(uint8_t mod) {
   return (mod & (MOD_LALT | MOD_LGUI)) == 0;
 }
+
+#ifdef ACHORDION_STREAK
+__attribute__((weak)) uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
+  return 100;  // Default of 100 ms.
+}
+#endif
 
 #endif  // version check
