@@ -36,6 +36,14 @@ static uint16_t hold_timer = 0;
 // Eagerly applied mods, if any.
 static uint8_t eager_mods = 0;
 
+#ifdef ACHORDION_STREAK
+// Timer for typing streak
+static uint16_t streak_timer = 0;
+#else
+// When disabled, is_streak is never true
+#define is_streak false
+#endif
+
 // Achordion's current state.
 enum {
   // A tap-hold key is pressed, but hasn't yet been settled as tapped or held.
@@ -116,6 +124,9 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       }
     }
 
+#ifdef ACHORDION_STREAK
+    streak_timer = (timer_read() + achordion_streak_timeout(keycode)) | 1;
+#endif
     return true;  // Otherwise, continue with default handling.
   }
 
@@ -139,6 +150,11 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   }
 
   if (achordion_state == STATE_UNSETTLED && record->event.pressed) {
+#ifdef ACHORDION_STREAK
+    const bool is_streak = (streak_timer != 0);
+    streak_timer = (timer_read() + achordion_streak_timeout(keycode)) | 1;
+#endif
+
     // Press event occurred on a key other than the active tap-hold key.
 
     // If the other key is *also* a tap-hold key and considered by QMK to be
@@ -151,8 +167,8 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     // events back into the handling pipeline so that QMK features and other
     // user code can see them. This is done by calling `process_record()`, which
     // in turn calls most handlers including `process_record_user()`.
-    if (!is_key_event || (is_tap_hold && record->tap.count == 0) ||
-        achordion_chord(tap_hold_keycode, &tap_hold_record, keycode, record)) {
+    if (!is_streak && (!is_key_event || (is_tap_hold && record->tap.count == 0) ||
+        achordion_chord(tap_hold_keycode, &tap_hold_record, keycode, record))) {
       dprintln("Achordion: Plumbing hold press.");
       settle_as_hold();
     } else {
@@ -179,6 +195,10 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     return false;  // Block the original event.
   }
 
+#ifdef ACHORDION_STREAK
+  // update idle timer on regular keys event
+  streak_timer = (timer_read() + achordion_streak_timeout(keycode)) | 1;
+#endif
   return true;
 }
 
@@ -188,6 +208,12 @@ void achordion_task(void) {
     dprintln("Achordion: Timeout. Plumbing hold press.");
     settle_as_hold();  // Timeout expired, settle the key as held.
   }
+
+#ifdef ACHORDION_STREAK
+  if (streak_timer && timer_expired(timer_read(), streak_timer)) {
+    streak_timer = 0;  // Expired.
+  }
+#endif
 }
 
 // Returns true if `pos` on the left hand of the keyboard, false if right.
@@ -224,5 +250,11 @@ __attribute__((weak)) uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
 __attribute__((weak)) bool achordion_eager_mod(uint8_t mod) {
   return (mod & (MOD_LALT | MOD_LGUI)) == 0;
 }
+
+#ifdef ACHORDION_STREAK
+__attribute__((weak)) uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
+  return 100;  // Default of 100 ms.
+}
+#endif
 
 #endif  // version check
