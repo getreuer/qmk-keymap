@@ -45,3 +45,6 @@
 
 // When idle, turn off Sentence Case after 2 seconds.
 #define SENTENCE_CASE_TIMEOUT 2000
+
+#define ACHORDION_STREAK
+

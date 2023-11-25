@@ -359,6 +359,20 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
   return 800;  // Use a timeout of 800 ms.
 }
 
+uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
+  if (IS_QK_LAYER_TAP(tap_hold_keycode)) {
+    return 0;  // Disable streak detection on layer-tap keys.
+  }
+
+  // Otherwise, tap_hold_keycode is a mod-tap key.
+  uint8_t mod = mod_config(QK_MOD_TAP_GET_MODS(tap_hold_keycode));
+  if ((mod & MOD_LSFT) != 0) {
+    return 0;  // Disable for Shift mod-tap keys.
+  } else {
+    return 100;
+  }
+}
+
 char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
                               uint8_t mods) {
   if ((mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT))) == 0) {
@@ -368,6 +382,7 @@ char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
         return '\0';  // These keys are ignored.
 
       case KC_A ... KC_Z:
+      case M_THE:
         return 'a';  // Letter key.
 
       case KC_DOT:  // Both . and Shift . (?) punctuate sentence endings.
