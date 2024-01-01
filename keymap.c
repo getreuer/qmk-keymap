@@ -27,6 +27,7 @@
  *                                  here is my approach
  *  * features/layer_lock.h: macro to stay in the current layer
  *  * features/mouse_turbo_click.h: macro that clicks the mouse rapidly
+ *  * features/orbital_mouse.h: a polar approach to mouse key control
  *  * features/repeat_key.h: a "repeat last key" implementation
  *  * features/sentence_case.h: capitalize first letter of sentences
  *  * features/select_word.h: macro for convenient word or line selection
@@ -43,6 +44,7 @@
 
 #include "features/achordion.h"
 #include "features/custom_shift_keys.h"
+#include "features/orbital_mouse.h"
 #include "features/select_word.h"
 #include "features/sentence_case.h"
 #include "layout.h"
@@ -51,6 +53,7 @@ enum layers {
   BASE,
   QWERTY,
   SYM,
+  MOUSE,
   ADJUST,
 };
 
@@ -64,7 +67,7 @@ enum custom_keycodes {
   USRNAME,
   DASH,
   ARROW,
-  THMBUP,
+  HAPPY,
   M_ION,
   M_NION,
   M_MENT,
@@ -156,10 +159,8 @@ enum custom_keycodes {
 #define QHOME_Z LGUI_T(KC_Z)
 #define QHOME_SL RGUI_T(KC_SLSH)
 
-// I have F13 bound to toggle Redshift (http://jonls.dk/redshift/).
-#define REDSHFT KC_F13
-
 // clang-format off
+// keymap_vis:begin
 const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
   [BASE] = LAYOUT_LR(  // Base layer: Magic Sturdy.
     KC_GRV , KC_7   , KC_8   , KC_9   , KC_0   , KC_5   ,
@@ -171,12 +172,12 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
                                                                    KC_BSLS,
                                                  KC_DEL , KC_SPC , KC_BTN1,
 
-                      KC_6   , KC_1   , KC_2   , KC_3   , KC_4   , KC_BSLS,
+                      KC_6   , KC_1   , KC_2   , KC_3   , KC_4   , USRNAME,
                       KC_B   , MAGIC  , KC_U   , KC_O   , KC_Q   , KC_SLSH,
                       KC_F   , HOME_N , HOME_E , HOME_A , HOME_I , KC_MINS,
                       KC_Z   , KC_H   , KC_COMM, KC_DOT , HOME_SC, KC_ENT ,
-                               KC_LEFT, KC_RGHT, DASH   , ARROW  , THMBUP ,
-    KC_QUOT, TMUXESC,
+                               KC_LEFT, KC_RGHT, DASH   , ARROW  , HAPPY  ,
+    KC_QUOT, TG(MOUSE),
     SCOPE  ,
     SELWORD, QK_REP , KC_ESC
   ),
@@ -205,7 +206,7 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
     _______, KC_F7  , KC_F8  , KC_F9  , KC_F10 , KC_F5  ,
     TMUXESC, _______, KC_LABK, KC_RABK, KC_AT  , KC_DOT ,
     _______, KC_EXLM, KC_MINS, KC_PLUS, KC_EQL , KC_HASH,
-    _______, _______, KC_SLSH, KC_ASTR, KC_CIRC, UPDIR,
+    _______, _______, KC_SLSH, KC_ASTR, KC_CIRC, SCOPE,
     _______, _______, _______, C(KC_END), C(KC_HOME),
                                                           _______, _______,
                                                                    _______,
@@ -221,26 +222,47 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
     _______, _______, _______
   ),
 
+  [MOUSE] = LAYOUT_LR(  // Mouse keys layer.
+    G(KC_TAB), _______, _______, _______, _______, _______,
+    _______, KC_MPLY, OM_BTN2, OM_U   , OM_BTNS, OM_DBLS,
+    EXIT   , KC_WBAK, OM_L   , OM_D   , OM_R   , OM_HLDS,
+    _______, KC_LGUI, OM_BTN3, OM_W_D , OM_W_U , OM_RELS,
+    _______, _______, _______, C(KC_C), C(KC_V),
+                                                          _______, _______,
+                                                                   _______,
+                                                 _______, OM_BTNS, _______,
+
+                      _______, _______, _______, _______, _______, G(KC_TAB),
+                      OM_DBLS, OM_BTNS, OM_U   , OM_BTN2, KC_MPLY, _______,
+                      OM_HLDS, OM_L   , OM_D   , OM_R   , KC_WBAK, EXIT   ,
+                      OM_RELS, OM_W_D , OM_W_U , OM_BTN3, KC_RGUI, _______,
+                               _______, _______, C(KC_PGUP), C(KC_PGDN),  _______,
+    _______, _______,
+    _______,
+    _______, OM_BTNS, _______
+  ),
+
   [ADJUST] = LAYOUT_LR(  // Adjust layer.
     QK_BOOT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-    EXIT   , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+    EXIT   , XXXXXXX, XXXXXXX, DF(BASE), DF(QWERTY), XXXXXXX,
     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
                                                           XXXXXXX, XXXXXXX,
-                                                                   _______,
+                                                                   XXXXXXX,
                                                  XXXXXXX, XXXXXXX, _______,
 
                       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, QK_BOOT,
-                      XXXXXXX, KC_BRID, KC_BRIU, REDSHFT, XXXXXXX, XXXXXXX ,
-                      XXXXXXX, DF(BASE), DF(QWERTY), XXXXXXX, XXXXXXX, EXIT  ,
-                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+                      XXXXXXX, KC_BRID, KC_BRIU, XXXXXXX, XXXXXXX, XXXXXXX ,
+                      XXXXXXX, KC_MPRV, KC_MNXT, KC_MPLY, XXXXXXX, EXIT  ,
+                      XXXXXXX, KC_VOLU, KC_VOLD, KC_MUTE, XXXXXXX, XXXXXXX,
                                XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
     XXXXXXX, XXXXXXX,
     XXXXXXX,
     XXXXXXX, XXXXXXX, XXXXXXX
   ),
 };
+// keymap_vis:end
 // clang-format on
 
 const uint32_t unicode_map[] PROGMEM = {};
@@ -526,13 +548,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   if (!process_sentence_case(keycode, record)) { return false; }
   if (!process_select_word(keycode, record, SELWORD)) { return false; }
   if (!process_custom_shift_keys(keycode, record)) { return false; }
+  if (!process_orbital_mouse(keycode, record)) { return false; }
 
   const uint8_t mods = get_mods();
-  const bool shifted = (mods | get_weak_mods()
+  const uint8_t all_mods = (mods | get_weak_mods()
 #ifndef NO_ACTION_ONESHOT
                         | get_oneshot_mods()
 #endif  // NO_ACTION_ONESHOT
-                       ) & MOD_MASK_SHIFT;
+  );
+  const bool shifted = all_mods & MOD_MASK_SHIFT;
+  const bool ctrl = all_mods & MOD_MASK_CTRL;
 
   // If alt repeating a key A-Z with no mods other than Shift, set the last key
   // to KC_N. Above, alternate repeat of KC_N is defined to be again KC_N. This
@@ -550,8 +575,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 
   if (record->event.pressed) {
     switch (keycode) {
-      case EXIT:
-        layer_off(ADJUST);
+      case EXIT:  // Turn off all layers except BASE and QWERTY.
+        layer_and(
+            ((layer_state_t)1 << BASE) |
+            ((layer_state_t)1 << QWERTY)
+        );
         return false;
 
       case SCOPE:
@@ -573,25 +601,54 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
             TAP_CODE_DELAY);
         return false;
 
-      // The following cases type a few Unicode symbols.
-      //
-      // `send_unicode_hex_string()` is deprecated. The docs suggest to ensure
-      // keymap.c is UTF-8 encoded and write literal Unicode characters in the
-      // string passed to `send_unicode_string()`. Unfortunately, terminals can
-      // have problems displaying Unicode correctly with monospaced width (or
-      // at all). So we take another approach: write escape codes `\xhh` for the
-      // UTF-8 encoding.
+      case USRNAME: {  // Type my username, or if Shift is held, my last name.
+        static const char username[] PROGMEM = "getreuer";
+        static const char last_name[] PROGMEM = "Getreuer";
+        clear_weak_mods();
+        unregister_mods(mods);  // Clear mods before send_string.
+        send_string_with_delay_P(shifted ? last_name : username,
+                                 TAP_CODE_DELAY);
+        register_mods(mods);  // Restore mods.
+      } break;
 
       case DASH:  // En dash, or em dash when shifted.
         send_unicode_string(shifted ? "\xe2\x80\x94" : "\xe2\x80\x93");
         return false;
 
-      case ARROW:  // -> Unicode arrow, or => when shifted.
-        send_unicode_string(shifted ? "\xe2\x87\x92" : "\xe2\x86\x92");
+      case ARROW:  // Unicode arrows -> => <-> <=> through Shift and Ctrl.
+        send_unicode_string(ctrl ? (shifted
+                                    ? "\xe2\x87\x94"     // <=>
+                                    : "\xe2\x86\x94")    // <->
+                                 : (shifted
+                                    ? "\xe2\x87\x92"     // =>
+                                    : "\xe2\x86\x92"));  // ->
         return false;
 
-      case THMBUP:  // Thumbs up emoji, or party emoji when shifted.
-        send_unicode_string(shifted ? "\xf0\x9f\xa5\xb3" : "\xf0\x9f\x91\x8d");
+      case HAPPY:  // Types a happy emoji.
+        if (record->event.pressed) {
+          static const char* emojis[] = {
+              "\xf0\x9f\xa5\xb3",  // Party hat.
+              "\xf0\x9f\x91\x8d",  // Thumbs up.
+              "\xe2\x9c\x8c",      // Victory hand.
+              "\xf0\x9f\xa4\xa9",  // Star eyes.
+              "\xf0\x9f\x94\xa5",  // Fire.
+              "\xf0\x9f\x8e\x89",  // Party popper.
+              "\xf0\x9f\x91\xbe",  // Purple alien.
+              "\xf0\x9f\x98\x81",  // Grin.
+          };
+          const int NUM_EMOJIS = sizeof(emojis) / sizeof(*emojis);
+
+          // Pick an index between 0 and NUM_EMOJIS - 2.
+          uint8_t index = (UINT16_C(36563) * record->event.time) >> 8;
+          index = ((NUM_EMOJIS - 1) * index) >> 8;
+          // Don't pick the same emoji twice in a row.
+          static uint8_t last_index = 0;
+          if (index >= last_index) { ++index; }
+          last_index = index;
+
+          // Produce the emoji.
+          send_unicode_string(emojis[index]);
+        }
         return false;
 
       // Macros invoked through the MAGIC key.
@@ -618,6 +675,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 
 void matrix_scan_user(void) {
   achordion_task();
+  orbital_mouse_task();
   select_word_task();
   sentence_case_task();
 }

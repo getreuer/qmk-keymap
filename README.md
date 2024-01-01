@@ -92,8 +92,8 @@ much?](https://getreuer.info/posts/keyboards/tour/index.html)
 
 ## My keymap
 
-Here is a [KLE visualization](http://www.keyboard-layout-editor.com/) of my
-keymap. See the [keymap.c](keymap.c) itself for full details.
+Here is a visualization of my keymap. See the [keymap.c](keymap.c) itself for
+full details.
 
 **Base layer** ([Magic
 Sturdy](https://github.com/Ikcelaks/keyboard_layouts/blob/main/magic_sturdy/magic_sturdy.md) with home row mods)
@@ -107,6 +107,10 @@ Sturdy](https://github.com/Ikcelaks/keyboard_layouts/blob/main/magic_sturdy/magi
 **Symbol layer**
 
 ![Symbol layer](doc/layout_symbol.png)
+
+**Mouse layer**
+
+![Mouse layer](doc/layout_mouse.png)
 
 **Adjust layer**
 

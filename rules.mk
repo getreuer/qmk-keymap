@@ -14,6 +14,7 @@
 
 SRC += features/achordion.c
 SRC += features/custom_shift_keys.c
+SRC += features/orbital_mouse.c
 SRC += features/select_word.c
 SRC += features/sentence_case.c
 
@@ -30,7 +31,7 @@ MCU = atmega32u4
 BOOTLOADER = atmel-dfu
 
 BOOTMAGIC_ENABLE = no      # Virtual DIP switch configuration(+1000)
-MOUSEKEY_ENABLE = yes      # Mouse keys(+4700)
+MOUSEKEY_ENABLE = no       # Mouse keys(+4700)
 EXTRAKEY_ENABLE = yes      # Audio control and System control(+450)
 CONSOLE_ENABLE = no        # Console for debug(+400)
 COMMAND_ENABLE = no        # Commands for debug and configuration
@@ -45,6 +46,7 @@ GRAVE_ESC_ENABLE = no
 AUTOCORRECT_ENABLE = yes
 CAPS_WORD_ENABLE = yes
 
+MOUSE_ENABLE = yes
 UNICODEMAP_ENABLE = yes
 COMBO_ENABLE = yes
 REPEAT_KEY_ENABLE = yes
