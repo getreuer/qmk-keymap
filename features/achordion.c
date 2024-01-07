@@ -131,8 +131,15 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   }
 
   if (keycode == tap_hold_keycode && !record->event.pressed) {
+#ifdef RETRO_TAPPING
+    bool is_retro_key = IS_QK_MOD_TAP(keycode) || IS_QK_LAYER_TAP(keycode);
+#elif defined(RETRO_TAPPING_PER_KEY)
+    bool is_retro_key = get_retro_tapping(keycode, record);
+#else
+    bool is_retro_key = false;
+#endif
     // The active tap-hold key is being released.
-    if (achordion_state == STATE_HOLDING) {
+    if (achordion_state == STATE_HOLDING || is_retro_key) {
       dprintln("Achordion: Key released. Plumbing hold release.");
       tap_hold_record.event.pressed = false;
       // Plumb hold release event.
@@ -254,6 +261,12 @@ __attribute__((weak)) bool achordion_eager_mod(uint8_t mod) {
 #ifdef ACHORDION_STREAK
 __attribute__((weak)) uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
   return 100;  // Default of 100 ms.
+}
+#endif
+
+#ifdef RETRO_TAPPING_PER_KEY
+__attribute__((weak)) bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
+    return false;
 }
 #endif
 
