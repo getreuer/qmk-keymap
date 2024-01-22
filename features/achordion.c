@@ -279,10 +279,4 @@ __attribute__((weak)) uint16_t achordion_streak_timeout(uint16_t tap_hold_keycod
 }
 #endif
 
-#ifdef RETRO_TAPPING_PER_KEY
-__attribute__((weak)) bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
-    return false;
-}
-#endif
-
 #endif  // version check
