@@ -35,6 +35,8 @@ static uint16_t tap_hold_keycode = KC_NO;
 static uint16_t hold_timer = 0;
 // Eagerly applied mods, if any.
 static uint8_t eager_mods = 0;
+// Flag to determine whether another key is pressed within the timeout.
+static bool pressed_another_key_before_release = false;
 
 #ifdef ACHORDION_STREAK
 // Timer for typing streak
@@ -87,6 +89,14 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     return true;
   }
 
+  // If this is a keypress and if the key is different than the tap-hold key,
+  // this information is saved to a flag to be processed later when the tap-hold
+  // key is released.
+  if (!pressed_another_key_before_release && record->event.pressed &&
+      tap_hold_keycode != KC_NO && tap_hold_keycode != keycode) {
+    pressed_another_key_before_release = true;
+  }
+
   // Determine whether the current event is for a mod-tap or layer-tap key.
   const bool is_mt = IS_QK_MOD_TAP(keycode);
   const bool is_tap_hold = is_mt || IS_QK_LAYER_TAP(keycode);
@@ -137,6 +147,15 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       tap_hold_record.event.pressed = false;
       // Plumb hold release event.
       recursively_process_record(&tap_hold_record, STATE_RELEASED);
+    } else if (!pressed_another_key_before_release) {
+      // No other key was pressed between the press and release of the tap-hold
+      // key, simulate a hold and then a release without waiting for Achordion
+      // timeout to end.
+      dprintln("Achordion: Key released. Simulating hold and release.");
+      settle_as_hold();
+      tap_hold_record.event.pressed = false;
+      // Plumb hold release event.
+      recursively_process_record(&tap_hold_record, STATE_RELEASED);
     } else {
       dprintf("Achordion: Key released.%s\n",
               eager_mods ? " Clearing eager mods." : "");
@@ -146,6 +165,9 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     }
 
     achordion_state = STATE_RELEASED;
+    // The tap-hold key is released, clear the related keycode and the flag.
+    tap_hold_keycode = KC_NO;
+    pressed_another_key_before_release = false;
     return false;
   }
 
