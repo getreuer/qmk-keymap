@@ -1,4 +1,4 @@
-// Copyright 2022-2023 Google LLC
+// Copyright 2022-2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -144,6 +144,20 @@ bool process_sentence_case(uint16_t keycode, keyrecord_t* record) {
 #endif  // SENTENCE_CASE_TIMEOUT > 0
 
   switch (keycode) {
+    case KC_LCTL ... KC_RGUI:  // Ignore mod keys.
+    case QK_ONE_SHOT_MOD ... QK_ONE_SHOT_MOD_MAX:  // Ignore one-shot mod.
+    // Ignore MO, TO, TG, TT, OSL, TL layer switch keys.
+    case QK_MOMENTARY ... QK_MOMENTARY_MAX:
+    case QK_TO ... QK_TO_MAX:
+    case QK_TOGGLE_LAYER ... QK_TOGGLE_LAYER_MAX:
+    case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX:
+    case QK_ONE_SHOT_LAYER ... QK_ONE_SHOT_LAYER_MAX:  // Ignore one-shot layer.
+#ifdef TRI_LAYER_ENABLE  // Ignore Tri Layer keys.
+    case QK_TRI_LAYER_LOWER:
+    case QK_TRI_LAYER_UPPER:
+#endif  // TRI_LAYER_ENABLE
+      return true;
+
 #ifndef NO_ACTION_TAPPING
     case QK_MOD_TAP ... QK_MOD_TAP_MAX:
       if (record->tap.count == 0) {
@@ -153,12 +167,12 @@ bool process_sentence_case(uint16_t keycode, keyrecord_t* record) {
       break;
 #ifndef NO_ACTION_LAYER
     case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-#endif  // NO_ACTION_LAYER
       if (record->tap.count == 0) {
         return true;
       }
       keycode = QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
       break;
+#endif  // NO_ACTION_LAYER
 #endif  // NO_ACTION_TAPPING
 
 #ifdef SWAP_HANDS_ENABLE
@@ -311,9 +325,6 @@ __attribute__((weak)) char sentence_case_press_user(uint16_t keycode,
   if ((mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT))) == 0) {
     const bool shifted = mods & MOD_MASK_SHIFT;
     switch (keycode) {
-      case KC_LCTL ... KC_RGUI:  // Mod keys.
-        return '\0';  // These keys are ignored.
-
       case KC_A ... KC_Z:
         return 'a';  // Letter key.
 
@@ -322,8 +333,13 @@ __attribute__((weak)) char sentence_case_press_user(uint16_t keycode,
       case KC_1:
       case KC_SLSH:
         return shifted ? '.' : '#';
+      case KC_EXLM:
+      case KC_QUES:
+        return '.';
       case KC_2 ... KC_0:  // 2 3 4 5 6 7 8 9 0
-      case KC_MINS ... KC_SCLN:  // - = [ ] ; backslash
+      case KC_AT ... KC_RPRN:  // @ # $ % ^ & * ( )
+      case KC_MINS ... KC_SCLN:  // - = [ ] backslash ;
+      case KC_UNDS ... KC_COLN:  // _ + { } | :
       case KC_GRV:
       case KC_COMM:
         return '#';  // Symbol key.
