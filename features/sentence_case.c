@@ -62,14 +62,14 @@ static uint8_t sentence_state = STATE_INIT;
 
 // Sets the current state to `new_state`.
 static void set_sentence_state(uint8_t new_state) {
-#ifndef NO_DEBUG
+#if !defined(NO_DEBUG) && defined(SENTENCE_CASE_DEBUG)
   if (debug_enable && sentence_state != new_state) {
     static const char* state_names[] = {
         "INIT", "WORD", "ABBREV", "ENDING", "PRIMED", "DISABLED",
     };
     dprintf("Sentence case: %s\n", state_names[new_state]);
   }
-#endif  // NO_DEBUG
+#endif  // !NO_DEBUG && SENTENCE_CASE_DEBUG
 
   const bool primed = (new_state == STATE_PRIMED);
   if (primed != (sentence_state == STATE_PRIMED)) {
@@ -214,7 +214,9 @@ bool process_sentence_case(uint16_t keycode, keyrecord_t* record) {
   //   ENDING  | ABBREV    INIT     PRIMED   ENDING
   //   PRIMED  | match!    INIT     PRIMED   PRIMED
   char code = sentence_case_press_user(keycode, record, mods);
+#if defined SENTENCE_CASE_DEBUG
   dprintf("Sentence Case: code = '%c' (%d)\n", code, (int)code);
+#endif  // SENTENCE_CASE_DEBUG
   switch (code) {
     case '\0':  // Current key should be ignored.
       return true;
@@ -283,7 +285,9 @@ bool process_sentence_case(uint16_t keycode, keyrecord_t* record) {
 #if SENTENCE_CASE_BUFFER_SIZE > 1
   key_buffer[SENTENCE_CASE_BUFFER_SIZE - 1] = keycode;
   if (new_state == STATE_ENDING && !sentence_case_check_ending(key_buffer)) {
+#if defined SENTENCE_CASE_DEBUG
     dprintf("Not a real ending.\n");
+#endif  // SENTENCE_CASE_DEBUG
     new_state = STATE_INIT;
   }
 #endif  // SENTENCE_CASE_BUFFER_SIZE > 1
