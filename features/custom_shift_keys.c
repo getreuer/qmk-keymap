@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Google LLC
+// Copyright 2021-2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,12 +40,18 @@ bool process_custom_shift_keys(uint16_t keycode, keyrecord_t *record) {
   }
 
   if (record->event.pressed) {  // Press event.
-    const uint8_t mods = get_mods();
+    const uint8_t saved_mods = get_mods();
 #ifndef NO_ACTION_ONESHOT
-    if ((mods | get_weak_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT) {
+    const uint8_t mods = saved_mods | get_weak_mods() | get_oneshot_mods();
 #else
-    if ((mods | get_weak_mods()) & MOD_MASK_SHIFT) {  // Shift is held.
+    const uint8_t mods = saved_mods | get_weak_mods();
 #endif  // NO_ACTION_ONESHOT
+    if ((mods & MOD_MASK_SHIFT) != 0  // Shift is held.
+#if CUSTOM_SHIFT_KEYS_NEGMODS != 0
+        // Nothing in CUSTOM_SHIFT_KEYS_NEGMODS is held.
+        && (mods & (CUSTOM_SHIFT_KEYS_NEGMODS)) == 0
+#endif  // CUSTOM_SHIFT_KEYS_NEGMODS != 0
+          ) {
       // Continue default handling if this is a tap-hold key being held.
       if ((IS_QK_MOD_TAP(keycode) || IS_QK_LAYER_TAP(keycode)) &&
           record->tap.count == 0) {
@@ -67,7 +73,7 @@ bool process_custom_shift_keys(uint16_t keycode, keyrecord_t *record) {
 #endif  // NO_ACTION_ONESHOT
             unregister_mods(MOD_MASK_SHIFT);
             register_code16(registered_keycode);
-            set_mods(mods);
+            set_mods(saved_mods);
           }
           return false;
         }
