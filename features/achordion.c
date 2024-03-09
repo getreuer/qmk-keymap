@@ -113,7 +113,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       const uint16_t s_timeout = achordion_streak_timeout(keycode);
       // Apparently I don't know how timer_expired wortks. Can't get it to work here.
       //if (streak_timer && !timer_expired(record->event.time, streak_timer + 1900)) {
-      if (streak_timer && record->event.time < (streak_timer + s_timeout)) {
+      if (s_timeout && streak_timer && record->event.time < (streak_timer + s_timeout)) {
         // during a streak we immediately revise this as a tap
         dprintln("Achordion: Key pressed during streak. Plumbing tap.");
         tap_hold_keycode = keycode;
