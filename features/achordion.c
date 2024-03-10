@@ -41,6 +41,9 @@ static bool pressed_another_key_before_release = false;
 #ifdef ACHORDION_STREAK
 // Timer for typing streak
 static uint16_t streak_timer = 0;
+#else
+// When disabled, is_streak is never true
+#define is_streak false
 #endif
 
 // Achordion's current state.
@@ -105,28 +108,6 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       (record->event.key.row < 254 && record->event.key.col < 254);
 #endif
 
-#ifdef ACHORDION_STREAK
-  if (achordion_state == STATE_RELEASED || achordion_state == STATE_TAPPING) {
-    if (is_tap_hold && record->tap.count == 0 && record->event.pressed &&
-        is_key_event) {
-      // A tap-hold key is pressed and considered by QMK as "held".
-      const uint16_t s_timeout = achordion_streak_timeout(keycode);
-      // Apparently I don't know how timer_expired wortks. Can't get it to work here.
-      //if (streak_timer && !timer_expired(record->event.time, streak_timer + 1900)) {
-      if (s_timeout && streak_timer && record->event.time < (streak_timer + s_timeout)) {
-        // during a streak we immediately revise this as a tap
-        dprintln("Achordion: Key pressed during streak. Plumbing tap.");
-        tap_hold_keycode = keycode;
-        tap_hold_record = *record;
-        tap_hold_record.tap.count = 1;
-        recursively_process_record(&tap_hold_record, STATE_TAPPING);
-        streak_timer = record->event.time;
-        return false;
-      }
-    }
-  }
-  streak_timer = record->event.time;
-#endif
   if (achordion_state == STATE_RELEASED) {
     if (is_tap_hold && record->tap.count == 0 && record->event.pressed &&
         is_key_event) {
@@ -153,6 +134,9 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       }
     }
 
+#ifdef ACHORDION_STREAK
+    streak_timer = record->event.time | 1;
+#endif
     return true;  // Otherwise, continue with default handling.
   }
 
@@ -163,10 +147,6 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       tap_hold_record.event.pressed = false;
       // Plumb hold release event.
       recursively_process_record(&tap_hold_record, STATE_RELEASED);
-    } else if (achordion_state == STATE_TAPPING) {
-      dprintln("Achordion: Key released. Plumbing tap release.");
-      record->tap.count = 1;
-      recursively_process_record(record, STATE_RELEASED);
     } else if (!pressed_another_key_before_release) {
       // No other key was pressed between the press and release of the tap-hold
       // key, simulate a hold and then a release without waiting for Achordion
@@ -192,6 +172,11 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   }
 
   if (achordion_state == STATE_UNSETTLED && record->event.pressed) {
+#ifdef ACHORDION_STREAK
+    const uint16_t s_timeout = achordion_streak_timeout(tap_hold_keycode);
+    const bool is_streak = streak_timer && s_timeout && !timer_expired(tap_hold_record.event.time, (streak_timer + s_timeout));
+    streak_timer = record->event.time | 1;
+#endif
 
     // Press event occurred on a key other than the active tap-hold key.
 
@@ -205,7 +190,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     // events back into the handling pipeline so that QMK features and other
     // user code can see them. This is done by calling `process_record()`, which
     // in turn calls most handlers including `process_record_user()`.
-    if ((!is_key_event || (is_tap_hold && record->tap.count == 0) ||
+    if (!is_streak && (!is_key_event || (is_tap_hold && record->tap.count == 0) ||
         achordion_chord(tap_hold_keycode, &tap_hold_record, keycode, record))) {
       dprintln("Achordion: Plumbing hold press.");
       settle_as_hold();
@@ -227,12 +212,28 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       tap_hold_record.event.pressed = false;
       // Plumb tap release event.
       recursively_process_record(&tap_hold_record, STATE_TAPPING);
+#ifdef ACHORDION_STREAK
+      if (is_streak && is_key_event && is_tap_hold && record->tap.count == 0) {
+        // If we are in a streak and resolved the current tap-hold key as a tap
+        // consider the next tap-hold key as active to be resolved next.
+        const uint16_t timeout = achordion_timeout(keycode);
+        tap_hold_keycode = keycode;
+        tap_hold_record = *record;
+        hold_timer = record->event.time + timeout;
+        achordion_state = STATE_UNSETTLED;
+        return false;
+      }
+#endif
     }
 
     recursively_process_record(record, achordion_state);  // Re-process event.
     return false;  // Block the original event.
   }
 
+#ifdef ACHORDION_STREAK
+  // update idle timer on regular keys event
+  streak_timer = record->event.time | 1;
+#endif
   return true;
 }
 
@@ -244,9 +245,8 @@ void achordion_task(void) {
   }
 
 #ifdef ACHORDION_STREAK
-  // Maximum streak timeout is hard coded at 500 right now.
-  if (streak_timer && timer_elapsed(streak_timer) > 500) {
-    streak_timer = 0;  // Expired
+  if (streak_timer && timer_expired(timer_read(), (streak_timer + 500))) {
+    streak_timer = 0;  // Expired.
   }
 #endif
 }
