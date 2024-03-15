@@ -173,8 +173,8 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 
   if (achordion_state == STATE_UNSETTLED && record->event.pressed) {
 #ifdef ACHORDION_STREAK
-    const uint16_t s_timeout = achordion_streak_timeout(tap_hold_keycode);
-    const bool is_streak = streak_timer && s_timeout && !timer_expired(tap_hold_record.event.time, (streak_timer + s_timeout));
+    const uint16_t s_timeout = achordion_streak_timeout(tap_hold_keycode, keycode);
+    const bool is_streak = streak_timer && s_timeout && !timer_expired(record->event.time, (streak_timer + s_timeout));
     streak_timer = record->event.time | 1;
 #endif
 
@@ -216,11 +216,13 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       if (is_streak && is_key_event && is_tap_hold && record->tap.count == 0) {
         // If we are in a streak and resolved the current tap-hold key as a tap
         // consider the next tap-hold key as active to be resolved next.
+        streak_timer = tap_hold_record.event.time;
         const uint16_t timeout = achordion_timeout(keycode);
         tap_hold_keycode = keycode;
         tap_hold_record = *record;
         hold_timer = record->event.time + timeout;
         achordion_state = STATE_UNSETTLED;
+        pressed_another_key_before_release = false;
         return false;
       }
 #endif
@@ -245,7 +247,7 @@ void achordion_task(void) {
   }
 
 #ifdef ACHORDION_STREAK
-  if (streak_timer && timer_expired(timer_read(), (streak_timer + 500))) {
+  if (streak_timer && timer_expired(timer_read(), (streak_timer + 800))) {
     streak_timer = 0;  // Expired.
   }
 #endif
@@ -287,7 +289,7 @@ __attribute__((weak)) bool achordion_eager_mod(uint8_t mod) {
 }
 
 #ifdef ACHORDION_STREAK
-__attribute__((weak)) uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
+__attribute__((weak)) uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode, uint16_t next_keycode) {
   return 100;  // Default of 100 ms.
 }
 #endif

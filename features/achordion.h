@@ -71,7 +71,7 @@
  *    }
  */
 #ifdef ACHORDION_STREAK
-uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode);
+uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode, uint16_t next_keycode);
 #endif
 
 #ifdef __cplusplus
