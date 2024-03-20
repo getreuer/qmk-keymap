@@ -175,7 +175,6 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 #ifdef ACHORDION_STREAK
     const uint16_t s_timeout = achordion_streak_timeout(tap_hold_keycode, keycode);
     const bool is_streak = streak_timer && s_timeout && !timer_expired(record->event.time, (streak_timer + s_timeout));
-    streak_timer = record->event.time | 1;
 #endif
 
     // Press event occurred on a key other than the active tap-hold key.
@@ -213,10 +212,11 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       // Plumb tap release event.
       recursively_process_record(&tap_hold_record, STATE_TAPPING);
 #ifdef ACHORDION_STREAK
+      streak_timer = record->event.time | 1;
       if (is_streak && is_key_event && is_tap_hold && record->tap.count == 0) {
         // If we are in a streak and resolved the current tap-hold key as a tap
         // consider the next tap-hold key as active to be resolved next.
-        streak_timer = tap_hold_record.event.time;
+        streak_timer = tap_hold_record.event.time | 1;
         const uint16_t timeout = achordion_timeout(keycode);
         tap_hold_keycode = keycode;
         tap_hold_record = *record;
@@ -234,7 +234,9 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 
 #ifdef ACHORDION_STREAK
   // update idle timer on regular keys event
-  streak_timer = record->event.time | 1;
+  if (achordion_state != STATE_HOLDING) {
+    streak_timer = record->event.time | 1;
+  }
 #endif
   return true;
 }
