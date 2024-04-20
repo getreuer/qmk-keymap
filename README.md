@@ -96,7 +96,7 @@ Here is a visualization of my keymap. See the [keymap.c](keymap.c) itself for
 full details.
 
 **Base layer** ([Magic
-Sturdy](https://github.com/Ikcelaks/keyboard_layouts/blob/main/magic_sturdy/magic_sturdy.md) with home row mods)
+Sturdy](https://getreuer.info/posts/keyboards/alt-layouts/index.html#magic-sturdy) with home row mods)
 
 ![Base layer](doc/layout_base.png)
 
@@ -119,13 +119,35 @@ Sturdy](https://github.com/Ikcelaks/keyboard_layouts/blob/main/magic_sturdy/magi
 
 ## License
 
-This code uses the Apache License 2.0. See the [LICENSE file](LICENSE.txt) for
-details.
+This repo uses the Apache License 2.0 except where otherwise indicated. See the
+[LICENSE file](LICENSE.txt) for details.
 
 
 ## Installation
 
-Clone the [QMK firmware](https://github.com/qmk/qmk_firmware) and place this
-repo in `qmk_firmware/keyboards/handwired/dactyl_promicro/keymaps/getreuer`.
+This repo works as an [External QMK
+Userspace](https://docs.qmk.fm/#/newbs_external_userspace). Instructions on how
+to use it in QMK:
 
+1. [Set up QMK](https://docs.qmk.fm/#/newbs).
+
+2. Clone this repo locally
+
+   ~~~{.sh}
+   git clone https://github.com/getreuer/qmk-keymap
+   ~~~
+
+3. Run the following shell command, replacing "`path/to/qmk-keymap`" with the
+   relative path to your clone of `qmk-keymap` from the previous step:
+
+   ~~~{.sh}
+   qmk config user.overlay_dir="$(realpath path/to/qmk-keymap)"
+   ~~~
+
+My keymap may then be compiled and flashed with
+
+~~~{.sh}
+# Dactyl Ergodox
+qmk flash -kb handwired/dactyl_promicro -km getreuer
+~~~
 

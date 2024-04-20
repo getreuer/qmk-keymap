@@ -1,3 +1,5 @@
+*.bin
+*.hex
 user_song_list.h
 tools/qmk_song_player/main.js
 tools/qmk_song_player/song.js
