@@ -15,6 +15,9 @@
 /**
  * @file keymap.c
  * @brief Pascal's keymap for the Dactyl Ergodox.
+ *
+ * This file defines what keycode is performed by each key position. See also
+ * getreuer.c for definitions of macros, etc. used in my keymap.
  */
 
 #include QMK_KEYBOARD_H
@@ -25,104 +28,123 @@
 // clang-format off
 const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
   [BASE] = LAYOUT_LR(  // Base layer: Magic Sturdy.
-    KC_GRV , KC_7   , KC_8   , KC_9   , KC_0   , KC_5   ,
+    OM_BTNS, G(KC_TAB), SELLINE, KC_DOWN, KC_UP  , KC_DEL,
     KC_TAB , KC_V   , KC_M   , KC_L   , KC_C   , KC_P   ,
     KC_BSPC, HOME_S , HOME_T , HOME_R , HOME_D , KC_Y   ,
-    KC_LSFT, HOME_X , KC_K   , KC_J   , KC_G   , KC_W   ,
-    KC_LCTL, KC_PGUP, KC_PGDN, KC_DOWN, KC_UP  ,
-                                                          MO(SYM), KC_UNDS,
+    WIN_COL, HOME_X , KC_K   , KC_J   , NUM_G  , KC_W   ,
+    KC_LCTL, C(KC_PGUP), C(KC_PGDN), KC_PGUP, KC_PGDN,
+                                                          TG(MOU), NAV_UND,
                                                                    KC_BSLS,
-                                                 KC_DEL , KC_SPC , KC_BTN1,
+                                                 NAV_UND, KC_SPC , KC_BTN1,
 
-                      KC_6   , KC_1   , KC_2   , KC_3   , KC_4   , USRNAME,
+                      KC_HOME, KC_LEFT, KC_RGHT, KC_END , KC_MUTE, KC_MPLY,
                       KC_B   , MAGIC  , KC_U   , KC_O   , KC_Q   , KC_SLSH,
-                      KC_F   , HOME_N , HOME_E , HOME_A , HOME_I , KC_MINS,
+                      KC_F   , HOME_N , HOME_E , HOME_A , HOME_I , KC_QUOT,
                       KC_Z   , KC_H   , KC_COMM, KC_DOT , HOME_SC, KC_ENT ,
-                               KC_LEFT, KC_RGHT, DASH   , ARROW  , HAPPY  ,
-    KC_QUOT, TG(MOUSE),
-    SCOPE  ,
-    SELWORD, QK_REP , KC_ESC
+                               C(KC_LEFT), C(KC_RGHT), DASH   , ARROW  , USRNAME,
+    MOU_ESC, MO(WIN),
+    KC_VOLU,
+    KC_VOLD, QK_REP , MOU_ESC
   ),
 
-  [QWERTY] = LAYOUT_LR(  // Alternative base layer: QWERTY.
-    _______, _______, _______, _______, _______, _______,
-    _______, KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,
-    _______, QHOME_A, QHOME_S, QHOME_D, QHOME_F, KC_G   ,
-    _______, QHOME_Z, KC_X   , KC_C   , KC_V   , KC_B   ,
-    _______, _______, _______, _______, _______,
+  [SYM] = LAYOUT_LR(  // Symbol layer.
+    _______, KC_F1  , KC_F2  , KC_F3  , KC_F4  , KC_F5  ,
+    TMUXESC, _______, KC_LABK, KC_RABK, KC_BSLS, KC_GRV ,
+    _______, KC_EXLM, KC_MINS, KC_PLUS, KC_EQL , KC_HASH,
+    _______, _______, KC_SLSH, KC_ASTR, KC_CIRC, USRNAME,
+    _______, _______, _______, C(KC_END), C(KC_HOME),
                                                           _______, _______,
                                                                    _______,
-                                                 _______, _______, _______,
+                                                 KC_UNDS, _______, _______,
 
-                      _______, _______, _______, _______, _______, _______,
-                      KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , _______,
-                      KC_H   , QHOME_J, QHOME_K, QHOME_L, QHOME_SC, _______,
-                      KC_N   , KC_M   , KC_COMM, KC_DOT , QHOME_SL, _______,
+                      KC_F6  , KC_F7  , KC_F8  , KC_F9  , KC_F10 , KC_F11 ,
+                      KC_AMPR, ARROW  , KC_LBRC, KC_RBRC, _______, KC_F12 ,
+                      KC_PIPE, KC_COLN, KC_LPRN, KC_RPRN, KC_PERC, _______,
+                      KC_TILD, KC_DLR , KC_LCBR, KC_RCBR, _______, _______,
                                _______, _______, _______, _______, _______,
     _______, _______,
     _______,
     _______, _______, _______
   ),
 
-  [SYM] = LAYOUT_LR(  // Symbol layer.
-    _______, KC_F7  , KC_F8  , KC_F9  , KC_F10 , KC_F5  ,
-    TMUXESC, _______, KC_LABK, KC_RABK, KC_AT  , KC_DOT ,
-    _______, KC_EXLM, KC_MINS, KC_PLUS, KC_EQL , KC_HASH,
-    _______, _______, KC_SLSH, KC_ASTR, KC_CIRC, SCOPE,
-    _______, _______, _______, C(KC_END), C(KC_HOME),
-                                                          _______, _______,
-                                                                   _______,
-                                                 SRCHSEL, _______, _______,
-
-                      KC_F6  , KC_F1  , KC_F2  , KC_F3  , KC_F4  , KC_F11 ,
-                      KC_AMPR, _______, KC_LBRC, KC_RBRC, _______, KC_F12 ,
-                      KC_PIPE, KC_COLN, KC_LPRN, KC_RPRN, KC_PERC, TO(ADJUST),
-                      KC_TILD, KC_DLR , KC_LCBR, KC_RCBR, _______, _______,
-                               KC_HOME, KC_END , _______, _______, _______,
-    TMUXESC, _______,
-    _______,
-    _______, _______, _______
-  ),
-
   [MOUSE] = LAYOUT_LR(  // Mouse keys layer.
-    G(KC_TAB), _______, _______, _______, _______, _______,
-    _______, KC_MPLY, OM_BTN2, OM_U   , OM_BTNS, OM_DBLS,
-    EXIT   , KC_WBAK, OM_L   , OM_D   , OM_R   , OM_HLDS,
+    _______, _______, _______, _______, _______, _______,
+    _______, G(KC_TAB), OM_BTN2, OM_U   , OM_BTNS, OM_DBLS,
+    TO(BASE), KC_WBAK, OM_L   , OM_D   , OM_R   , OM_HLDS,
     _______, KC_LGUI, OM_BTN3, OM_W_D , OM_W_U , OM_RELS,
-    _______, _______, _______, C(KC_C), C(KC_V),
+    _______, _______, _______, _______, _______,
                                                           _______, _______,
                                                                    _______,
-                                                 _______, OM_BTNS, _______,
+                                                 LLOCK  , OM_BTNS, _______,
 
-                      _______, _______, _______, _______, _______, G(KC_TAB),
-                      OM_DBLS, OM_BTNS, OM_U   , OM_BTN2, KC_MPLY, _______,
-                      OM_HLDS, OM_L   , OM_D   , OM_R   , KC_WBAK, EXIT   ,
+                      _______, _______, _______, _______, _______, _______,
+                      OM_DBLS, OM_BTNS, OM_U   , OM_BTN2, G(KC_TAB), _______,
+                      OM_HLDS, OM_L   , OM_D   , OM_R   , KC_WBAK, TO(BASE),
                       OM_RELS, OM_W_D , OM_W_U , OM_BTN3, KC_RGUI, _______,
-                               _______, _______, C(KC_PGUP), C(KC_PGDN),  _______,
+                               _______, _______, _______, _______, _______,
     _______, _______,
     _______,
     _______, OM_BTNS, _______
   ),
 
-  [ADJUST] = LAYOUT_LR(  // Adjust layer.
-    QK_BOOT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  [NAV] = LAYOUT_LR(  // Nav layer.
+    _______, _______, _______, _______, _______, _______,
+    _______, C(KC_Z), C(KC_V), C(KC_A), C(KC_C), C(KC_X),
+    _______, XXXXXXX, KC_LALT, KC_LSFT, KC_LCTL, XXXXXXX,
+    _______, KC_LGUI, C(KC_PGUP), C(KC_PGDN), XXXXXXX, XXXXXXX,
+    _______, _______, _______, _______, _______,
+                                                          _______, _______,
+                                                                   _______,
+                                                 _______, _______, _______,
+
+                      _______, _______, _______, _______, _______, _______,
+                      KC_PGUP, KC_HOME, KC_UP  , KC_END , SELLINE, SRCHSEL,
+                      KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, KC_DEL , _______,
+                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_APP , _______,
+                               _______, _______, _______, _______, _______,
+    _______, _______,
+    _______,
+    _______, QK_REP , LLOCK
+  ),
+
+  [NUM] = LAYOUT_LR(  // Number layer.
+    _______, _______, _______, _______, _______, _______,
+    _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+    _______, XXXXXXX, KC_LALT, KC_LSFT, KC_LCTL, XXXXXXX,
+    _______, KC_LGUI, XXXXXXX, KC_LCTL, XXXXXXX, XXXXXXX,
+    _______, _______, _______, _______, _______,
+                                                          _______, _______,
+                                                                   _______,
+                                                 TO(BASE), _______, _______,
+
+                      _______, _______, _______, _______, _______, _______,
+                      KC_TAB , KC_8   , KC_9   , KC_4   , KC_PLUS, KC_SLSH,
+                      KC_COLN, KC_1   , KC_2   , KC_3   , KC_MINS, KC_ASTR,
+                      KC_COMM, KC_7   , KC_6   , KC_5   , KC_DOT , _______,
+                               _______, _______, _______, _______, _______,
+    _______, _______,
+    _______,
+    _______, KC_0   , LLOCK
+  ),
+
+  [WIN] = LAYOUT_LR(  // Window management layer.
+    RGB_TOG, RGB_DEF, RGB_MOD, RGB_HUI, RGB_SAI, RGB_VAI,
     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-    EXIT   , XXXXXXX, XXXXXXX, DF(BASE), DF(QWERTY), XXXXXXX,
-    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-                                                          XXXXXXX, XXXXXXX,
-                                                                   XXXXXXX,
-                                                 XXXXXXX, XXXXXXX, _______,
+    XXXXXXX, XXXXXXX, KC_LALT, KC_LSFT, KC_LCTL, XXXXXXX,
+    XXXXXXX, KC_LGUI, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+    _______, _______, _______, _______, _______,
+                                                          _______, _______,
+                                                                   _______,
+                                                 TO(BASE), G(KC_SPC), _______,
 
                       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, QK_BOOT,
-                      XXXXXXX, KC_BRID, KC_BRIU, XXXXXXX, XXXXXXX, XXXXXXX ,
-                      XXXXXXX, KC_MPRV, KC_MNXT, KC_MPLY, XXXXXXX, EXIT  ,
-                      XXXXXXX, KC_VOLU, KC_VOLD, KC_MUTE, XXXXXXX, XXXXXXX,
-                               XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-    XXXXXXX, XXXXXXX,
-    XXXXXXX,
-    XXXXXXX, XXXXXXX, XXXXXXX
+                      G(KC_TAB), G(KC_8), G(KC_9), G(KC_4), XXXXXXX, XXXXXXX,
+                      G(S(KC_LEFT)), G(KC_1), G(KC_2), G(KC_3), G(S(KC_RGHT)), XXXXXXX,
+                      XXXXXXX, G(KC_7), G(KC_6), G(KC_5), KC_VOLD , KC_VOLU,
+                               _______, _______, _______, _______, _______,
+    _______, _______,
+    _______,
+    _______, QK_REP , LLOCK
   ),
 };
-// clang-format on
 

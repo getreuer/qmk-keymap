@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "config_common.h"
+#include "config_getreuer.h"
 
 #define USE_SERIAL
 #define MASTER_RIGHT

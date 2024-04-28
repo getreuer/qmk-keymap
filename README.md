@@ -92,29 +92,34 @@ much?](https://getreuer.info/posts/keyboards/tour/index.html)
 
 ## My keymap
 
-Here is a visualization of my keymap. See the [keymap.c](keymap.c) itself for
-full details.
+Here is a visualization of my keymap. See the
+[keymap.c](keyboards/handwired/dactyl_promicro/keymaps/getreuer/keymap.c) itself
+and [getreuer.c](getreuer.c) for full details.
 
 **Base layer** ([Magic
 Sturdy](https://getreuer.info/posts/keyboards/alt-layouts/index.html#magic-sturdy) with home row mods)
 
-![Base layer](doc/layout_base.png)
-
-**QWERTY layer**
-
-![QWERTY layer](doc/layout_qwerty.png)
+![Base layer](doc/layout-0-base.png)
 
 **Symbol layer**
 
-![Symbol layer](doc/layout_symbol.png)
+![Symbol layer](doc/layout-1-symbol.png)
 
 **Mouse layer**
 
-![Mouse layer](doc/layout_mouse.png)
+![Mouse layer](doc/layout-2-mouse.png)
 
-**Adjust layer**
+**Navigation layer**
 
-![Adjust layer](doc/layout_adjust.png)
+![Nav layer](doc/layout-3-nav.png)
+
+**Numpad layer**
+
+![Num layer](doc/layout-4-num.png)
+
+**Window management layer**
+
+![Win layer](doc/layout-5-win.png)
 
 
 ## License

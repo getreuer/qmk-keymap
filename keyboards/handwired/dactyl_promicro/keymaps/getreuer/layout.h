@@ -1,4 +1,4 @@
-// Copyright 2021-2022 Google LLC
+// Copyright 2021-2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,3 +48,4 @@
         { R40, R41, R42, R43, R44, R45 },   \
         { R50, R51, R52, R53, R54, KC_NO }  \
     }
+
