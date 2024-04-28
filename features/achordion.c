@@ -201,6 +201,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       // the one on the switched-to layer. Here we correct that.
       if (get_repeat_key_count() != 0 && IS_QK_LAYER_TAP(tap_hold_keycode)) {
         record->keycode = KC_NO;  // Forget the repeated keycode.
+        clear_weak_mods();
       }
 #endif  // REPEAT_KEY_ENABLE
     } else {
