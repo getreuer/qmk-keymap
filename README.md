@@ -2,12 +2,10 @@
 
 (This is not an officially supported Google product.)
 
-![Dactyl Ergodox](doc/dactyl_ergodox.jpg)
+![ZSA Voyager](doc/voyager.jpg)
 
 This is my [Quantum Mechanical Keyboard (QMK)](https://docs.qmk.fm) keymap for
-the [Dactyl
-Ergodox](https://ohkeycaps.com/products/built-to-order-dactyl-manuform-keyboard).
-Who knew a keyboard [could do so
+the Dactyl Ergodox and ZSA Voyager. Who knew a keyboard [could do so
 much?](https://getreuer.info/posts/keyboards/tour/index.html)
 
 ### Topics
@@ -92,9 +90,10 @@ much?](https://getreuer.info/posts/keyboards/tour/index.html)
 
 ## My keymap
 
-Here is a visualization of my keymap. See the
-[keymap.c](keyboards/handwired/dactyl_promicro/keymaps/getreuer/keymap.c) itself
-and [getreuer.c](getreuer.c) for full details.
+Here is a visualization of my keymap. See the [Dactyl
+keymap.c](keyboards/handwired/dactyl_promicro/keymaps/getreuer/keymap.c) or
+[Voyager keymap.c](keyboards/zsa/voyager/keymaps/getreuer/keymap.c) and
+[getreuer.c](getreuer.c) for full details.
 
 **Base layer** ([Magic
 Sturdy](https://getreuer.info/posts/keyboards/alt-layouts/index.html#magic-sturdy) with home row mods)
@@ -154,5 +153,7 @@ My keymap may then be compiled and flashed with
 ~~~{.sh}
 # Dactyl Ergodox
 qmk flash -kb handwired/dactyl_promicro -km getreuer
+# ZSA Voyager
+qmk flash -kb zsa/voyager -km getreuer
 ~~~
 
