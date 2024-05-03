@@ -33,7 +33,7 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
     KC_BSPC, HOME_S , HOME_T , HOME_R , HOME_D , KC_Y   ,
     WIN_COL, HOME_X , KC_K   , KC_J   , NUM_G  , KC_W   ,
     KC_LCTL, C(KC_PGUP), C(KC_PGDN), KC_PGUP, KC_PGDN,
-                                                          TG(MOU), NAV_UND,
+                                                          TG(MOUSE), NAV_UND,
                                                                    KC_BSLS,
                                                  NAV_UND, KC_SPC , KC_BTN1,
 

@@ -152,15 +152,13 @@ const uint32_t PROGMEM unicode_map[] = {};
 const uint16_t caps_combo[] PROGMEM = {KC_J, KC_COMM, COMBO_END};
 const uint16_t j_k_combo[] PROGMEM = {KC_J, KC_K, COMBO_END};
 const uint16_t j_g_combo[] PROGMEM = {KC_J, NUM_G, COMBO_END};
-const uint16_t z_h_combo[] PROGMEM = {KC_Z, KC_H, COMBO_END};
-const uint16_t h_comm_combo[] PROGMEM = {KC_H, KC_COMM, COMBO_END};
+const uint16_t n_comm_combo[] PROGMEM = {HOME_N, KC_COMM, COMBO_END};
 // clang-format off
 combo_t key_combos[] = {
     COMBO(caps_combo, CW_TOGG),          // J and , => activate Caps Word.
     COMBO(j_k_combo, SELLINE),           // J and K => SELLINE
     COMBO(j_g_combo, KC_BSLS),           // J and G => backslash
-    COMBO(z_h_combo, C(S(KC_LEFT))),     // Z and H => Ctrl+Shift+Left
-    COMBO(h_comm_combo, C(S(KC_RGHT))),  // H and , => Ctrl+Shift+Right
+    COMBO(n_comm_combo, C(S(KC_RGHT))),  // N and , => Ctrl+Shift+Right
 };
 // clang-format on
 
