@@ -14,26 +14,8 @@
 
 BOOTLOADER = atmel-dfu
 
-SRC += features/achordion.c
-SRC += features/custom_shift_keys.c
-SRC += features/layer_lock.c
-SRC += features/orbital_mouse.c
-SRC += features/sentence_case.c
-
-MOUSEKEY_ENABLE = no
-EXTRAKEY_ENABLE = yes
-CONSOLE_ENABLE = no
 COMMAND_ENABLE = no
-NKRO_ENABLE = no
-SPACE_CADET_ENABLE = no
-GRAVE_ESC_ENABLE = no
-AUTOCORRECT_ENABLE = yes
-CAPS_WORD_ENABLE = yes
 
-MOUSE_ENABLE = yes
-UNICODEMAP_ENABLE = yes
-COMBO_ENABLE = yes
-REPEAT_KEY_ENABLE = yes
-TAP_DANCE_ENABLE = no
-LTO_ENABLE = yes
+ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
+include ${ROOT_DIR}../../../../../rules.mk
 

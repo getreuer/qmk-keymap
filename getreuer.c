@@ -41,12 +41,21 @@
  * <https://getreuer.info/posts/keyboards>
  */
 
+#ifdef ACHORDION_ENABLE
 #include "features/achordion.h"
+#endif  // ACHORDION_ENABLE
+#ifdef CUSTOM_SHIFT_KEYS_ENABLE
 #include "features/custom_shift_keys.h"
+#endif  // CUSTOM_SHIFT_KEYS_ENABLE
+#ifdef LAYER_LOCK_ENABLE
 #include "features/layer_lock.h"
+#endif  // LAYER_LOCK_ENABLE
+#ifdef ORBITAL_MOUSE_ENABLE
 #include "features/orbital_mouse.h"
-#include "features/select_word.h"
+#endif  // ORBITAL_MOUSE_ENABLE
+#ifdef SENTENCE_CASE_ENABLE
 #include "features/sentence_case.h"
+#endif  // SENTENCE_CASE_ENABLE
 
 enum layers {
   BASE,
@@ -142,11 +151,6 @@ enum custom_keycodes {
 #define WIN_COL LT(WIN, KC_SCLN)
 
 ///////////////////////////////////////////////////////////////////////////////
-// Unicode (https://docs.qmk.fm/#/feature_unicode)
-///////////////////////////////////////////////////////////////////////////////
-const uint32_t PROGMEM unicode_map[] = {};
-
-///////////////////////////////////////////////////////////////////////////////
 // Combos (https://docs.qmk.fm/#/feature_combo)
 ///////////////////////////////////////////////////////////////////////////////
 const uint16_t caps_combo[] PROGMEM = {KC_J, KC_COMM, COMBO_END};
@@ -165,6 +169,7 @@ combo_t key_combos[] = {
 ///////////////////////////////////////////////////////////////////////////////
 // Custom shift keys (https://getreuer.info/posts/keyboards/custom-shift-keys)
 ///////////////////////////////////////////////////////////////////////////////
+#ifdef CUSTOM_SHIFT_KEYS_ENABLE
 const custom_shift_key_t custom_shift_keys[] = {
     {KC_DOT, KC_QUES},
     {KC_COMM, KC_EXLM},
@@ -175,6 +180,7 @@ const custom_shift_key_t custom_shift_keys[] = {
 };
 uint8_t NUM_CUSTOM_SHIFT_KEYS =
     sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
+#endif  // CUSTOM_SHIFT_KEYS_ENABLE
 
 ///////////////////////////////////////////////////////////////////////////////
 // Tap-hold configuration (https://docs.qmk.fm/#/tap_hold)
@@ -208,6 +214,7 @@ uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t* record) {
 ///////////////////////////////////////////////////////////////////////////////
 // Achordion (https://getreuer.info/posts/keyboards/achordion)
 ///////////////////////////////////////////////////////////////////////////////
+#ifdef ACHORDION_ENABLE
 bool achordion_chord(uint16_t tap_hold_keycode,
                      keyrecord_t* tap_hold_record,
                      uint16_t other_keycode,
@@ -236,6 +243,7 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
       return 800;  // Use a timeout of 800 ms.
   }
 }
+#endif  // ACHORDION_ENABLE
 
 ///////////////////////////////////////////////////////////////////////////////
 // Autocorrect (https://docs.qmk.fm/#/feature_autocorrect)
@@ -284,6 +292,7 @@ bool caps_word_press_user(uint16_t keycode) {
 ///////////////////////////////////////////////////////////////////////////////
 // Sentence case (https://getreuer.info/posts/keyboards/sentence-case)
 ///////////////////////////////////////////////////////////////////////////////
+#ifdef SENTENCE_CASE_ENABLE
 char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
                               uint8_t mods) {
   if ((mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT))) == 0) {
@@ -321,6 +330,7 @@ char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
   sentence_case_clear();
   return '\0';
 }
+#endif  // SENTENCE_CASE_ENABLE
 
 ///////////////////////////////////////////////////////////////////////////////
 // Repeat key (https://docs.qmk.fm/#/feature_repeat_key)
@@ -500,11 +510,21 @@ void caps_word_set_user(bool active) {
 // User macro callbacks (https://docs.qmk.fm/#/feature_macros)
 ///////////////////////////////////////////////////////////////////////////////
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
+#ifdef ACHORDION_ENABLE
   if (!process_achordion(keycode, record)) { return false; }
+#endif  // ACHORDION_ENABLE
+#ifdef ORBITAL_MOUSE_ENABLE
   if (!process_orbital_mouse(keycode, record)) { return false; }
+#endif  // ORBITAL_MOUSE_ENABLE
+#ifdef LAYER_LOCK_ENABLE
   if (!process_layer_lock(keycode, record, LLOCK)) { return false; }
+#endif  // LAYER_LOCK_ENABLE
+#ifdef SENTENCE_CASE_ENABLE
   if (!process_sentence_case(keycode, record)) { return false; }
+#endif  // SENTENCE_CASE_ENABLE
+#ifdef CUSTOM_SHIFT_KEYS_ENABLE
   if (!process_custom_shift_keys(keycode, record)) { return false; }
+#endif  // CUSTOM_SHIFT_KEYS_ENABLE
 
   const uint8_t mods = get_mods();
   const uint8_t all_mods = (mods | get_weak_mods()
@@ -685,8 +705,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 }
 
 void matrix_scan_user(void) {
+#ifdef ACHORDION_ENABLE
   achordion_task();
+#endif  // ACHORDION_ENABLE
+#ifdef ORBITAL_MOUSE_ENABLE
   orbital_mouse_task();
+#endif  // ORBITAL_MOUSE_ENABLE
+#ifdef SENTENCE_CASE_ENABLE
   sentence_case_task();
+#endif  // SENTENCE_CASE_ENABLE
 }
 

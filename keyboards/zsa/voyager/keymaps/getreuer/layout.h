@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "quantum.h"
+// clang-format off
 
 // Macro for conveniently defining Voyager layouts.
 #define LAYOUT_LR(                                     \
