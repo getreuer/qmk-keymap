@@ -5,8 +5,8 @@
 ![ZSA Voyager](doc/voyager.jpg)
 
 This is my [Quantum Mechanical Keyboard (QMK)](https://docs.qmk.fm) keymap for
-the Dactyl Ergodox and ZSA Voyager. Who knew a keyboard [could do so
-much?](https://getreuer.info/posts/keyboards/tour/index.html)
+the Dactyl Ergodox, ZSA Moonlander, and ZSA Voyager. Who knew a keyboard [could
+do so much?](https://getreuer.info/posts/keyboards/tour/index.html)
 
 ### Topics
 
@@ -91,7 +91,8 @@ much?](https://getreuer.info/posts/keyboards/tour/index.html)
 ## My keymap
 
 Here is a visualization of my keymap. See the [Dactyl
-keymap.c](keyboards/handwired/dactyl_promicro/keymaps/getreuer/keymap.c) or
+keymap.c](keyboards/handwired/dactyl_promicro/keymaps/getreuer/keymap.c),
+[Moonlander keymap.c](keyboards/zsa/moonlander/keymaps/getreuer/keymap.c), or
 [Voyager keymap.c](keyboards/zsa/voyager/keymaps/getreuer/keymap.c) and
 [getreuer.c](getreuer.c) for full details.
 
@@ -153,6 +154,8 @@ My keymap may then be compiled and flashed with
 ~~~{.sh}
 # Dactyl Ergodox
 qmk flash -kb handwired/dactyl_promicro -km getreuer
+# ZSA Moonlander
+qmk flash -kb zsa/moonlander -km getreuer
 # ZSA Voyager
 qmk flash -kb zsa/voyager -km getreuer
 ~~~
