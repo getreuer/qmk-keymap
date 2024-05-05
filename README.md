@@ -5,12 +5,24 @@
 ![ZSA Voyager](doc/voyager.jpg)
 
 This is my [Quantum Mechanical Keyboard (QMK)](https://docs.qmk.fm) keymap for
-the Dactyl Ergodox, ZSA Moonlander, and ZSA Voyager. Who knew a keyboard [could
-do so much?](https://getreuer.info/posts/keyboards/tour/index.html)
+the Dactyl Ergodox, ZSA Moonlander, and ZSA Voyager keyboards. Who knew a
+keyboard [could do so
+much?](https://getreuer.info/posts/keyboards/tour/index.html)
 
-### Topics
 
-**Feature libraries**
+## License
+
+This repo uses the Apache License 2.0 except where otherwise indicated. See the
+[LICENSE file](LICENSE.txt) for details.
+
+
+## Feature libraries
+
+Several userspace feature libraries for QMK are developed in this repo. Code is
+under the [features](features/) directory and detailed documentation can be
+found in the links below. For developers, see also my post [developing QMK
+features](https://getreuer.info/posts/keyboards/developing-qmk-features/index.html)
+for general tips on writing userspace libraries and contributing to QMK.
 
 * [Achordion](https://getreuer.info/posts/keyboards/achordion/index.html)
   &ndash; customize the tap-hold decision
@@ -44,48 +56,6 @@ do so much?](https://getreuer.info/posts/keyboards/tour/index.html)
 
 * [Word selection](https://getreuer.info/posts/keyboards/select-word/index.html)
   &ndash; macro for convenient word or line selection
-
-**QMK**
-
-* [Macro buttons](https://getreuer.info/posts/keyboards/macros/index.html)
-  &ndash; an assortment of practical QMK macros
-
-* [Triggers: reacting to interesting
-  events](https://getreuer.info/posts/keyboards/triggers/index.html) &ndash;
-  layer changes, tap vs. long press, etc.
-
-* [Typing non-English
-  letters](https://getreuer.info/posts/keyboards/non-english/index.html) &ndash;
-  several approaches to type symbols like &auml;, &ccedil;, &lambda;
-
-* [QMK song
-  player](https://getreuer.info/posts/keyboards/qmk-song-player/index.html)
-  &ndash; play QMK song code in your browser 
- 
-**General**
-
-* [Alt keyboard
-  layouts](https://getreuer.info/posts/keyboards/alt-layouts/index.html) &ndash;
-  switching from QWERTY to an alternative keyboard layout
-
-* [Designing a symbol
-  layer](https://getreuer.info/posts/keyboards/symbol-layer/index.html) &ndash;
-  ergonomic and character frequency considerations
-
-* [Questioning the ergonomics of 40%
-  keyboards](https://getreuer.info/posts/keyboards/40-percent-ergo/index.html)
-  &ndash; smaller is not necessarily better
-
-* [PSA: Thumbs can get overuse
-  injuries](https://getreuer.info/posts/keyboards/thumb-ergo/index.html) &ndash;
-  anecdotes, common injuries, countermeasures
-
-* [Keyboard FAQS](https://getreuer.info/posts/keyboards/faqs/index.html) &ndash;
-  thoughts on topics that come up regularly
-
-* [Links about
-  keyboards](https://getreuer.info/posts/keyboards/links/index.html) &ndash;
-  interesting links about keyboards and related topics
 
 
 ## My keymap
@@ -122,12 +92,6 @@ Sturdy](https://getreuer.info/posts/keyboards/alt-layouts/index.html#magic-sturd
 ![Win layer](doc/layout-5-win.png)
 
 
-## License
-
-This repo uses the Apache License 2.0 except where otherwise indicated. See the
-[LICENSE file](LICENSE.txt) for details.
-
-
 ## Installation
 
 This repo works as an [External QMK
@@ -138,25 +102,25 @@ to use it in QMK:
 
 2. Clone this repo locally
 
-   ~~~{.sh}
+   ```sh
    git clone https://github.com/getreuer/qmk-keymap
-   ~~~
+   ```
 
 3. Run the following shell command, replacing "`path/to/qmk-keymap`" with the
    relative path to your clone of `qmk-keymap` from the previous step:
 
-   ~~~{.sh}
+   ```sh
    qmk config user.overlay_dir="$(realpath path/to/qmk-keymap)"
-   ~~~
+   ```
 
 My keymap may then be compiled and flashed with
 
-~~~{.sh}
+```sh
 # Dactyl Ergodox
 qmk flash -kb handwired/dactyl_promicro -km getreuer
 # ZSA Moonlander
 qmk flash -kb zsa/moonlander -km getreuer
 # ZSA Voyager
 qmk flash -kb zsa/voyager -km getreuer
-~~~
+```
 
