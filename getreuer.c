@@ -56,6 +56,9 @@
 #ifdef SENTENCE_CASE_ENABLE
 #include "features/sentence_case.h"
 #endif  // SENTENCE_CASE_ENABLE
+#if __has_include("user_song_list.h")
+#include "user_song_list.h"
+#endif
 
 enum layers {
   BASE,
@@ -267,7 +270,6 @@ bool caps_word_press_user(uint16_t keycode) {
   switch (keycode) {
     // Keycodes that continue Caps Word, with shift applied.
     case KC_A ... KC_Z:
-    case KC_MINS:
       add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to the next key.
       return true;
 
@@ -281,6 +283,7 @@ bool caps_word_press_user(uint16_t keycode) {
     case M_MENT:
     case M_QUEN:
     case M_TMENT:
+    case QK_LAYER_TAP_GET_TAP_KEYCODE(NAV_UND):
       return true;
 
     default:
@@ -509,6 +512,19 @@ void caps_word_set_user(bool active) {
 ///////////////////////////////////////////////////////////////////////////////
 // User macro callbacks (https://docs.qmk.fm/#/feature_macros)
 ///////////////////////////////////////////////////////////////////////////////
+
+void keyboard_post_init_user(void) {
+  // Play MUSHROOM_SOUND two seconds after init, if defined and audio enabled.
+#if defined(AUDIO_ENABLE) && defined(MUSHROOM_SOUND)
+  uint32_t play_init_song_callback(uint32_t trigger_time, void* cb_arg) {
+    static float init_song[][2] = SONG(MUSHROOM_SOUND);
+    PLAY_SONG(init_song);
+    return 0;
+  }
+  defer_exec(2000, play_init_song_callback, NULL);
+#endif // defined(AUDIO_ENABLE) && defined(MUSHROOM_SOUND)
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 #ifdef ACHORDION_ENABLE
   if (!process_achordion(keycode, record)) { return false; }
@@ -564,13 +580,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
           if (alt) {
             send_unicode_string(shift_mods ? "\xe2\x80\x94" : "\xe2\x80\x93");
           } else {
+            process_caps_word(keycode, record);
+            const bool shifted = (mods | get_weak_mods()) & MOD_MASK_SHIFT;
             clear_weak_mods();
             clear_mods();
 
             if (registered_keycode) {  // Invoked through Repeat key.
               unregister_code16(registered_keycode);
             } else {
-              registered_keycode = shift_mods ? KC_MINS : KC_UNDS;
+              registered_keycode = shifted ? KC_MINS : KC_UNDS;
             }
 
             register_code16(registered_keycode);

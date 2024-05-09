@@ -41,7 +41,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
              KC_VOLD, KC_B   , MAGIC  , KC_U   , KC_O   , KC_Q   , KC_SLSH,
              KC_BSLS, KC_F   , HOME_N , HOME_E , HOME_A , HOME_I , KC_QUOT,
                       KC_Z   , KC_H   , KC_COMM, KC_DOT , HOME_SC, KC_ENT ,
-                               C(KC_LEFT), C(KC_RGHT), DASH   , ARROW  , USRNAME,
+                               C(KC_LEFT), C(KC_RGHT), DASH   , ARROW  , KC_ENT,
     MOU_ESC,
     MO(WIN), QK_REP , MOU_ESC
   ),

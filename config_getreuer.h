@@ -45,3 +45,7 @@
 // When idle, turn off Sentence Case after 2 seconds.
 #define SENTENCE_CASE_TIMEOUT 2000
 
+#ifdef AUDIO_ENABLE
+#define STARTUP_SONG SONG(NO_SOUND)
+#endif  // AUDIO_ENABLE
+

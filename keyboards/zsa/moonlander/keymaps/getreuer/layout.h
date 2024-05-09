@@ -46,3 +46,20 @@
     { KC_NO, KC_NO, KC_NO, kb3, kb4, kb5, kb6 }            \
 }
 
+// Wrapper macros to use the Moonlander's LEDs.
+#define STATUS_LED_1(status)  \
+  do {                        \
+    ML_LED_1((status));       \
+    ML_LED_4((status));       \
+  } while (false)
+#define STATUS_LED_2(status)  \
+  do {                        \
+    ML_LED_2((status));       \
+    ML_LED_5((status));       \
+  } while (false)
+#define STATUS_LED_3(status)  \
+  do {                        \
+    ML_LED_3((status));       \
+    ML_LED_6((status));       \
+  } while (false)
+
