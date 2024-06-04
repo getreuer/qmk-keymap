@@ -301,8 +301,8 @@ __attribute__((weak)) bool achordion_eager_mod(uint8_t mod) {
 
 #ifdef ACHORDION_STREAK
 __attribute__((weak)) bool achordion_streak_continue(uint16_t keycode) {
-  // If any mods other than shift are held, don't continue the streak
-  if (get_mods() & MOD_MASK_CAG) return false;
+  // If any mods other than shift or AltGr are held, don't continue the streak
+  if (get_mods() & (MOD_MASK_CG | MOD_BIT_LALT)) return false;
   // This function doesn't get called for holds, so convert to tap version of keycodes
   if (IS_QK_MOD_TAP(keycode)) keycode = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
   if (IS_QK_LAYER_TAP(keycode)) keycode = QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
