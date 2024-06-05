@@ -325,7 +325,7 @@ __attribute__((weak)) uint16_t achordion_streak_chord_timeout(uint16_t tap_hold_
 
 /** @deprecated Use `achordion_streak_chord_timeout()` instead. */
 __attribute__((weak)) uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
-  return 100;
+  return 200;
 }
 #endif
 
