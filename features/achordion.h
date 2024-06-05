@@ -66,8 +66,9 @@
  * Adjust the maximum time between key events before modifiers can be enabled
  * by defining the following callback in your keymap.c:
  *
- *    uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
- *      return 100;  // Default of 100 ms.
+ *    uint16_t achordion_streak_chord_timeout(
+ *        uint16_t tap_hold_keycode, uint16_t next_keycode) {
+ *      return 200;  // Default of 200 ms.
  *    }
  */
 #ifdef ACHORDION_STREAK
