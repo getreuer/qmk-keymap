@@ -258,7 +258,8 @@ void achordion_task(void) {
   }
 
 #ifdef ACHORDION_STREAK
-  if (streak_timer && timer_expired(timer_read(), (streak_timer + 800))) {
+  #define MAX_STREAK_TIMEOUT 800
+  if (streak_timer && timer_expired(timer_read(), (streak_timer + MAX_STREAK_TIMEOUT))) {
     streak_timer = 0;  // Expired.
   }
 #endif
