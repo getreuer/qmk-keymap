@@ -85,7 +85,7 @@ Sturdy](https://getreuer.info/posts/keyboards/alt-layouts/index.html#magic-sturd
 
 **Funky fun layer**
 
-![Fun layer](doc/layout-4-win.png)
+![Fun layer](doc/layout-4-fun.png)
 
 
 ## Installation
