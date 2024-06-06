@@ -15,7 +15,7 @@
 COMBO_ENABLE = yes
 EXTRAKEY_ENABLE = yes
 LTO_ENABLE = yes
-MOUSEKEY_ENABLE = no
+MOUSEKEY_ENABLE = yes
 REPEAT_KEY_ENABLE = yes
 UNICODE_ENABLE = no
 UNICODEMAP_ENABLE = no
@@ -48,7 +48,7 @@ ifeq ($(strip $(LAYER_LOCK_ENABLE)), yes)
 	SRC += features/layer_lock.c
 endif
 
-ORBITAL_MOUSE_ENABLE ?= yes
+ORBITAL_MOUSE_ENABLE ?= no
 ifeq ($(strip $(ORBITAL_MOUSE_ENABLE)), yes)
 	MOUSE_ENABLE = yes
 	OPT_DEFS += -DORBITAL_MOUSE_ENABLE

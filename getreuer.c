@@ -63,10 +63,9 @@
 enum layers {
   BASE,
   SYM,
-  MOUSE,
-  NAV,
   NUM,
   WIN,
+  FUN,
 };
 
 enum custom_keycodes {
@@ -90,6 +89,7 @@ enum custom_keycodes {
   M_THE,
   M_TMENT,
   M_UPDIR,
+  M_NOOP,
 };
 
 // This keymap uses Ikcelaks' Magic Sturdy layout for the base layer (see
@@ -149,9 +149,8 @@ enum custom_keycodes {
 #define HOME_SC RGUI_T(KC_SCLN)
 
 #define NUM_G LT(NUM, KC_G)
-#define MOU_ESC LT(MOUSE, KC_ESC)
-#define NAV_UND LT(NAV, KC_MINS)
 #define WIN_COL LT(WIN, KC_SCLN)
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Combos (https://docs.qmk.fm/#/feature_combo)
@@ -159,13 +158,15 @@ enum custom_keycodes {
 const uint16_t caps_combo[] PROGMEM = {KC_J, KC_COMM, COMBO_END};
 const uint16_t j_k_combo[] PROGMEM = {KC_J, KC_K, COMBO_END};
 const uint16_t j_g_combo[] PROGMEM = {KC_J, NUM_G, COMBO_END};
-const uint16_t n_comm_combo[] PROGMEM = {HOME_N, KC_COMM, COMBO_END};
+const uint16_t d_y_combo[] PROGMEM = {HOME_D, KC_Y, COMBO_END};
+/* const uint16_t n_comm_combo[] PROGMEM = {HOME_N, KC_COMM, COMBO_END}; */
+/* const uint16_t comm_dot_combo[] PROGMEM = {KC_COMM, KC_DOT, COMBO_END}; */
 // clang-format off
 combo_t key_combos[] = {
     COMBO(caps_combo, CW_TOGG),          // J and , => activate Caps Word.
-    COMBO(j_k_combo, SELLINE),           // J and K => SELLINE
-    COMBO(j_g_combo, KC_BSLS),           // J and G => backslash
-    COMBO(n_comm_combo, C(S(KC_RGHT))),  // N and , => Ctrl+Shift+Right
+    COMBO(j_k_combo, KC_BSLS),           // J and K => backslash
+    COMBO(j_g_combo, OSL(NUM)),          // J and G => one-shot NUM layer
+    COMBO(d_y_combo, OSL(FUN)),          // D and Y => one-shot FUN layer
 };
 // clang-format on
 
@@ -222,26 +223,28 @@ bool achordion_chord(uint16_t tap_hold_keycode,
                      keyrecord_t* tap_hold_record,
                      uint16_t other_keycode,
                      keyrecord_t* other_record) {
-  // Exceptionally allow G + J as a same-hand chord.
-  switch (tap_hold_keycode) {
-    case NUM_G:
-      if (other_keycode == KC_J) { return true; }
-      break;
-  }
-
   // Also allow same-hand holds when the other key is in the rows outside the
   // alphas. I need the `% (MATRIX_ROWS / 2)` because my keyboards are split.
   uint8_t row = other_record->event.key.row % (MATRIX_ROWS / 2);
   if (!(1 <= row && row <= 3)) { return true; }
+
+  switch (tap_hold_keycode) {
+    // Exceptionally allow symbol layer LTs + row 0 in same-hand chords.
+    case HOME_S:
+    case HOME_I:
+      if (row == 0) { return true; }
+      break;
+    // Exceptionally allow G + J as a same-hand chord.
+    case NUM_G:
+      if (other_keycode == KC_J) { return true; }
+      break;
+  }
 
   return achordion_opposite_hands(tap_hold_record, other_record);
 }
 
 uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
   switch (tap_hold_keycode) {
-    case NAV_UND:
-    case MOU_ESC:
-      return 0;
     default:
       return 800;  // Use a timeout of 800 ms.
   }
@@ -283,7 +286,6 @@ bool caps_word_press_user(uint16_t keycode) {
     case M_MENT:
     case M_QUEN:
     case M_TMENT:
-    case QK_LAYER_TAP_GET_TAP_KEYCODE(NAV_UND):
       return true;
 
     default:
@@ -354,11 +356,11 @@ bool remember_last_key_user(uint16_t keycode, keyrecord_t* record,
 #endif  // NO_ACTION_TAPPING
   }
 
-  // Forget Shift on letters when Shift or AltGr are the only mods.
-  // Exceptionally, remember Shift on N W X Y Z, e.g. for "NN" and "ZZ" in Vim.
+  // Forget Shift on most letters when Shift or AltGr are the only mods. Some
+  // letters are excluded, e.g. for "NN" and "ZZ" in Vim.
   switch (keycode) {
     case KC_A ... KC_H:
-    case KC_J ... KC_M:
+    case KC_K ... KC_M:
     case KC_O ... KC_U:
       if ((*remembered_mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT))) == 0) {
         *remembered_mods &= ~MOD_MASK_SHIFT;
@@ -421,7 +423,7 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
         if ((mods & MOD_MASK_SHIFT) == 0) {
           return M_UPDIR;  // . -> ./
         }
-        break;
+        return M_NOOP;
       case KC_HASH: return M_INCLUDE; // # -> include
       case KC_EQL: return M_EQEQ;     // = -> ==
 
@@ -429,12 +431,12 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
         if ((mods & MOD_MASK_SHIFT) != 0) {
           return KC_EQL;  // ! -> =
         }
-        break;
+        return M_NOOP;
       case KC_QUOT:
         if ((mods & MOD_MASK_SHIFT) != 0) {
           return M_DOCSTR;  // " -> ""<cursor>"""
         }
-        break;
+        return M_NOOP;
       case KC_GRV:  // ` -> ``<cursor>``` (for Markdown code)
         return M_MKGRVS;
       case KC_LABK:  // < -> - (for Haskell)
@@ -442,6 +444,12 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
 
       case KC_SLSH:
         return KC_SLSH;  // / -> / (easier reach than Repeat)
+
+      case KC_F:
+      case KC_V:
+      case HOME_X:
+      case HOME_SC:
+        return M_NOOP;
 
       case KC_PLUS:
       case KC_MINS:
@@ -566,14 +574,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   }
 
   switch (keycode) {
-    // Hold behavior: switches to NAV layer.
-    // Tap behavior:
+    // Behavior:
     //  * Unmodified:       _ (KC_UNDS)
     //  * With Shift:       - (KC_MINS)
     //  * With Alt:         Unicode en dash
     //  * With Shift + Alt: Unicode em dash
-    case NAV_UND:
-      if (record->tap.count) {
+    case KC_UNDS: {
         static uint16_t registered_keycode = KC_NO;
 
         if (record->event.pressed) {
@@ -598,9 +604,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
           unregister_code16(registered_keycode);
           registered_keycode = KC_NO;
         }
-        return false;
-      }
-      return true;
+      } return false;
 
     // Hold behavior: switches to WIN layer.
     // Tap behavior:
@@ -695,8 +699,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 #ifdef RGB_MATRIX_ENABLE
       case RGB_DEF:  // Set RGB matrix to some nice defaults.
         rgb_matrix_enable_noeeprom();
-        rgb_matrix_mode_noeeprom(RGB_MATRIX_HUE_BREATHING);
-        rgb_matrix_sethsv_noeeprom(17, 245, 255);  // Amber color.
+        rgb_matrix_mode_noeeprom(RGB_MATRIX_ALPHAS_MODS);
+        rgb_matrix_sethsv_noeeprom(17, 255, 255);  // Amber color.
         return false;
 #endif  // RGB_MATRIX_ENABLE
 

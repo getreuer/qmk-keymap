@@ -75,21 +75,17 @@ Sturdy](https://getreuer.info/posts/keyboards/alt-layouts/index.html#magic-sturd
 
 ![Symbol layer](doc/layout-1-symbol.png)
 
-**Mouse layer**
-
-![Mouse layer](doc/layout-2-mouse.png)
-
-**Navigation layer**
-
-![Nav layer](doc/layout-3-nav.png)
-
 **Numpad layer**
 
-![Num layer](doc/layout-4-num.png)
+![Num layer](doc/layout-2-num.png)
 
 **Window management layer**
 
-![Win layer](doc/layout-5-win.png)
+![Win layer](doc/layout-3-win.png)
+
+**Funky fun layer**
+
+![Fun layer](doc/layout-4-win.png)
 
 
 ## Installation
