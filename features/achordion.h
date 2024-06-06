@@ -1,4 +1,4 @@
-// Copyright 2022-2023 Google LLC
+// Copyright 2022-2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,30 +52,6 @@
 #pragma once
 
 #include "quantum.h"
-
-/**
- * Suppress tap-hold mods within a *typing streak* by defining
- * ACHORDION_STREAK. This can help preventing accidental mod
- * activation when performing a fast tapping sequence.
- * This is inspired by https://sunaku.github.io/home-row-mods.html#typing-streaks
- *
- * Enable with:
- *
- *    #define ACHORDION_STREAK
- *
- * Adjust the maximum time between key events before modifiers can be enabled
- * by defining the following callback in your keymap.c:
- *
- *    uint16_t achordion_streak_chord_timeout(
- *        uint16_t tap_hold_keycode, uint16_t next_keycode) {
- *      return 200;  // Default of 200 ms.
- *    }
- */
-#ifdef ACHORDION_STREAK
-bool achordion_streak_continue(uint16_t keycode);
-uint16_t achordion_streak_chord_timeout(uint16_t tap_hold_keycode, uint16_t next_keycode);
-uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode);
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -182,6 +158,35 @@ bool achordion_eager_mod(uint8_t mod);
  */
 bool achordion_opposite_hands(const keyrecord_t* tap_hold_record,
                               const keyrecord_t* other_record);
+
+/**
+ * Suppress tap-hold mods within a *typing streak* by defining
+ * ACHORDION_STREAK. This can help preventing accidental mod
+ * activation when performing a fast tapping sequence.
+ * This is inspired by
+ * https://sunaku.github.io/home-row-mods.html#typing-streaks
+ *
+ * Enable with:
+ *
+ *    #define ACHORDION_STREAK
+ *
+ * Adjust the maximum time between key events before modifiers can be enabled
+ * by defining the following callback in your keymap.c:
+ *
+ *    uint16_t achordion_streak_chord_timeout(
+ *        uint16_t tap_hold_keycode, uint16_t next_keycode) {
+ *      return 200;  // Default of 200 ms.
+ *    }
+ */
+#ifdef ACHORDION_STREAK
+uint16_t achordion_streak_chord_timeout(uint16_t tap_hold_keycode,
+                                        uint16_t next_keycode);
+
+bool achordion_streak_continue(uint16_t keycode);
+
+/** @deprecated Use `achordion_streak_chord_timeout()` instead. */
+uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode);
+#endif
 
 #ifdef __cplusplus
 }
