@@ -8,7 +8,7 @@
   "keywords": [],
   "author": "Pascal Getreuer",
   "license": "Apache-2.0",
-  "description": "The Quantum Mechanical Keyboard (QMK) firmware has a feature for playing simple songs (https://docs.qmk.fm/#/feature_audio?id=songs). This library reads song in QMK's song code syntax and plays them using Web Audio.",
+  "description": "The Quantum Mechanical Keyboard (QMK) firmware has a feature for playing simple songs (https://docs.qmk.fm/features/audio#songs). This library reads song in QMK's song code syntax and plays them using Web Audio.",
   "devDependencies": {
     "@types/jest": "^29.5.2",
     "jest": "^29.5.0",

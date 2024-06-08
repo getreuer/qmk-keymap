@@ -16,7 +16,7 @@
  * QMK song player.
  *
  * The Quantum Mechanical Keyboard (QMK) firmware has a feature for playing
- * simple songs (https://docs.qmk.fm/#/feature_audio?id=songs). This library
+ * simple songs (https://docs.qmk.fm/features/audio#songs). This library
  * reads song in QMK's song code syntax and plays them using Web Audio.
  */
 

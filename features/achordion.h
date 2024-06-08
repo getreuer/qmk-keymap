@@ -142,7 +142,7 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode);
  *     }
  *
  * @note `mod` should be compared with `MOD_` prefixed codes, not `KC_` codes,
- * described at <https://docs.qmk.fm/#/mod_tap>.
+ * described at <https://docs.qmk.fm/mod_tap>.
  *
  * @param mod Modifier `MOD_` code.
  * @return True if the modifier should be eagerly applied.

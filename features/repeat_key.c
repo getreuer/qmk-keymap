@@ -20,7 +20,7 @@
 #include "repeat_key.h"
 
 #pragma message \
-    "Repeat Key is now a core QMK feature! To use it, update your QMK set up and see https://docs.qmk.fm/#/feature_repeat_key"
+    "Repeat Key is now a core QMK feature! To use it, update your QMK set up and see https://docs.qmk.fm/features/repeat_key"
 
 #if !defined(IS_QK_MOD_TAP)
 // Attempt to detect out-of-date QMK installation, which would fail with

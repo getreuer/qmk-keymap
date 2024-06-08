@@ -153,7 +153,7 @@ enum custom_keycodes {
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Combos (https://docs.qmk.fm/#/feature_combo)
+// Combos (https://docs.qmk.fm/features/combo)
 ///////////////////////////////////////////////////////////////////////////////
 const uint16_t caps_combo[] PROGMEM = {KC_J, KC_COMM, COMBO_END};
 const uint16_t j_k_combo[] PROGMEM = {KC_J, KC_K, COMBO_END};
@@ -187,7 +187,7 @@ uint8_t NUM_CUSTOM_SHIFT_KEYS =
 #endif  // CUSTOM_SHIFT_KEYS_ENABLE
 
 ///////////////////////////////////////////////////////////////////////////////
-// Tap-hold configuration (https://docs.qmk.fm/#/tap_hold)
+// Tap-hold configuration (https://docs.qmk.fm/tap_hold)
 ///////////////////////////////////////////////////////////////////////////////
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t* record) {
   switch (keycode) {
@@ -252,7 +252,7 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
 #endif  // ACHORDION_ENABLE
 
 ///////////////////////////////////////////////////////////////////////////////
-// Autocorrect (https://docs.qmk.fm/#/feature_autocorrect)
+// Autocorrect (https://docs.qmk.fm/features/autocorrect)
 ///////////////////////////////////////////////////////////////////////////////
 #ifdef AUTOCORRECT_ENABLE
 bool apply_autocorrect(uint8_t backspaces, const char* str,
@@ -266,7 +266,7 @@ bool apply_autocorrect(uint8_t backspaces, const char* str,
 #endif  // AUTOCORRECT_ENABLE
 
 ///////////////////////////////////////////////////////////////////////////////
-// Caps word (https://docs.qmk.fm/#/feature_caps_word)
+// Caps word (https://docs.qmk.fm/features/caps_word)
 ///////////////////////////////////////////////////////////////////////////////
 #ifdef CAPS_WORD_ENABLE
 bool caps_word_press_user(uint16_t keycode) {
@@ -338,7 +338,7 @@ char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
 #endif  // SENTENCE_CASE_ENABLE
 
 ///////////////////////////////////////////////////////////////////////////////
-// Repeat key (https://docs.qmk.fm/#/feature_repeat_key)
+// Repeat key (https://docs.qmk.fm/features/repeat_key)
 ///////////////////////////////////////////////////////////////////////////////
 bool remember_last_key_user(uint16_t keycode, keyrecord_t* record,
                             uint8_t* remembered_mods) {
@@ -518,7 +518,7 @@ void caps_word_set_user(bool active) {
 #endif  // STATUS_LED_3
 
 ///////////////////////////////////////////////////////////////////////////////
-// User macro callbacks (https://docs.qmk.fm/#/feature_macros)
+// User macro callbacks (https://docs.qmk.fm/feature_macros)
 ///////////////////////////////////////////////////////////////////////////////
 
 void keyboard_post_init_user(void) {

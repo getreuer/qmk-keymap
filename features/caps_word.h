@@ -20,7 +20,7 @@
  * --------
  *
  * @note Caps Word is now a core QMK feature! See
- * <https://docs.qmk.fm/#/feature_caps_word>
+ * <https://docs.qmk.fm/features/caps_word>
  *
  * This library implements "Caps Word", which is like conventional Caps Lock,
  * but automatically disables itself at the end of the word. This is useful for

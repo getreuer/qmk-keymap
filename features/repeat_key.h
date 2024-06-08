@@ -17,7 +17,7 @@
  * @brief Repeat Key - an extensible "repeat last key" implementation.
  *
  * @note Repeat Key is now a core QMK feature! See
- * <https://docs.qmk.fm/#/feature_repeat_key>
+ * <https://docs.qmk.fm/features/repeat_key>
  *
  * Repeat Key performs the action of last pressed key. Tapping the Repeat Key
  * after tapping the Z key types another "z." Repeat Key remembers the modifiers

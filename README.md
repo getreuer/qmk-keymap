@@ -91,10 +91,10 @@ Sturdy](https://getreuer.info/posts/keyboards/alt-layouts/index.html#magic-sturd
 ## Installation
 
 This repo works as an [External QMK
-Userspace](https://docs.qmk.fm/#/newbs_external_userspace). Instructions on how
+Userspace](https://docs.qmk.fm/newbs_external_userspace). Instructions on how
 to use it in QMK:
 
-1. [Set up QMK](https://docs.qmk.fm/#/newbs).
+1. [Set up QMK](https://docs.qmk.fm/newbs).
 
 2. Clone this repo locally
 

@@ -20,7 +20,7 @@
  * --------
  *
  * @note Autocorrect is now a core QMK feature! See
- * <https://docs.qmk.fm/#/feature_autocorrect>
+ * <https://docs.qmk.fm/features/autocorrect>
  *
  * Some words are more prone to typos than others. This userspace QMK library
  * implements rudimentary autocorrection, automatically detecting and fixing

@@ -23,7 +23,7 @@
 #include "caps_word.h"
 
 #pragma message \
-    "Caps Word is now a core QMK feature! To use it, update your QMK set up and see https://docs.qmk.fm/#/feature_caps_word"
+    "Caps Word is now a core QMK feature! To use it, update your QMK set up and see https://docs.qmk.fm/features/caps_word"
 
 #if !defined(IS_QK_MOD_TAP)
 // Attempt to detect out-of-date QMK installation, which would fail with
