@@ -112,12 +112,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   const bool is_mt = IS_QK_MOD_TAP(keycode);
   const bool is_tap_hold = is_mt || IS_QK_LAYER_TAP(keycode);
   // Check that this is a normal key event, don't act on combos.
-#ifdef IS_KEYEVENT
   const bool is_key_event = IS_KEYEVENT(record->event);
-#else
-  const bool is_key_event =
-      (record->event.key.row < 254 && record->event.key.col < 254);
-#endif
 
   if (achordion_state == STATE_RELEASED) {
     if (is_tap_hold && record->tap.count == 0 && record->event.pressed &&
