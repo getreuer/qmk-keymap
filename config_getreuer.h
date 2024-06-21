@@ -42,6 +42,9 @@
 // Don't apply custom shift keys with mods other than Shift.
 #define CUSTOM_SHIFT_KEYS_NEGMODS ~MOD_MASK_SHIFT
 
+// When idle, turn off Layer Lock after 60 seconds.
+#define LAYER_LOCK_IDLE_TIMEOUT 60000
+
 // When idle, turn off Sentence Case after 2 seconds.
 #define SENTENCE_CASE_TIMEOUT 2000
 

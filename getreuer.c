@@ -159,8 +159,6 @@ const uint16_t caps_combo[] PROGMEM = {KC_J, KC_COMM, COMBO_END};
 const uint16_t j_k_combo[] PROGMEM = {KC_J, KC_K, COMBO_END};
 const uint16_t j_g_combo[] PROGMEM = {KC_J, NUM_G, COMBO_END};
 const uint16_t d_y_combo[] PROGMEM = {HOME_D, KC_Y, COMBO_END};
-/* const uint16_t n_comm_combo[] PROGMEM = {HOME_N, KC_COMM, COMBO_END}; */
-/* const uint16_t comm_dot_combo[] PROGMEM = {KC_COMM, KC_DOT, COMBO_END}; */
 // clang-format off
 combo_t key_combos[] = {
     COMBO(caps_combo, CW_TOGG),          // J and , => activate Caps Word.
@@ -191,12 +189,9 @@ uint8_t NUM_CUSTOM_SHIFT_KEYS =
 ///////////////////////////////////////////////////////////////////////////////
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t* record) {
   switch (keycode) {
-    case HOME_S:
     case HOME_T:
     case HOME_A:
-    case HOME_I:
       return TAPPING_TERM + 15;
-
     default:
       return TAPPING_TERM;
   }
@@ -247,6 +242,36 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
   switch (tap_hold_keycode) {
     default:
       return 800;  // Use a timeout of 800 ms.
+  }
+}
+
+uint16_t achordion_streak_chord_timeout(
+    uint16_t tap_hold_keycode, uint16_t next_keycode) {
+  // Disable streak detection on LT keys.
+  if (IS_QK_LAYER_TAP(tap_hold_keycode)) {
+    return 0;
+  }
+
+  // Exceptions so that certain hotkeys don't get blocked as streaks.
+  switch (tap_hold_keycode) {
+    case HOME_N:
+      if (next_keycode == KC_C || next_keycode == KC_V) {
+        return 0;
+      }
+      break;
+    case HOME_D:
+      if (next_keycode == HOME_N) {
+        return 0;
+      }
+      break;
+  }
+
+  // Otherwise, tap_hold_keycode is a mod-tap key.
+  const uint8_t mod = mod_config(QK_MOD_TAP_GET_MODS(tap_hold_keycode));
+  if ((mod & MOD_LSFT) != 0) {
+    return 100;  // A short streak timeout for Shift mod-tap keys.
+  } else {
+    return 220;  // A longer timeout otherwise.
   }
 }
 #endif  // ACHORDION_ENABLE
@@ -559,16 +584,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   const uint8_t shift_mods = all_mods & MOD_MASK_SHIFT;
   const bool alt = all_mods & MOD_BIT(KC_LALT);
 
-  // If alt repeating a key A-G or O-U with no mods other than Shift, set the
-  // last key to KC_N. Above, alternate repeat of KC_N is defined to be again
-  // KC_N. This way, either tapping alt repeat and then repeat (or equivalently
-  // double tapping alt repeat) is useful to type certain patterns without SFBs:
+  // If alt repeating key A, E, I, O, U, Y with no mods other than Shift, set
+  // the last key to KC_N. Above, alternate repeat of KC_N is defined to be
+  // again KC_N. This way, either tapping alt repeat and then repeat (or
+  // equivalently double tapping alt repeat) is useful to type certain patterns
+  // without SFBs:
   //
   //   D <altrep> <rep> -> DYN (as in "dynamic")
   //   O <altrep> <rep> -> OAN (as in "loan")
   if (get_repeat_key_count() < 0 && !shift_mods &&
-      ((KC_A <= keycode && keycode <= KC_G) ||
-       (KC_O <= keycode && keycode <= KC_U))) {
+      (keycode == KC_A || keycode == KC_E || keycode == KC_I ||
+       keycode == KC_O || keycode == KC_U || keycode == KC_Y)) {
     set_last_keycode(KC_N);
     set_last_mods(0);
   }
@@ -730,6 +756,9 @@ void matrix_scan_user(void) {
 #ifdef ACHORDION_ENABLE
   achordion_task();
 #endif  // ACHORDION_ENABLE
+#ifdef LAYER_LOCK_ENABLE
+  layer_lock_task();
+#endif  // LAYER_LOCK_ENABLE
 #ifdef ORBITAL_MOUSE_ENABLE
   orbital_mouse_task();
 #endif  // ORBITAL_MOUSE_ENABLE
