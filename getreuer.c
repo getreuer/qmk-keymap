@@ -31,6 +31,7 @@
  *  * features/repeat_key.h: a "repeat last key" implementation
  *  * features/sentence_case.h: capitalize first letter of sentences
  *  * features/select_word.h: macro for convenient word or line selection
+ *  * features/socd_cleaner.h: enhance WASD for fast inputs for gaming
  *
  * License
  * -------

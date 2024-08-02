@@ -54,6 +54,9 @@ for general tips on writing userspace libraries and contributing to QMK.
 * [Sentence Case](https://getreuer.info/posts/keyboards/sentence-case/index.html)
   &ndash; automatically capitalize the first letter of sentences
 
+* [SOCD Cleaner](https://getreuer.info/posts/keyboards/socd-cleaner/index.html)
+  &ndash; enhance WASD for fast inputs for gaming
+
 * [Word selection](https://getreuer.info/posts/keyboards/select-word/index.html)
   &ndash; macro for convenient word or line selection
 
