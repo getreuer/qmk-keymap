@@ -70,17 +70,16 @@ static void recursively_process_record(keyrecord_t* record, uint8_t state) {
   achordion_state = state;
 }
 
-// Clears eagerly-applied mods.
-static void clear_eager_mods(void) {
-  unregister_mods(eager_mods);
-  eager_mods = 0;
-}
-
 // Sends hold press event and settles the active tap-hold key as held.
 static void settle_as_hold(void) {
-  clear_eager_mods();
-  // Create hold press event.
-  recursively_process_record(&tap_hold_record, STATE_HOLDING);
+  if (eager_mods) {
+    // If eager mods are being applied, nothing needs to be done besides
+    // updating the state.
+    achordion_state = STATE_HOLDING;
+  } else {
+    // Create hold press event.
+    recursively_process_record(&tap_hold_record, STATE_HOLDING);
+  }
 }
 
 #ifdef ACHORDION_STREAK
@@ -114,6 +113,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   // Check that this is a normal key event, don't act on combos.
   const bool is_key_event = IS_KEYEVENT(record->event);
 
+  // Event while no tap-hold key is active.
   if (achordion_state == STATE_RELEASED) {
     if (is_tap_hold && record->tap.count == 0 && record->event.pressed &&
         is_key_event) {
@@ -127,7 +127,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
         hold_timer = record->event.time + timeout;
 
         if (is_mt) {  // Apply mods immediately if they are "eager."
-          uint8_t mod = mod_config(QK_MOD_TAP_GET_MODS(tap_hold_keycode));
+          const uint8_t mod = mod_config(QK_MOD_TAP_GET_MODS(keycode));
           if (achordion_eager_mod(mod)) {
             eager_mods = ((mod & 0x10) == 0) ? mod : (mod << 4);
             register_mods(eager_mods);
@@ -146,8 +146,8 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     return true;  // Otherwise, continue with default handling.
   }
 
+  // Release of the active tap-hold key.
   if (keycode == tap_hold_keycode && !record->event.pressed) {
-    // The active tap-hold key is being released.
     if (achordion_state == STATE_HOLDING) {
       dprintln("Achordion: Key released. Plumbing hold release.");
       tap_hold_record.event.pressed = false;
@@ -165,9 +165,8 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     } else {
       dprintf("Achordion: Key released.%s\n",
               eager_mods ? " Clearing eager mods." : "");
-      if (is_mt) {
-        clear_eager_mods();
-      }
+      unregister_mods(eager_mods);  // Clear eager mods if set.
+      eager_mods = 0;
     }
 
     achordion_state = STATE_RELEASED;
@@ -216,7 +215,13 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       }
 #endif  // REPEAT_KEY_ENABLE
     } else {
-      clear_eager_mods();  // Clear in case eager mods were set.
+      if (eager_mods) {  // Clear eager mods if set.
+#ifdef DUMMY_MOD_NEUTRALIZER_KEYCODE
+        neutralize_flashing_modifiers(get_mods());
+#endif  // DUMMY_MOD_NEUTRALIZER_KEYCODE
+        unregister_mods(eager_mods);
+        eager_mods = 0;
+      }
 
       dprintln("Achordion: Plumbing tap press.");
       tap_hold_record.tap.count = 1;  // Revise event as a tap.
