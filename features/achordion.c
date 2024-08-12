@@ -124,21 +124,6 @@ static void settle_as_tap(void) {
   tap_hold_record.event.pressed = false;
   // Plumb tap release event.
   recursively_process_record(&tap_hold_record, STATE_TAPPING);
-#ifdef ACHORDION_STREAK
-  update_streak_timer(keycode, record);
-  if (is_streak && is_key_event && is_tap_hold && record->tap.count == 0) {
-    // If we are in a streak and resolved the current tap-hold key as a tap
-    // consider the next tap-hold key as active to be resolved next.
-    update_streak_timer(tap_hold_keycode, &tap_hold_record);
-    const uint16_t timeout = achordion_timeout(keycode);
-    tap_hold_keycode = keycode;
-    tap_hold_record = *record;
-    hold_timer = record->event.time + timeout;
-    achordion_state = STATE_UNSETTLED;
-    pressed_another_key_before_release = false;
-    return false;
-  }
-#endif
 }
 
 bool process_achordion(uint16_t keycode, keyrecord_t* record) {
@@ -268,6 +253,22 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 #endif  // REPEAT_KEY_ENABLE
     } else {
       settle_as_tap();
+
+#ifdef ACHORDION_STREAK
+      update_streak_timer(keycode, record);
+      if (is_streak && is_key_event && is_tap_hold && record->tap.count == 0) {
+        // If we are in a streak and resolved the current tap-hold key as a tap
+        // consider the next tap-hold key as active to be resolved next.
+        update_streak_timer(tap_hold_keycode, &tap_hold_record);
+        const uint16_t timeout = achordion_timeout(keycode);
+        tap_hold_keycode = keycode;
+        tap_hold_record = *record;
+        hold_timer = record->event.time + timeout;
+        achordion_state = STATE_UNSETTLED;
+        pressed_another_key_before_release = false;
+        return false;
+      }
+#endif
     }
 
     recursively_process_record(record, achordion_state);  // Re-process event.
