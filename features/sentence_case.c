@@ -118,6 +118,7 @@ void sentence_case_toggle(void) {
 }
 
 bool is_sentence_case_on(void) { return sentence_state != STATE_DISABLED; }
+bool is_sentence_case_primed(void) { return sentence_state == STATE_PRIMED; }
 
 #if SENTENCE_CASE_TIMEOUT > 0
 #if SENTENCE_CASE_TIMEOUT < 100 || SENTENCE_CASE_TIMEOUT > 30000

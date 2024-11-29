@@ -83,6 +83,7 @@ void sentence_case_on(void); /**< Enables Sentence Case. */
 void sentence_case_off(void); /**< Disables Sentence Case. */
 void sentence_case_toggle(void); /**< Toggles Sentence Case. */
 bool is_sentence_case_on(void); /**< Gets whether currently enabled. */
+bool is_sentence_case_primed(void); /**< Whether currently primed. */
 void sentence_case_clear(void); /**< Clears Sentence Case to initial state. */
 
 /**
