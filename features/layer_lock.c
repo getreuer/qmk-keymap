@@ -1,4 +1,4 @@
-// Copyright 2022-2023 Google LLC
+// Copyright 2022-2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,10 @@
  */
 
 #include "layer_lock.h"
+
+#pragma message \
+    "Layer Lock is now a core QMK feature! To use it, update your QMK set up and see https://docs.qmk.fm/features/layer_lock"
+
 
 // The current lock state. The kth bit is on if layer k is locked.
 static layer_state_t locked_layers = 0;
