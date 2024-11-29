@@ -26,6 +26,7 @@ AUTOCORRECT_ENABLE ?= yes
 CAPS_WORD_ENABLE ?= yes
 CONSOLE_ENABLE ?= no
 GRAVE_ESC_ENABLE ?= no
+LAYER_LOCK_ENABLE ?= yes
 NKRO_ENABLE ?= no
 SPACE_CADET_ENABLE ?= no
 TAP_DANCE_ENABLE ?= no
@@ -40,12 +41,6 @@ CUSTOM_SHIFT_KEYS_ENABLE ?= yes
 ifeq ($(strip $(CUSTOM_SHIFT_KEYS_ENABLE)), yes)
 	OPT_DEFS += -DCUSTOM_SHIFT_KEYS_ENABLE
 	SRC += features/custom_shift_keys.c
-endif
-
-LAYER_LOCK_ENABLE ?= yes
-ifeq ($(strip $(LAYER_LOCK_ENABLE)), yes)
-	OPT_DEFS += -DLAYER_LOCK_ENABLE
-	SRC += features/layer_lock.c
 endif
 
 ORBITAL_MOUSE_ENABLE ?= no

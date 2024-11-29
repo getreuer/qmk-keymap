@@ -79,11 +79,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                       KC_COMM, KC_7   , KC_6   , KC_5   , KC_DOT , _______,
                                _______, _______, _______, _______, _______,
     _______,
-    _______, KC_0   , LLOCK
+    _______, KC_0   , QK_LLCK
   ),
 
   [WIN] = LAYOUT_LR(  // Window management layer.
-    RGB_TOG, RGB_DEF, RGB_MOD, RGB_HUI, RGB_SAI, RGB_VAI, _______,
+    RM_TOGG, RGB_DEF, RM_NEXT, RM_HUEU, RM_SATU, RM_VALU, _______,
     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
     XXXXXXX, XXXXXXX, KC_LALT, KC_LSFT, KC_LCTL, XXXXXXX, _______,
     XXXXXXX, KC_LGUI, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
@@ -97,7 +97,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                       XXXXXXX, G(KC_7), G(KC_6), G(KC_5), KC_VOLD , KC_VOLU,
                                _______, _______, _______, _______, _______,
     _______,
-    _______, QK_REP , LLOCK
+    _______, QK_REP , QK_LLCK
   ),
 
   [FUN] = LAYOUT_LR(  // Funky fun layer.
@@ -115,7 +115,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                       XXXXXXX, KC_F7  , KC_F6  , KC_F5  , KC_F12 , _______,
                                _______, _______, _______, _______, _______,
     _______,
-    _______, XXXXXXX, LLOCK
+    _______, XXXXXXX, QK_LLCK
   ),
 };
 

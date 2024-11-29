@@ -84,7 +84,7 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
                                _______, _______, _______, _______, _______,
     _______, _______,
     _______,
-    _______, KC_0   , LLOCK
+    _______, KC_0   , QK_LLCK
   ),
 
   [WIN] = LAYOUT_LR(  // Window management layer.
@@ -104,7 +104,7 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
                                _______, _______, _______, _______, _______,
     _______, _______,
     _______,
-    _______, QK_REP , LLOCK
+    _______, QK_REP , QK_LLCK
   ),
 
   [FUN] = LAYOUT_LR(  // Funky fun layer.
@@ -125,7 +125,7 @@ const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
                                _______, _______, _______, _______, _______,
     _______, _______,
     _______,
-    _______, XXXXXXX, LLOCK
+    _______, XXXXXXX, QK_LLCK
   ),
 };
 

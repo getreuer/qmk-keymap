@@ -48,9 +48,6 @@
 #ifdef CUSTOM_SHIFT_KEYS_ENABLE
 #include "features/custom_shift_keys.h"
 #endif  // CUSTOM_SHIFT_KEYS_ENABLE
-#ifdef LAYER_LOCK_ENABLE
-#include "features/layer_lock.h"
-#endif  // LAYER_LOCK_ENABLE
 #ifdef ORBITAL_MOUSE_ENABLE
 #include "features/orbital_mouse.h"
 #endif  // ORBITAL_MOUSE_ENABLE
@@ -72,7 +69,6 @@ enum layers {
 enum custom_keycodes {
   ARROW = SAFE_RANGE,
   DASH,
-  LLOCK,
   RGB_DEF,
   SELLINE,
   SRCHSEL,
@@ -566,9 +562,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 #ifdef ORBITAL_MOUSE_ENABLE
   if (!process_orbital_mouse(keycode, record)) { return false; }
 #endif  // ORBITAL_MOUSE_ENABLE
-#ifdef LAYER_LOCK_ENABLE
-  if (!process_layer_lock(keycode, record, LLOCK)) { return false; }
-#endif  // LAYER_LOCK_ENABLE
 #ifdef SENTENCE_CASE_ENABLE
   if (!process_sentence_case(keycode, record)) { return false; }
 #endif  // SENTENCE_CASE_ENABLE
@@ -757,9 +750,6 @@ void matrix_scan_user(void) {
 #ifdef ACHORDION_ENABLE
   achordion_task();
 #endif  // ACHORDION_ENABLE
-#ifdef LAYER_LOCK_ENABLE
-  layer_lock_task();
-#endif  // LAYER_LOCK_ENABLE
 #ifdef ORBITAL_MOUSE_ENABLE
   orbital_mouse_task();
 #endif  // ORBITAL_MOUSE_ENABLE
