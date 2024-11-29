@@ -676,7 +676,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
         return false;
 
       case USRNAME:
+        add_oneshot_mods(shift_mods);
+        clear_mods();
         SEND_STRING_DELAY("getreuer", TAP_CODE_DELAY);
+        set_mods(mods);
         return false;
 
       case ARROW:  // Unicode arrows -> => <-> <=> through Shift and Alt.
@@ -731,14 +734,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
       case M_QUEN:    MAGIC_STRING(/*q*/"uen", KC_C); break;
       case M_TMENT:   MAGIC_STRING(/*t*/"ment", KC_S); break;
       case M_UPDIR:   MAGIC_STRING(/*.*/"./", UPDIR); break;
-      case M_INCLUDE: SEND_STRING(/*#*/"include "); break;
-      case M_EQEQ:    SEND_STRING(/*=*/"=="); break;
+      case M_INCLUDE: SEND_STRING_DELAY(/*#*/"include ", TAP_CODE_DELAY); break;
+      case M_EQEQ:    SEND_STRING_DELAY(/*=*/"==", TAP_CODE_DELAY); break;
       case M_DOCSTR:
-        SEND_STRING(/*"*/"\"\"\"\"\""
-            SS_TAP(X_LEFT) SS_TAP(X_LEFT) SS_TAP(X_LEFT));
+        SEND_STRING_DELAY(/*"*/"\"\"\"\"\""
+            SS_TAP(X_LEFT) SS_TAP(X_LEFT) SS_TAP(X_LEFT), TAP_CODE_DELAY);
         break;
       case M_MKGRVS:
-        SEND_STRING(/*`*/"``\n\n```" SS_TAP(X_UP));
+        SEND_STRING_DELAY(/*`*/"``\n\n```" SS_TAP(X_UP), TAP_CODE_DELAY);
         break;
     }
   }
