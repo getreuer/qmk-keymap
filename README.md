@@ -27,18 +27,9 @@ for general tips on writing userspace libraries and contributing to QMK.
 * [Achordion](https://getreuer.info/posts/keyboards/achordion/index.html)
   &ndash; customize the tap-hold decision
 
-* [Autocorrection](https://getreuer.info/posts/keyboards/autocorrection/index.html)
-  &ndash; run rudimentary autocorrection on your keyboard
-
-* [Caps Word](https://getreuer.info/posts/keyboards/caps-word/index.html)
-  &ndash; modern alternative to Caps Lock
-
 * [Custom shift
   keys](https://getreuer.info/posts/keyboards/custom-shift-keys/index.html)
   &ndash; they're surprisingly tricky to get right; here is my approach
-
-* [Layer Lock key](https://getreuer.info/posts/keyboards/layer-lock/index.html)
-  &ndash; macro to stay in the current layer
 
 * [Mouse Turbo
   Click](https://getreuer.info/posts/keyboards/mouse-turbo-click/index.html)
@@ -48,9 +39,6 @@ for general tips on writing userspace libraries and contributing to QMK.
   Mouse](https://getreuer.info/posts/keyboards/orbital-mouse/index.html) &ndash;
   a polar approach to mouse key control
 
-* [Repeat Key](https://getreuer.info/posts/keyboards/repeat-key/index.html)
-  &ndash; an extensible "repeat last key" implementation
-
 * [Sentence Case](https://getreuer.info/posts/keyboards/sentence-case/index.html)
   &ndash; automatically capitalize the first letter of sentences
 
@@ -59,6 +47,27 @@ for general tips on writing userspace libraries and contributing to QMK.
 
 * [Word selection](https://getreuer.info/posts/keyboards/select-word/index.html)
   &ndash; macro for convenient word or line selection
+
+The following were originally developed here and have since graduated to become
+QMK core features. It is recommended to use the QMK core implementations, but
+(perhaps for sake of customization or curiosity) you may continue to use these
+userspace versions:
+
+* [Autocorrection](https://getreuer.info/posts/keyboards/autocorrection/index.html)
+  &ndash; userspace version of [QMK's
+  Autocorrect](https://docs.qmk.fm/features/autocorrect)
+
+* [Caps Word](https://getreuer.info/posts/keyboards/caps-word/index.html)
+  &ndash; userspace version of [QMK's Caps
+  Word](https://docs.qmk.fm/features/caps_word)
+
+* [Layer Lock key](https://getreuer.info/posts/keyboards/layer-lock/index.html)
+  &ndash; userspace version of [QMK's Layer
+  Lock](https://docs.qmk.fm/features/layer_lock)
+
+* [Repeat Key](https://getreuer.info/posts/keyboards/repeat-key/index.html)
+  &ndash; userspace version of [QMK's Repeat
+  Key](https://docs.qmk.fm/features/repeat_key)
 
 
 ## My keymap
