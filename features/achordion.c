@@ -176,12 +176,12 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
         if (is_mt) {  // Apply mods immediately if they are "eager."
           const uint8_t mod = mod_config(QK_MOD_TAP_GET_MODS(keycode));
           if (
-#if defined(CAPS_WORD_ENABLE) && defined(CAPS_WORD_INVERT_ON_SHIFT)
-              // Since eager mods bypass normal event handling, eager Shift does
-              // not work with CAPS_WORD_INVERT_ON_SHIFT. So if this option is
-              // enabled, we don't apply Shift eagerly when Caps Word is on.
+#if defined(CAPS_WORD_ENABLE)
+              // Since eager mods bypass normal event handling, Caps Word does
+              // not work as expected with eager Shift. So we don't apply Shift
+              // eagerly while Caps Word is on.
               !(is_caps_word_on() && (mod & MOD_LSFT) != 0) &&
-#endif  // defined(CAPS_WORD_ENABLE) && defined(CAPS_WORD_INVERT_ON_SHIFT)
+#endif  // defined(CAPS_WORD_ENABLE)
               achordion_eager_mod(mod)) {
             eager_mods = mod;
             process_eager_mods_action();
