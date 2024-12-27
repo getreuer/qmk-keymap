@@ -28,6 +28,7 @@
  *  * features/layer_lock.h: macro to stay in the current layer
  *  * features/mouse_turbo_click.h: macro that clicks the mouse rapidly
  *  * features/orbital_mouse.h: a polar approach to mouse key control
+ *  * features/palettefx.h: palette-based animated RGB matrix lighting effects
  *  * features/repeat_key.h: a "repeat last key" implementation
  *  * features/sentence_case.h: capitalize first letter of sentences
  *  * features/select_word.h: macro for convenient word or line selection
@@ -51,6 +52,9 @@
 #ifdef ORBITAL_MOUSE_ENABLE
 #include "features/orbital_mouse.h"
 #endif  // ORBITAL_MOUSE_ENABLE
+#ifdef RGB_MATRIX_CUSTOM_USER
+#include "features/palettefx.h"
+#endif  // RGB_MATRIX_CUSTOM_USER
 #ifdef SENTENCE_CASE_ENABLE
 #include "features/sentence_case.h"
 #endif  // SENTENCE_CASE_ENABLE
@@ -544,6 +548,14 @@ void caps_word_set_user(bool active) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void keyboard_post_init_user(void) {
+#if RGB_MATRIX_CUSTOM_USER
+  uint8_t palette_index = PALETTEFX_AMBER;
+  rgb_matrix_sethsv_noeeprom(RGB_MATRIX_HUE_STEP * palette_index, 255, 255);
+  rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_PALETTEFX_FLOW);
+  rgb_matrix_set_speed_noeeprom(128);
+  rgb_matrix_enable_noeeprom();
+#endif  // RGB_MATRIX_CUSTOM_USER
+
   // Play MUSHROOM_SOUND two seconds after init, if defined and audio enabled.
 #if defined(AUDIO_ENABLE) && defined(MUSHROOM_SOUND)
   uint32_t play_init_song_callback(uint32_t trigger_time, void* cb_arg) {

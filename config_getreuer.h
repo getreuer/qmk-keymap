@@ -51,6 +51,10 @@
 // When idle, turn off Sentence Case after 2 seconds.
 #define SENTENCE_CASE_TIMEOUT 2000
 
+// Enable all effects and palettes in PaletteFx.
+#define PALETTEFX_ENABLE_ALL_EFFECTS
+#define PALETTEFX_ENABLE_ALL_PALETTES
+
 #ifdef AUDIO_ENABLE
 #define STARTUP_SONG SONG(NO_SOUND)
 #endif  // AUDIO_ENABLE

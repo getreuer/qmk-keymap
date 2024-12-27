@@ -39,6 +39,9 @@ for general tips on writing userspace libraries and contributing to QMK.
   Mouse](https://getreuer.info/posts/keyboards/orbital-mouse/index.html) &ndash;
   a polar approach to mouse key control
 
+* [PaletteFx](https://getreuer.info/posts/keyboards/palettefx/index.html) &ndash;
+  palette-based animated RGB matrix lighting effects
+
 * [Sentence Case](https://getreuer.info/posts/keyboards/sentence-case/index.html)
   &ndash; automatically capitalize the first letter of sentences
 
