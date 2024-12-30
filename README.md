@@ -31,6 +31,9 @@ for general tips on writing userspace libraries and contributing to QMK.
   keys](https://getreuer.info/posts/keyboards/custom-shift-keys/index.html)
   &ndash; they're surprisingly tricky to get right; here is my approach
 
+* [keycode_string()](https://getreuer.info/posts/keyboards/keycode-string/index.html)
+  &ndash; format keycodes as human-readable strings
+
 * [Mouse Turbo
   Click](https://getreuer.info/posts/keyboards/mouse-turbo-click/index.html)
   &ndash; macro that clicks the mouse rapidly

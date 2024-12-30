@@ -44,6 +44,12 @@ ifeq ($(strip $(CUSTOM_SHIFT_KEYS_ENABLE)), yes)
 	SRC += features/custom_shift_keys.c
 endif
 
+KEYCODE_STRING_ENABLE ?= yes
+ifeq ($(strip $(KEYCODE_STRING_ENABLE)), yes)
+	OPT_DEFS += -DKEYCODE_STRING_ENABLE
+	SRC += features/keycode_string.c
+endif
+
 ORBITAL_MOUSE_ENABLE ?= no
 ifeq ($(strip $(ORBITAL_MOUSE_ENABLE)), yes)
 	MOUSE_ENABLE = yes

@@ -25,6 +25,7 @@
  *  * features/caps_word.h: modern alternative to Caps Lock
  *  * features/custom_shift_keys.h: they're surprisingly tricky to get right;
  *                                  here is my approach
+ *  * features/keycode_string.h: format keycodes as human-readable strings
  *  * features/layer_lock.h: macro to stay in the current layer
  *  * features/mouse_turbo_click.h: macro that clicks the mouse rapidly
  *  * features/orbital_mouse.h: a polar approach to mouse key control
@@ -49,6 +50,9 @@
 #ifdef CUSTOM_SHIFT_KEYS_ENABLE
 #include "features/custom_shift_keys.h"
 #endif  // CUSTOM_SHIFT_KEYS_ENABLE
+#ifdef KEYCODE_STRING_ENABLE
+#include "features/keycode_string.h"
+#endif  // KEYCODE_STRING_ENABLE
 #ifdef ORBITAL_MOUSE_ENABLE
 #include "features/orbital_mouse.h"
 #endif  // ORBITAL_MOUSE_ENABLE
@@ -127,7 +131,7 @@ enum custom_keycodes {
 //     I * @ -> IONS            (like "nations")
 //     M * @ -> MENTS           (like "moments")
 //     Q * @ -> QUENC           (like "frequency")
-//     T * @ -> TMENTS          (lite "adjustments")
+//     T * @ -> TMENTS          (like "adjustments")
 //     = *   -> ===             (JS code)
 //     ! *   -> !==             (JS code)
 //     " *   -> """<cursor>"""  (Python code)
@@ -519,6 +523,32 @@ static void magic_send_string_P(const char* str, uint16_t repeat_keycode) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Debug logging
+///////////////////////////////////////////////////////////////////////////////
+#if !defined(NO_DEBUG) && defined(KEYCODE_STRING_ENABLE)
+#include "print.h"
+#include "features/keycode_string.h"
+
+static void dlog_record(uint16_t keycode, keyrecord_t* record) {
+  if (!debug_enable) { return; }
+  uint8_t layer = read_source_layers_cache(record->event.key);
+  bool is_tap_hold = IS_QK_MOD_TAP(keycode) || IS_QK_LAYER_TAP(keycode);
+  xprintf("L%-2u ", layer);  // Log the layer.
+  if (IS_COMBOEVENT(record->event)) {  // Combos don't have a position.
+    xprintf("combo   ");
+  } else {  // Log the "(row,col)" position.
+    xprintf("(%2u,%2u) ", record->event.key.row, record->event.key.col);
+  }
+  xprintf("%-4s %-7s %s\n",  // "(tap|hold) (press|release) <keycode>".
+      is_tap_hold ? (record->tap.count ? "tap" : "hold") : "",
+      record->event.pressed ? "press" : "release",
+      keycode_string(keycode));
+}
+#else
+#define dlog_record(keycode, record)
+#endif  // !defined(NO_DEBUG) && defined(KEYCODE_STRING_ENABLE)
+
+///////////////////////////////////////////////////////////////////////////////
 // Status LEDs
 ///////////////////////////////////////////////////////////////////////////////
 #ifdef STATUS_LED_1
@@ -580,6 +610,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 #ifdef CUSTOM_SHIFT_KEYS_ENABLE
   if (!process_custom_shift_keys(keycode, record)) { return false; }
 #endif  // CUSTOM_SHIFT_KEYS_ENABLE
+
+  dlog_record(keycode, record);
 
   const uint8_t mods = get_mods();
   const uint8_t all_mods = (mods | get_weak_mods()
