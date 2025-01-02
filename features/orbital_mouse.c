@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2023-2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,12 @@
 #ifndef ORBITAL_MOUSE_RADIUS
 #define ORBITAL_MOUSE_RADIUS 36
 #endif  // ORBITAL_MOUSE_RADIUS
+#ifndef ORBITAL_MOUSE_SLOW_MOVE_FACTOR
+#define ORBITAL_MOUSE_SLOW_MOVE_FACTOR 0.333
+#endif  // ORBITAL_MOUSE_SLOW_MOVE_FACTOR
+#ifndef ORBITAL_MOUSE_SLOW_TURN_FACTOR
+#define ORBITAL_MOUSE_SLOW_TURN_FACTOR 0.5
+#endif  // ORBITAL_MOUSE_SLOW_TURN_FACTOR
 #ifndef ORBITAL_MOUSE_WHEEL_SPEED
 #define ORBITAL_MOUSE_WHEEL_SPEED 0.2
 #endif  // ORBITAL_MOUSE_WHEEL_SPEED
@@ -33,7 +39,7 @@
 #endif  // ORBITAL_MOUSE_DBL_DELAY_MS
 #ifndef ORBITAL_MOUSE_SPEED_CURVE
 #define ORBITAL_MOUSE_SPEED_CURVE \
-      {24, 24, 24, 32, 58, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66}
+      {24, 24, 24, 32, 62, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72}
 //     |               |               |               |           |
 // t = 0.000           1.024           2.048           3.072       3.840 s
 #endif  // ORBITAL_MOUSE_SPEED_CURVE
@@ -63,6 +69,12 @@ enum {
   NUM_SPEED_CURVE_INTERVALS = 16,
   /** Orbit radius in pixels as a Q6.2 value. */
   RADIUS_Q6_2 = (uint8_t)((ORBITAL_MOUSE_RADIUS) * 4 + 0.5),
+  /** Slow mode movement speed factor as a Q.8 value. */
+  SLOW_MOVE_FACTOR_Q_8 = (ORBITAL_MOUSE_SLOW_MOVE_FACTOR) < 0.99
+      ? ((uint8_t)((ORBITAL_MOUSE_SLOW_MOVE_FACTOR) * 256 + 0.5)) : 255,
+  /** Slow mode turn speed factor as a Q.8 value. */
+  SLOW_TURN_FACTOR_Q_8 = (ORBITAL_MOUSE_SLOW_TURN_FACTOR) < 0.99
+      ? ((uint8_t)((ORBITAL_MOUSE_SLOW_TURN_FACTOR) * 256 + 0.5)) : 255,
   /** Wheel speed in steps/frame as a Q2.6 value. */
   WHEEL_SPEED_Q2_6 = (ORBITAL_MOUSE_WHEEL_SPEED) < 3.99
       ? ((uint8_t)((ORBITAL_MOUSE_WHEEL_SPEED) * 64 + 0.5)) : 255,
@@ -110,12 +122,14 @@ static struct {
   // Mouse wheel movement directions.
   int8_t wheel_x_dir;
   int8_t wheel_y_dir;
-  // Current heading direction, 0 => up, 16 => left, 32 => down, 48 => right.
-  uint8_t angle;
+  // Heading direction as a Q6.8 value, with 0 => up, 16 * 256 => left, etc.
+  uint16_t angle;
   // Selected mouse button as a base-0 index.
   uint8_t selected_button;
   // Tracks double click action.
   uint8_t double_click_frame;
+  // When true, movement and turning are slower.
+  bool slow;
 } state = {.speed_curve = init_speed_curve};
 
 /**
@@ -197,21 +211,26 @@ void set_orbital_mouse_speed_curve(const uint8_t* speed_curve) {
 }
 
 uint8_t get_orbital_mouse_angle(void) {
-  return state.angle & (NUM_ANGLES - 1);
+  return (state.angle >> 8) & (NUM_ANGLES - 1);
+}
+
+static void set_orbital_mouse_angle_fractional(uint16_t angle) {
+  state.x += scaled_sin(RADIUS_Q6_2, state.angle >> 8);
+  state.y += scaled_cos(RADIUS_Q6_2, state.angle >> 8);
+  state.angle = angle;
+  state.x -= scaled_sin(RADIUS_Q6_2, angle >> 8);
+  state.y -= scaled_cos(RADIUS_Q6_2, angle >> 8);
+  wake_orbital_mouse_task();
 }
 
 void set_orbital_mouse_angle(uint8_t angle) {
-  state.x += scaled_sin(RADIUS_Q6_2, state.angle);
-  state.y += scaled_cos(RADIUS_Q6_2, state.angle);
-  state.angle = angle;
-  state.x -= scaled_sin(RADIUS_Q6_2, angle);
-  state.y -= scaled_cos(RADIUS_Q6_2, angle);
-  wake_orbital_mouse_task();
+  set_orbital_mouse_angle_fractional((uint16_t)angle << 8);
 }
 
 bool process_orbital_mouse(uint16_t keycode, keyrecord_t* record) {
   if (!(IS_MOUSE_KEYCODE(keycode) ||
-        (OM_DBLS <= keycode && keycode <= OM_SEL8))) {
+        (ORBITAL_MOUSE_KEYCODE_RANGE_START <= keycode &&
+         keycode <= ORBITAL_MOUSE_KEYCODE_RANGE_END))) {
     return true;
   }
 
@@ -246,6 +265,9 @@ bool process_orbital_mouse(uint16_t keycode, keyrecord_t* record) {
           state.double_click_frame = 1;
         }
         break;
+      case OM_SLOW:
+        state.slow = record->event.pressed;
+        return false;
       case OM_SEL1 ... OM_SEL8:
         if (record->event.pressed) {
           select_mouse_button(keycode - OM_SEL1);
@@ -293,16 +315,23 @@ void orbital_mouse_task(void) {
       ++state.move_t;
     }
     // Round and cast from Q9.6 to Q6.2.
-    const uint8_t speed = (state.speed + 8) / 16;
+    uint8_t speed = (state.speed + 8) / 16;
+    if (state.slow) {
+      speed = ((uint16_t)speed) * (1 + (uint16_t)SLOW_MOVE_FACTOR_Q_8) >> 8;
+    }
 
-    state.x -= state.move_dir * scaled_sin(speed, state.angle);
-    state.y -= state.move_dir * scaled_cos(speed, state.angle);
+    state.x -= state.move_dir * scaled_sin(speed, state.angle >> 8);
+    state.y -= state.move_dir * scaled_cos(speed, state.angle >> 8);
     active = true;
   }
 
   // Update heading angle if steering.
   if (state.steer_dir) {
-    set_orbital_mouse_angle(state.angle + state.steer_dir);
+    int16_t angle_step = state.slow ? SLOW_TURN_FACTOR_Q_8 : 256;
+    if (state.steer_dir == -1) {
+      angle_step = -angle_step;
+    }
+    set_orbital_mouse_angle_fractional(state.angle + angle_step);
     active = true;
   }
 

@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2023-2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -97,14 +97,14 @@ uint8_t get_orbital_mouse_angle(void);
 /** Sets the heading direction. */
 void set_orbital_mouse_angle(uint8_t angle);
 
-// The following defines the keycodes for Orbital Mouse. 28 keycodes are needed.
+// The following defines the keycodes for Orbital Mouse. 29 keycodes are needed.
 // While keycodes for userspace features are conventionally allocated in the
-// user-defined keycode range, that range is limited (32 keycodes). It would be
-// unreasonable to allocate Orbital Mouse's keys there. Being a Mouse Keys
-// replacement, we repurpose the Mouse Keys keycodes (`KC_MS_U`, `KC_BTN1`,
-// etc.) for the analogous functions in Orbital Mouse. We also repurpose the
-// block of keycodes `UC(0x41)` to `UC(0x49)`. These keycode represent Unicode
-// input of ASCII characters, which seems unlikely to be missed.
+// user-defined keycode range, that range is limited. It would be unreasonable
+// to allocate Orbital Mouse's keys there. Being a Mouse Keys replacement, we
+// repurpose the Mouse Keys keycodes (`KC_MS_U`, `KC_BTN1`, etc.) for the
+// analogous functions in Orbital Mouse. We also repurpose the block of keycodes
+// `UC(0x41)` to `UC(0x4a)`. These keycode represent Unicode input of ASCII
+// characters, which seems unlikely to be missed.
 enum {
   /** Move forward. */
   OM_U = KC_MS_U,
@@ -138,29 +138,33 @@ enum {
   OM_BTN7 = KC_BTN7,
   /** Press mouse button 8. */
   OM_BTN8 = KC_BTN8,
+  /** While held, cursor movement and turning are slower. */
+  OM_SLOW = KC_ACL0,
   /** Press the selected mouse button. */
-  OM_BTNS = KC_ACL0,
-  /** Hold the selected mouse button. */
-  OM_HLDS = KC_ACL1,
-  /** Release the selected mouse button. */
-  OM_RELS = KC_ACL2,
+  OM_BTNS = KC_ACL1,
   /** Double click the selected mouse button. */
-  OM_DBLS = UC(0x41),
+  OM_DBLS = KC_ACL2,
+  ORBITAL_MOUSE_KEYCODE_RANGE_START = UC(0x41),
+  /** Hold the selected mouse button. */
+  OM_HLDS = ORBITAL_MOUSE_KEYCODE_RANGE_START,
+  /** Release the selected mouse button. */
+  OM_RELS = ORBITAL_MOUSE_KEYCODE_RANGE_START + 1,
   /** Select mouse button 1. */
-  OM_SEL1 = OM_DBLS + 1,
+  OM_SEL1 = ORBITAL_MOUSE_KEYCODE_RANGE_START + 2,
   /** Select mouse button 2. */
-  OM_SEL2 = OM_DBLS + 2,
+  OM_SEL2 = ORBITAL_MOUSE_KEYCODE_RANGE_START + 3,
   /** Select mouse button 3. */
-  OM_SEL3 = OM_DBLS + 3,
+  OM_SEL3 = ORBITAL_MOUSE_KEYCODE_RANGE_START + 4,
   /** Select mouse button 4. */
-  OM_SEL4 = OM_DBLS + 4,
+  OM_SEL4 = ORBITAL_MOUSE_KEYCODE_RANGE_START + 5,
   /** Select mouse button 5. */
-  OM_SEL5 = OM_DBLS + 5,
+  OM_SEL5 = ORBITAL_MOUSE_KEYCODE_RANGE_START + 6,
   /** Select mouse button 6. */
-  OM_SEL6 = OM_DBLS + 6,
+  OM_SEL6 = ORBITAL_MOUSE_KEYCODE_RANGE_START + 7,
   /** Select mouse button 7. */
-  OM_SEL7 = OM_DBLS + 7,
+  OM_SEL7 = ORBITAL_MOUSE_KEYCODE_RANGE_START + 8,
   /** Select mouse button 8. */
-  OM_SEL8 = OM_DBLS + 8,
+  OM_SEL8 = ORBITAL_MOUSE_KEYCODE_RANGE_START + 9,
+  ORBITAL_MOUSE_KEYCODE_RANGE_END = OM_SEL8,
 };
 
