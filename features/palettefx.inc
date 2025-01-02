@@ -76,7 +76,9 @@ static const uint16_t* palettefx_get_palette_data(void);
  * Looks up and linearly interpolates `palette` at 0 <= x < 256. The color
  * saturation and value are scaled according to rgb_matrix_config.
  *
- * @param palette A table of size 16, each entry being a 16-bit HSV color.
+ * @note `palette` must point to a PROGMEM address.
+ *
+ * @param palette Pointer to PROGMEM of a size-16 table of HSV16 colors.
  * @param x       Palette lookup position, a value in 0-255.
  * @return HSV color.
  */
