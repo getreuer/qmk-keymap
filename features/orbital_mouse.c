@@ -39,7 +39,7 @@
 #endif  // ORBITAL_MOUSE_DBL_DELAY_MS
 #ifndef ORBITAL_MOUSE_SPEED_CURVE
 #define ORBITAL_MOUSE_SPEED_CURVE \
-      {24, 24, 24, 32, 62, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72}
+      {24, 24, 24, 32, 58, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66}
 //     |               |               |               |           |
 // t = 0.000           1.024           2.048           3.072       3.840 s
 #endif  // ORBITAL_MOUSE_SPEED_CURVE
