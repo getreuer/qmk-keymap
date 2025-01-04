@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2024-2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,7 +43,8 @@
 extern "C" {
 #endif
 
-/** @brief Formats a QMK keycode as a human-readable string.
+/**
+ * @brief Formats a QMK keycode as a human-readable string.
  *
  * Given a keycode, like `KC_A`, this function returns a formatted string, like
  * "KC_A". This is useful for debugging and diagnostics so that keys are more
@@ -60,7 +61,8 @@ extern "C" {
  *
  *  - Modified basic keycodes, like `S(KC_1)` (Shift + 1 = !).
  *
- *  - `MO`, `TO`, `TG`, `OSL`, `LM(layer,mod)`, `LT(layer,kc)` layer switches.
+ *  - `MO`, `TO`, `TG`, `TT`, `DF`, `PDF`, `OSL`, `LM(layer,mod)`,
+ *    `LT(layer,kc)` layer switches.
  *
  *  - One-shot mod `OSM(mod)` keycodes.
  *
@@ -87,6 +89,9 @@ extern "C" {
  */
 char* keycode_string(uint16_t keycode);
 
+#define KEYCODE_STRING_NAME(kc) {(kc), PSTR(#kc)}
+#define KEYCODE_STRING_NAMES_END {0, NULL}
+
 /** Defines a human-readable name for a keycode. */
 typedef struct {
   uint16_t keycode;
@@ -96,8 +101,7 @@ typedef struct {
 /**
  * @brief Names for additional keycodes for `keycode_string()`.
  *
- * @note The table *must* end with the sentinel entry `{0, NULL}`.
- * @note Names exceeding 16 characters will be truncated.
+ * @note The table *must* end with `KEYCODE_STRING_NAMES_END`.
  *
  * Define the `custom_keycode_names` table in your keymap.c to add names for
  * additional keycodes to `keycode_string()`. This table may also be used to
@@ -105,11 +109,10 @@ typedef struct {
  * keymap.c defines `MYMACRO1` and `MYMACRO2` as custom keycodes:
  *
  *     const keycode_string_name_t custom_keycode_names[] = {
- *       // keycode, name.
- *       {MYMACRO1, "MYMACRO1"},
- *       {MYMACRO2, "MYMACRO2"},
- *       {KC_EXLM, "KC_EXLM"},
- *       {0, NULL},  // End of table sentinel.
+ *       KEYCODE_STRING_NAME(MYMACRO1),
+ *       KEYCODE_STRING_NAME(MYMACRO2),
+ *       KEYCODE_STRING_NAME(KC_EXLM),
+ *       KEYCODE_STRING_NAMES_END // End of table sentinel.
  *     };
  *
  * The above defines names for `MYMACRO1` and `MYMACRO2`, and overrides
