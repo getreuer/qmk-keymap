@@ -398,7 +398,7 @@ static void append_keycode(uint16_t keycode) {
   append_number(keycode, 16);  // Fallback: write keycode as hex value.
 }
 
-char* keycode_string(uint16_t keycode) {
+const char* keycode_string(uint16_t keycode) {
   buffer_len = 0;
   buffer[0] = '\0';
   append_keycode(keycode);

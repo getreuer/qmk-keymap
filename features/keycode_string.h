@@ -87,7 +87,7 @@ extern "C" {
  * @param keycode  QMK keycode.
  * @return         Stringified keycode.
  */
-char* keycode_string(uint16_t keycode);
+const char* keycode_string(uint16_t keycode);
 
 #define KEYCODE_STRING_NAME(kc) {(kc), PSTR(#kc)}
 #define KEYCODE_STRING_NAMES_END {0, NULL}
