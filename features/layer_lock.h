@@ -1,4 +1,4 @@
-// Copyright 2022-2024 Google LLC
+// Copyright 2022-2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,9 +52,10 @@
  *
  *     #define LAYER_LOCK_IDLE_TIMEOUT 60000  // Turn off after 60 seconds.
  *
- * and call `layer_lock_task()` from your `matrix_scan_user()` in keymap.c:
+ * and call `layer_lock_task()` from your `housekeeping_task_user()` in
+ * keymap.c:
  *
- *     void matrix_scan_user(void) {
+ *     void housekeeping_task_user(void) {
  *       layer_lock_task();
  *       // Other tasks...
  *     }
@@ -125,8 +126,8 @@ void layer_lock_set_user(layer_state_t locked_layers);
  * Matrix task function for Layer Lock.
  *
  * If using `LAYER_LOCK_IDLE_TIMEOUT`, call this function from your
- * `matrix_scan_user()` function in keymap.c. (If no timeout is set, calling
- * `layer_lock_task()` has no effect.)
+ * `housekeeping_task_user()` function in keymap.c. (If no timeout is set,
+ * calling `layer_lock_task()` has no effect.)
  */
 #if LAYER_LOCK_IDLE_TIMEOUT > 0
 void layer_lock_task(void);

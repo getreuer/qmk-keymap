@@ -1,4 +1,4 @@
-// Copyright 2022-2024 Google LLC
+// Copyright 2022-2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -75,9 +75,9 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record);
 /**
  * Matrix task function for Achordion.
  *
- * Call this function from `matrix_scan_user()` as
+ * Call this function from `housekeeping_task_user()` as
  *
- *     void matrix_scan_user(void) {
+ *     void housekeeping_task_user(void) {
  *       achordion_task();
  *     }
  */

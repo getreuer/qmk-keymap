@@ -21,8 +21,8 @@
  * backward along that direction while another two keys steer.
  *
  * To add this library to your keymap, call process_orbital_mouse() from
- * process_record_user() and orbital_mouse_task() from matrix_scan_user() in
- * keymap.c as described below, and in rules.mk, add
+ * process_record_user() and orbital_mouse_task() from housekeeping_task_user()
+ * in keymap.c as described below, and in rules.mk, add
  *
  *     SRC += features/orbital_mouse.c
  *     MOUSE_ENABLE = yes
@@ -62,9 +62,9 @@ bool process_orbital_mouse(uint16_t keycode, keyrecord_t* record);
 /**
  * Matrix task function for Orbital Mouse.
  *
- * Call this function from your `matrix_scan_user()` function in keymap.c:
+ * Call this function from your `housekeeping_task_user()` function in keymap.c:
  *
- *     void matrix_scan_user(void) {
+ *     void housekeeping_task_user(void) {
  *       orbital_mouse_task();
  *
  *       // Other tasks ...

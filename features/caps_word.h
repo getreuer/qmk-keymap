@@ -1,4 +1,4 @@
-// Copyright 2021-2022 Google LLC
+// Copyright 2021-2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,9 +53,9 @@
  *
  *     #define CAPS_WORD_IDLE_TIMEOUT 5000  // Turn off after 5 seconds.
  *
- * and in your keymap.c, define (or add to) `matrix_scan_user()` as
+ * and in your keymap.c, define (or add to) `housekeeping_task_user()` as
  *
- *     void matrix_scan_user(void) {
+ *     void housekeeping_task_user(void) {
  *       caps_word_task();
  *       // Other tasks...
  *     }
@@ -80,7 +80,7 @@ extern "C" {
 bool process_caps_word(uint16_t keycode, keyrecord_t* record);
 
 // If CAPS_WORD_IDLE_TIMEOUT is set, call `caps_word_task()` from
-// `matrix_scan_user()` as described above.
+// `housekeeping_task_user()` as described above.
 //
 // If CAPS_WORD_IDLE_TIMEOUT isn't set, calling this function has no effect (but
 // will still compile).

@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Google LLC
+// Copyright 2021-2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,8 +51,8 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record,
  * Matrix task function for Select Word.
  *
  * If using `SELECT_WORD_TIMEOUT`, call this function from your
- * `matrix_scan_user()` function in keymap.c. (If no timeout is set, calling
- * `select_word_task()` has no effect.)
+ * `housekeeping_task_user()` function in keymap.c. (If no timeout is set,
+ * calling `select_word_task()` has no effect.)
  */
 #if SELECT_WORD_TIMEOUT > 0
 void select_word_task(void);
