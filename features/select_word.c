@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Google LLC
+// Copyright 2021-2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,124 +22,245 @@
 
 #include "select_word.h"
 
-// Mac users, uncomment this line:
-// #define MAC_HOTKEYS
+#if !defined(IS_QK_MOD_TAP)
+// Attempt to detect out-of-date QMK installation, which would fail with
+// implicit-function-declaration errors in the code below.
+#error "select_word: QMK version is too old to build. Please update QMK."
+#else
 
-// clang-format off
-enum {
-    STATE_NONE,        // No selection.
-    STATE_SELECTED,    // Macro released with something selected.
-    STATE_WORD,        // Macro held with word(s) selected.
-    STATE_FIRST_LINE,  // Macro held with one line selected.
-    STATE_LINE         // Macro held with multiple lines selected.
-};
-// clang-format on
-static uint8_t state = STATE_NONE;
+__attribute__((weak)) uint16_t SELECT_WORD_KEYCODE = KC_NO;
+static int8_t selection_dir = 0;
+static bool reset_before_next_event = false;
+static uint8_t registered_hotkey = KC_NO;
 
-// Idle timeout timer to disable Select Word after a period of inactivity.
+// Macro `IS_MAC` determines whether to use Mac vs. Windows/Linux hotkeys:
+//
+// * OS Detection is used if it is enabled.
+//
+// * With SELECT_WORD_OS_DYNAMIC, the user may define callback
+//   select_word_host_is_mac().
+//
+// * Otherwise, the assumed OS is set at compile time, to Window/Linux by
+//   default, or to Mac with SELECT_WORD_OS_MAC.
+#if defined(SELECT_WORD_OS_DYNAMIC) || defined(OS_DETECTION_ENABLE)
+__attribute__((weak)) bool select_word_host_is_mac(void) {
+#  ifdef OS_DETECTION_ENABLE  // Use OS Detection if enabled.
+  switch (detected_host_os()) {
+    case OS_LINUX:
+    case OS_WINDOWS:
+      return false;
+    case OS_MACOS:
+    case OS_IOS:
+      return true;
+    default:
+      break;
+  }
+#  endif  // OS_DETECTION_ENABLE
+#  ifdef SELECT_WORD_OS_MAC
+  return true;
+#  else
+  return false;
+#  endif  // SELECT_WORD_OS_MAC
+}
+#  define IS_MAC select_word_host_is_mac()
+#else
+#  ifdef SELECT_WORD_OS_MAC
+#  define IS_MAC true
+#  else
+#  define IS_MAC false
+#  endif  // SELECT_WORD_OS_MAC
+#endif  // defined(SELECT_WORD_OS_DYNAMIC) || defined(OS_DETECTION_ENABLE)
+
+// Idle timeout timer to reset Select Word after a period of inactivity.
 #if SELECT_WORD_TIMEOUT > 0
+# if SELECT_WORD_TIMEOUT < 100 || SELECT_WORD_TIMEOUT > 30000
+// Constrain timeout to a sensible range. With the 16-bit timer, the longest
+// representable timeout is 32768 ms, rounded here to 30000 ms = half a minute.
+#   error "select_word: SELECT_WORD_TIMEOUT must be between 100 and 30000 ms"
+# endif
+
 static uint16_t idle_timer = 0;
 
+static void restart_idle_timer(void) {
+  idle_timer = (timer_read() + SELECT_WORD_TIMEOUT) | 1;
+}
+
 void select_word_task(void) {
-  if (state && timer_expired(timer_read(), idle_timer)) {
-    state = STATE_NONE;
+  if (idle_timer && timer_expired(timer_read(), idle_timer)) {
+    idle_timer = 0;
+    selection_dir = 0;
   }
 }
 #endif  // SELECT_WORD_TIMEOUT > 0
 
-bool process_select_word(uint16_t keycode, keyrecord_t* record,
-                         uint16_t sel_keycode) {
-  if (keycode == KC_LSFT || keycode == KC_RSFT) {
-    return true;
+static void clear_all_mods(void) {
+  clear_mods();
+  clear_weak_mods();
+#ifndef NO_ACTION_ONESHOT
+  clear_oneshot_mods();
+#endif  // NO_ACTION_ONESHOT
+}
+
+static void select_word_in_dir(int8_t dir) {
+  // With Windows and Linux (non-Mac) systems:
+  // dir < 0: Backward word selection: Ctrl+Left, Ctrl+Right, Ctrl+Shift+Left.
+  // dir > 0: Forward word selection: Ctrl+Right, Ctrl+Left, Ctrl+Shift+Right.
+  // Or to extend an existing selection:
+  // dir < 0: Backward word selection: Ctrl+Shift+Left.
+  // dir > 0: Forward word selection: Ctrl+Shift+Right.
+  //
+  // With Mac OS, use Alt (Opt) instead of Ctrl:
+  // dir < 0: Backward word selection: Alt+Left, Alt+Right, Alt+Shift+Left.
+  // dir > 0: Forward word selection: Alt+Right, Alt+Left, Alt+Shift+Right.
+  // Or to extend an existing selection:
+  // dir < 0: Backward word selection: Alt+Shift+Left.
+  // dir > 0: Forward word selection: Alt+Shift+Right.
+  reset_before_next_event = false;
+  const uint8_t saved_mods = get_mods();
+  clear_all_mods();
+
+  if (selection_dir && (selection_dir < 0) != (dir < 0)) {  // Reversal.
+    send_keyboard_report();
+    tap_code_delay((dir < 0) ? KC_RGHT : KC_LEFT, TAP_CODE_DELAY);
+  }
+
+  add_mods(IS_MAC ? MOD_BIT_LALT : MOD_BIT_LCTRL);
+
+  if (selection_dir == 0) {  // Initial selection.
+    send_keyboard_report();
+    send_string_with_delay_P(
+        (dir < 0) ? PSTR(SS_TAP(X_LEFT) SS_TAP(X_RGHT))
+                  : PSTR(SS_TAP(X_RGHT) SS_TAP(X_LEFT)),
+        TAP_CODE_DELAY);
+  }
+
+  register_mods(MOD_BIT_LSHIFT);
+  registered_hotkey = (dir < 0) ? KC_LEFT : KC_RGHT;
+  register_code(registered_hotkey);
+
+  set_mods(saved_mods);
+  selection_dir = dir;
+}
+
+static void select_line(void) {
+  // With Windows and Linux (non-Mac) systems:
+  // Home, Shift+End.
+  // Or to extend an existing selection:
+  // Shift+Down.
+  //
+  // With Mac OS, use GUI (Command) + arrows:
+  // GUI+Left, Shift+GUI+Right.
+  // Or to extend an existing selection:
+  // Shift+Down.
+  reset_before_next_event = false;
+  const uint8_t saved_mods = get_mods();
+  clear_all_mods();
+
+  if (selection_dir != 2) {
+    send_keyboard_report();
+    send_string_with_delay_P(
+        IS_MAC ? PSTR(SS_LGUI(SS_TAP(X_LEFT) SS_LSFT(SS_TAP(X_RGHT))))
+               : PSTR(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END))),
+        TAP_CODE_DELAY);
+  } else {
+    register_mods(MOD_BIT_LSHIFT);
+    registered_hotkey = KC_DOWN;
+    register_code(KC_DOWN);
+  }
+
+  set_mods(saved_mods);
+  selection_dir = 2;
+}
+
+void select_word_register(char action) {
+  if (registered_hotkey) {
+    select_word_unregister();
+  }
+
+  switch (action) {
+    case 'W':
+      select_word_in_dir(1);
+      break;
+    case 'B':
+      select_word_in_dir(-1);
+      break;
+    case 'L':
+      select_line();
+      break;
   }
 
 #if SELECT_WORD_TIMEOUT > 0
-  idle_timer = record->event.time + SELECT_WORD_TIMEOUT;
+  idle_timer = 0;
+#endif  // SELECT_WORD_TIMEOUT > 0
+}
+
+void select_word_unregister(void) {
+  reset_before_next_event = false;
+  unregister_code(registered_hotkey);
+  registered_hotkey = KC_NO;
+#if SELECT_WORD_TIMEOUT > 0
+  restart_idle_timer();
+#endif  // SELECT_WORD_TIMEOUT > 0
+}
+
+bool process_select_word(uint16_t keycode, keyrecord_t* record) {
+  if (selection_dir) {
+    if (reset_before_next_event) {
+      selection_dir = 0;
+    }
+
+    // Ignore most modifier and layer switch keys.
+    switch (keycode) {
+      case MODIFIER_KEYCODE_RANGE:
+      case QK_MOMENTARY ... QK_MOMENTARY_MAX:
+      case QK_LAYER_MOD ... QK_LAYER_MOD_MAX:
+      case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX:
+      case QK_TO ... QK_TO_MAX:
+      case QK_TOGGLE_LAYER ... QK_TOGGLE_LAYER_MAX:
+#ifndef NO_ACTION_ONESHOT
+      case QK_ONE_SHOT_LAYER ... QK_ONE_SHOT_LAYER_MAX:
+      case QK_ONE_SHOT_MOD ... QK_ONE_SHOT_MOD_MAX:
+#endif  // NO_ACTION_ONESHOT
+#ifdef LAYER_LOCK_ENABLE
+      case QK_LLCK:
+#endif  // LAYER_LOCK_ENABLE
+        return true;
+#ifndef NO_ACTION_TAPPING
+      // Ignore hold events on mod-tap and layer-tap keys.
+      case QK_MOD_TAP ... QK_MOD_TAP_MAX:
+      case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+        if (record->tap.count == 0) {
+          return true;
+        }
+        break;
+#endif  // NO_ACTION_TAPPING
+    }
+
+    reset_before_next_event = true;
+  }
+
+#if SELECT_WORD_TIMEOUT > 0
+  if (idle_timer) {
+    restart_idle_timer();
+  }
 #endif  // SELECT_WORD_TIMEOUT > 0
 
-  if (keycode == sel_keycode && record->event.pressed) {  // On key press.
-    const uint8_t mods = get_mods();
+  if (SELECT_WORD_KEYCODE && keycode == SELECT_WORD_KEYCODE) {
+    const bool shifted = MOD_MASK_SHIFT & (get_mods() | get_weak_mods()
 #ifndef NO_ACTION_ONESHOT
-    const bool shifted = (mods | get_oneshot_mods()) & MOD_MASK_SHIFT;
-    clear_oneshot_mods();
-#else
-    const bool shifted = mods & MOD_MASK_SHIFT;
+       | get_oneshot_mods()
 #endif  // NO_ACTION_ONESHOT
+      );
 
-    if (!shifted) {  // Select word.
-#ifdef MAC_HOTKEYS
-      set_mods(MOD_BIT(KC_LALT));  // Hold Left Alt (Option).
-#else
-      set_mods(MOD_BIT(KC_LCTL));  // Hold Left Ctrl.
-#endif  // MAC_HOTKEYS
-      if (state == STATE_NONE) {
-        // On first use, tap Ctrl+Right then Ctrl+Left (or with Alt on Mac) to
-        // ensure the cursor is positioned at the beginning of the word.
-        send_keyboard_report();
-        tap_code(KC_RGHT);
-        tap_code(KC_LEFT);
-      }
-      register_mods(MOD_BIT(KC_LSFT));
-      register_code(KC_RGHT);
-      state = STATE_WORD;
-    } else {  // Select line.
-      if (state == STATE_NONE) {
-#ifdef MAC_HOTKEYS
-        // Tap GUI (Command) + Left, then Shift + GUI + Right.
-        set_mods(MOD_BIT(KC_LGUI));
-        send_keyboard_report();
-        tap_code(KC_LEFT);
-        register_mods(MOD_BIT(KC_LSFT));
-        tap_code(KC_RGHT);
-#else
-        // Tap Home, then Shift + End.
-        clear_mods();
-        send_keyboard_report();
-        tap_code(KC_HOME);
-        register_mods(MOD_BIT(KC_LSFT));
-        tap_code(KC_END);
-#endif  // MAC_HOTKEYS
-        set_mods(mods);
-        state = STATE_FIRST_LINE;
-      } else {
-        register_code(KC_DOWN);
-        state = STATE_LINE;
-      }
+    if (record->event.pressed) {
+      select_word_register(shifted ? 'L' : 'W');
+    } else {
+      select_word_unregister();
     }
     return false;
   }
 
-  // `sel_keycode` was released, or another key was pressed.
-  switch (state) {
-    case STATE_WORD:
-      unregister_code(KC_RGHT);
-#ifdef MAC_HOTKEYS
-      unregister_mods(MOD_BIT(KC_LSFT) | MOD_BIT(KC_LALT));
-#else
-      unregister_mods(MOD_BIT(KC_LSFT) | MOD_BIT(KC_LCTL));
-#endif  // MAC_HOTKEYS
-      state = STATE_SELECTED;
-      break;
-
-    case STATE_FIRST_LINE:
-      state = STATE_SELECTED;
-      break;
-
-    case STATE_LINE:
-      unregister_code(KC_DOWN);
-      state = STATE_SELECTED;
-      break;
-
-    case STATE_SELECTED:
-      if (keycode == KC_ESC) {
-        tap_code(KC_RGHT);
-        state = STATE_NONE;
-        return false;
-      }
-      // Fallthrough intended.
-    default:
-      state = STATE_NONE;
-  }
-
   return true;
 }
+
+#endif
