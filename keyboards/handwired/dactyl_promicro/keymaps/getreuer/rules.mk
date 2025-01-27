@@ -14,6 +14,7 @@
 
 BOOTLOADER = atmel-dfu
 
+AUTOCORRECT_ENABLE = no
 COMMAND_ENABLE = no
 
 ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))

@@ -355,13 +355,13 @@ uint16_t achordion_streak_chord_timeout(
 
   // Exceptions so that certain hotkeys don't get blocked as streaks.
   switch (tap_hold_keycode) {
-    case HOME_N:
+    case HRM_N:
       if (next_keycode == KC_C || next_keycode == KC_V) {
         return 0;
       }
       break;
-    case HOME_D:
-      if (next_keycode == HOME_N) {
+    case HRM_D:
+      if (next_keycode == HRM_N) {
         return 0;
       }
       break;
@@ -794,6 +794,24 @@ static void lighting_task(void) {
 #include "print.h"
 #include "features/keycode_string.h"
 
+KEYCODE_STRING_NAMES_USER(
+  KEYCODE_STRING_NAME(ARROW),
+  KEYCODE_STRING_NAME(UPDIR),
+  KEYCODE_STRING_NAME(STDCC),
+  KEYCODE_STRING_NAME(USRNAME),
+  KEYCODE_STRING_NAME(TMUXESC),
+  KEYCODE_STRING_NAME(SRCHSEL),
+  KEYCODE_STRING_NAME(SELLINE),
+  KEYCODE_STRING_NAME(SELWBAK),
+  KEYCODE_STRING_NAME(SELWFWD),
+  KEYCODE_STRING_NAME(RGBBRI),
+  KEYCODE_STRING_NAME(RGBNEXT),
+  KEYCODE_STRING_NAME(RGBHUP),
+  KEYCODE_STRING_NAME(RGBHRND),
+  KEYCODE_STRING_NAME(RGBDEF1),
+  KEYCODE_STRING_NAME(RGBDEF2),
+);
+
 static void dlog_record(uint16_t keycode, keyrecord_t* record) {
   if (!debug_enable) { return; }
   uint8_t layer = read_source_layers_cache(record->event.key);
@@ -807,7 +825,7 @@ static void dlog_record(uint16_t keycode, keyrecord_t* record) {
   xprintf("%-4s %-7s %s\n",  // "(tap|hold) (press|release) <keycode>".
       is_tap_hold ? (record->tap.count ? "tap" : "hold") : "",
       record->event.pressed ? "press" : "release",
-      keycode_string(keycode));
+      get_keycode_string(keycode));
 }
 #else
 #define dlog_record(keycode, record)
