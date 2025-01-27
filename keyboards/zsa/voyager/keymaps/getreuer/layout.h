@@ -33,3 +33,10 @@
            k30, k31, k32, k33, k34, k35,   k80, k81, k82, k83, k84, k85, \
                                k40, k41,   k90, k91)
 
+// Matrix positions of the left home row keys.
+#define LEFT_HOME_ROW 2
+#define LEFT_HOME_PINKY_COL 2
+#define LEFT_HOME_RING_COL 3
+#define LEFT_HOME_MIDDLE_COL 4
+#define LEFT_HOME_INDEX_COL 5
+

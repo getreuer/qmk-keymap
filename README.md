@@ -78,11 +78,8 @@ userspace versions:
 
 ## My keymap
 
-Here is a visualization of my keymap. See the [Dactyl
-keymap.c](keyboards/handwired/dactyl_promicro/keymaps/getreuer/keymap.c),
-[Moonlander keymap.c](keyboards/zsa/moonlander/keymaps/getreuer/keymap.c), or
-[Voyager keymap.c](keyboards/zsa/voyager/keymaps/getreuer/keymap.c) and
-[getreuer.c](getreuer.c) for full details.
+Here is a visualization of my keymap. See [getreuer.c](getreuer.c) for full
+details.
 
 **Base layer** ([Magic
 Sturdy](https://getreuer.info/posts/keyboards/alt-layouts/index.html#magic-sturdy) with home row mods)
@@ -93,17 +90,25 @@ Sturdy](https://getreuer.info/posts/keyboards/alt-layouts/index.html#magic-sturd
 
 ![Symbol layer](doc/layout-1-symbol.png)
 
+**Navigation layer**
+
+![Nav layer](doc/layout-2-nav.png)
+
 **Numpad layer**
 
-![Num layer](doc/layout-2-num.png)
+![Num layer](doc/layout-3-num.png)
 
 **Window management layer**
 
-![Win layer](doc/layout-3-win.png)
+![Win layer](doc/layout-4-win.png)
 
 **Funky fun layer**
 
-![Fun layer](doc/layout-4-fun.png)
+![Fun layer](doc/layout-5-fun.png)
+
+**Extras and mouse layer**
+
+![Ext layer](doc/layout-6-ext.png)
 
 
 ## Installation
