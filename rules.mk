@@ -32,7 +32,7 @@ RGB_MATRIX_CUSTOM_USER ?= yes
 SPACE_CADET_ENABLE ?= no
 TAP_DANCE_ENABLE ?= no
 
-ACHORDION_ENABLE ?= yes
+ACHORDION_ENABLE ?= no
 ifeq ($(strip $(ACHORDION_ENABLE)), yes)
 	OPT_DEFS += -DACHORDION_ENABLE
 	SRC += features/achordion.c

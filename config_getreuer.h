@@ -19,10 +19,13 @@
 #define TAP_CODE_DELAY 5
 
 // Tap-hold configuration for home row mods.
-#define TAPPING_TERM 170
+#define TAPPING_TERM 225
 #define TAPPING_TERM_PER_KEY
 #define PERMISSIVE_HOLD
 #define QUICK_TAP_TERM_PER_KEY
+
+// Enable Chordal Hold (https://github.com/qmk/qmk_firmware/pull/24560)
+#define CHORDAL_HOLD
 
 #define NO_ACTION_MACRO
 #define NO_ACTION_FUNCTION
@@ -31,8 +34,6 @@
 
 // Use Left Ctrl + Right Ctrl to activate the Command feature.
 #define IS_COMMAND() (get_mods() == MOD_MASK_CTRL)
-
-#define ACHORDION_STREAK
 
 // Holding Shift while Caps Word is active inverts the shift state.
 #define CAPS_WORD_INVERT_ON_SHIFT

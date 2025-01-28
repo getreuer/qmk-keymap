@@ -286,9 +286,9 @@ uint8_t NUM_CUSTOM_SHIFT_KEYS =
 ///////////////////////////////////////////////////////////////////////////////
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t* record) {
   switch (keycode) {
-    case HRM_S:
-    case HRM_I:
-      return TAPPING_TERM + 15;
+    case HRM_R:
+    case HRM_E:
+      return TAPPING_TERM - 45;
     default:
       return TAPPING_TERM;
   }
@@ -307,6 +307,31 @@ uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t* record) {
       return 0;  // Otherwise, force hold and disable key repeating.
   }
 }
+
+#ifdef CHORDAL_HOLD
+// Callback for Chordal Hold (https://github.com/qmk/qmk_firmware/pull/24560)
+bool get_chordal_hold(
+        uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
+        uint16_t other_keycode, keyrecord_t* other_record) {
+  switch (tap_hold_keycode) {
+    case NAV_SLS:
+      return true;
+
+    case HRM_D:
+      if (other_keycode == KC_M ||
+          other_keycode == KC_L ||
+          other_keycode == KC_Y ||
+          other_keycode == KC_K ||
+          other_keycode == KC_J) { return true; }
+      break;
+
+    case HRM_DOT:
+      if (other_keycode == HRM_H ||
+          other_keycode == KC_COMM) { return true; }
+  }
+  return get_chordal_hold_default(tap_hold_record, other_record);
+}
+#endif  // CHORDAL_HOLD
 
 ///////////////////////////////////////////////////////////////////////////////
 // Achordion (https://getreuer.info/posts/keyboards/achordion)
