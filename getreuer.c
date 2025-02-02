@@ -816,6 +816,7 @@ static void lighting_task(void) {
 // Debug logging
 ///////////////////////////////////////////////////////////////////////////////
 #if !defined(NO_DEBUG) && defined(KEYCODE_STRING_ENABLE)
+#pragma message "dlog_record: enabled"
 #include "print.h"
 #include "features/keycode_string.h"
 
@@ -853,6 +854,7 @@ static void dlog_record(uint16_t keycode, keyrecord_t* record) {
       get_keycode_string(keycode));
 }
 #else
+#pragma message "dlog_record: disabled"
 #define dlog_record(keycode, record)
 #endif  // !defined(NO_DEBUG) && defined(KEYCODE_STRING_ENABLE)
 
@@ -1119,6 +1121,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 
       case TMUXESC:  // Enter copy mode in Tmux.
         SEND_STRING_DELAY(SS_LCTL("a") SS_TAP(X_ESC), TAP_CODE_DELAY);
+        set_last_keycode(C(KC_U));
         return false;
 
       case SRCHSEL:  // Searches the current selection in a new tab.

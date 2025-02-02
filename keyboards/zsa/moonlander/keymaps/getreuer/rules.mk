@@ -13,6 +13,7 @@
 # limitations under the License.
 
 AUDIO_ENABLE = yes
+CONSOLE_ENABLE = yes
 DEFERRED_EXEC_ENABLE = yes
 
 ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
