@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2024-2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,9 +31,35 @@
 
 #pragma once
 
+#include <stdint.h>
+#include "color.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** Gets the color data for the selected palette. */
+const uint16_t* palettefx_get_palette_data(void);
+
+/** Gets the color data for the ith palette. */
+const uint16_t* palettefx_get_palette_data_by_index(uint8_t i);
+
+/** Returns the number of palettes. */
+uint8_t palettefx_num_palettes(void);
+
+/**
+ * @brief Computes the interpolated HSV palette color at 0 <= x < 256.
+ *
+ * Looks up and linearly interpolates `palette` at 0 <= x < 256. The color
+ * saturation and value are scaled according to rgb_matrix_config.
+ *
+ * @note `palette` must point to a PROGMEM address.
+ *
+ * @param palette Pointer to PROGMEM of a size-16 table of HSV16 colors.
+ * @param x       Palette lookup position, a value in 0-255.
+ * @return HSV color.
+ */
+hsv_t palettefx_interp_color(const uint16_t* palette, uint8_t x);
 
 // The following enum constants may be used to refer to PaletteFx palettes by
 // name. To set a particular palette programmatically, do e.g.

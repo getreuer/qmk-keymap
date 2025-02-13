@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2024-2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -67,8 +67,8 @@ RGB_MATRIX_EFFECT(PALETTEFX_REACTIVE)
 // PaletteFx function definitions
 ///////////////////////////////////////////////////////////////////////////////
 
-/** Gets the selected palette. */
-static const uint16_t* palettefx_get_palette_data(void);
+/** Gets the color data for the selected palette. */
+const uint16_t* palettefx_get_palette_data(void);
 
 /**
  * @brief Computes the interpolated HSV palette color at 0 <= x < 256.
@@ -82,10 +82,7 @@ static const uint16_t* palettefx_get_palette_data(void);
  * @param x       Palette lookup position, a value in 0-255.
  * @return HSV color.
  */
-static hsv_t palettefx_interp_color(const uint16_t* palette, uint8_t x);
-
-/** Gets the color data for the selected palette. */
-static const uint16_t* palettefx_get_palette_data(void);
+hsv_t palettefx_interp_color(const uint16_t* palette, uint8_t x);
 
 /**
  * @brief Compute a scaled 16-bit time that wraps smoothly.
@@ -807,11 +804,19 @@ static uint8_t palettefx_get_palette(void) {
   return i;
 }
 
-static const uint16_t* palettefx_get_palette_data(void) {
+const uint16_t* palettefx_get_palette_data(void) {
   return palettefx_palettes[palettefx_get_palette()];
 }
 
-static hsv_t palettefx_interp_color(const uint16_t* palette, uint8_t x) {
+const uint16_t* palettefx_get_palette_data_by_index(uint8_t i) {
+  return palettefx_palettes[i % NUM_PALETTEFX_PALETTES];
+}
+
+uint8_t palettefx_num_palettes(void) {
+  return NUM_PALETTEFX_PALETTES;
+}
+
+hsv_t palettefx_interp_color(const uint16_t* palette, uint8_t x) {
   // Clamp `x` to [8, 247] and subtract 8, mapping to the range [0, 239].
   x = (x <= 8) ? 0 : ((x < 247) ? (x - 8) : 239);
   // Get index into the palette, 0 <= i <= 14.
