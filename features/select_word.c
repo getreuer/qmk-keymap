@@ -197,6 +197,21 @@ void select_word_register(char action) {
 void select_word_unregister(void) {
   reset_before_next_event = false;
   unregister_code(registered_hotkey);
+
+  if (registered_hotkey == KC_DOWN) {
+    // When using line selection to select multiple lines, tap Shift+End (or on
+    // Mac, GUI+Shift+Right) on release to ensure the selection extends to the
+    // end of the current line.
+    const uint8_t saved_mods = get_mods();
+    clear_all_mods();
+    send_keyboard_report();
+    send_string_with_delay_P(
+        IS_MAC ? PSTR(SS_LGUI(SS_LSFT(SS_TAP(X_RGHT))))
+               : PSTR(SS_LSFT(SS_TAP(X_END))),
+        TAP_CODE_DELAY);
+    set_mods(saved_mods);
+  }
+
   registered_hotkey = KC_NO;
 #if SELECT_WORD_TIMEOUT > 0
   restart_idle_timer();
