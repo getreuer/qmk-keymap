@@ -28,7 +28,7 @@
 // (See getreuer.c for keymaps definition.)
 
 #ifdef CHORDAL_HOLD
-// Handedness for Chordal Hold (https://github.com/qmk/qmk_firmware/pull/24560)
+// Handedness for Chordal Hold.
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
   LAYOUT_LR_DACTYL(
   '*'    , '*'    , '*'    , '*'    , '*'    , '*'    ,

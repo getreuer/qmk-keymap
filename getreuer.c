@@ -309,7 +309,6 @@ uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t* record) {
 }
 
 #ifdef CHORDAL_HOLD
-// Callback for Chordal Hold (https://github.com/qmk/qmk_firmware/pull/24560)
 bool get_chordal_hold(
         uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
         uint16_t other_keycode, keyrecord_t* other_record) {

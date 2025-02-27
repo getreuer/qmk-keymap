@@ -1,4 +1,4 @@
-// Copyright 2022-2024 Google LLC
+// Copyright 2022-2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@
  */
 
 #include "achordion.h"
+
+#pragma message \
+    "Achordion has evolved into core QMK feature Chordal Hold! To use it, update your QMK set up and see https://docs.qmk.fm/tap_hold#chordal-hold"
 
 #if !defined(IS_QK_MOD_TAP)
 // Attempt to detect out-of-date QMK installation, which would fail with
