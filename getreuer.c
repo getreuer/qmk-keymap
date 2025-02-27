@@ -324,6 +324,10 @@ bool get_chordal_hold(
           other_keycode == KC_J) { return true; }
       break;
 
+    case HRM_N:  // Allow one-handed N + Repeat chord to type "0" on num layer.
+      if (other_keycode == QK_REP) { return true; }
+      break;
+
     case HRM_DOT:
       if (other_keycode == HRM_H ||
           other_keycode == KC_COMM) { return true; }
