@@ -24,9 +24,6 @@ found in the links below. For developers, see also my post [developing QMK
 features](https://getreuer.info/posts/keyboards/developing-qmk-features/index.html)
 for general tips on writing userspace libraries and contributing to QMK.
 
-* [Achordion](https://getreuer.info/posts/keyboards/achordion/index.html)
-  &ndash; customize the tap-hold decision
-
 * [Custom shift
   keys](https://getreuer.info/posts/keyboards/custom-shift-keys/index.html)
   &ndash; they're surprisingly tricky to get right; here is my approach
@@ -58,6 +55,10 @@ The following were originally developed here and have since graduated to become
 QMK core features. It is recommended to use the QMK core implementations, but
 (perhaps for sake of customization or curiosity) you may continue to use these
 userspace versions:
+
+* [Achordion](https://getreuer.info/posts/keyboards/achordion/index.html)
+  &ndash; userspace predecessor of [QMK's Chordal
+  Hold](https://docs.qmk.fm/tap_hold#chordal-hold)
 
 * [Autocorrection](https://getreuer.info/posts/keyboards/autocorrection/index.html)
   &ndash; userspace version of [QMK's
