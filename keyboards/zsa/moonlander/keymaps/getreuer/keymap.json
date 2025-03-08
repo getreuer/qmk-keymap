@@ -1,0 +1,10 @@
+{
+  "modules": [
+    "getreuer/custom_shift_keys",
+    "getreuer/keycode_string",
+    "getreuer/orbital_mouse",
+    "getreuer/palettefx",
+    "getreuer/select_word",
+    "getreuer/sentence_case"
+  ]
+}

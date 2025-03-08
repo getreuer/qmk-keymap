@@ -18,25 +18,6 @@
  * This is my Quantum Mechanical Keyboard (QMK) keymap. Who knew a keyboard
  * could do so much?
  *
- * Feature libraries
- * -----------------
- *  * features/achordion.h: customize the tap-hold decision
- *  * features/autocorrection.h: run rudimentary autocorrection on your keyboard
- *  * features/caps_word.h: modern alternative to Caps Lock
- *  * features/custom_shift_keys.h: they're surprisingly tricky to get right;
- *                                  here is my approach
- *  * features/keycode_string.h: format keycodes as human-readable strings
- *  * features/layer_lock.h: macro to stay in the current layer
- *  * features/mouse_turbo_click.h: macro that clicks the mouse rapidly
- *  * features/orbital_mouse.h: a polar approach to mouse key control
- *  * features/palettefx.h: palette-based animated RGB matrix lighting effects
- *  * features/repeat_key.h: a "repeat last key" implementation
- *  * features/select_word.h: macro for convenient word or line selection
- *  * features/sentence_case.h: capitalize first letter of sentences
- *  * features/socd_cleaner.h: enhance WASD for fast inputs for gaming
- *
- * License
- * -------
  * This repo uses the Apache License 2.0 except where otherwise indicated. See
  * LICENSE.txt for details.
  *
@@ -44,27 +25,6 @@
  * <https://getreuer.info/posts/keyboards>
  */
 
-#ifdef ACHORDION_ENABLE
-#include "features/achordion.h"
-#endif  // ACHORDION_ENABLE
-#ifdef CUSTOM_SHIFT_KEYS_ENABLE
-#include "features/custom_shift_keys.h"
-#endif  // CUSTOM_SHIFT_KEYS_ENABLE
-#ifdef KEYCODE_STRING_ENABLE
-#include "features/keycode_string.h"
-#endif  // KEYCODE_STRING_ENABLE
-#ifdef ORBITAL_MOUSE_ENABLE
-#include "features/orbital_mouse.h"
-#endif  // ORBITAL_MOUSE_ENABLE
-#ifdef RGB_MATRIX_CUSTOM_USER
-#include "features/palettefx.h"
-#endif  // RGB_MATRIX_CUSTOM_USER
-#ifdef SELECT_WORD_ENABLE
-#include "features/select_word.h"
-#endif  // SELECT_WORD_ENABLE
-#ifdef SENTENCE_CASE_ENABLE
-#include "features/sentence_case.h"
-#endif  // SENTENCE_CASE_ENABLE
 #if __has_include("user_song_list.h")
 #include "user_song_list.h"
 #endif
@@ -86,9 +46,6 @@ enum custom_keycodes {
   USRNAME,
   TMUXESC,
   SRCHSEL,
-  SELLINE,
-  SELWBAK,
-  SELWFWD,
   RGBBRI,
   RGBNEXT,
   RGBHUP,
@@ -143,7 +100,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // key, implemented using the Alternate Repeat Key. This key is used to remove
   // the top SFBs and type common n-grams.
   [BASE] = LAYOUT_LR(  // Base layer: Magic Sturdy.
-    KC_GRV , SELLINE, C(KC_V), C(KC_A), C(KC_C), OM_BTN1,
+    KC_GRV , SELLINE, C(KC_V), C(KC_A), C(KC_C), MS_BTN1,
     KC_TAB , KC_V   , KC_M   , KC_L   , KC_C   , KC_P   ,
     KC_BSPC, HRM_S  , HRM_T  , HRM_R  , HRM_D  , KC_Y   ,
     EXT_COL, HRM_X  , KC_K   , KC_J   , HRM_G  , KC_W   ,
@@ -173,14 +130,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [NAV] = LAYOUT_LR(  // Navigation layer.
     _______, _______, _______, _______, _______, _______,
     _______, KC_WREF, C(KC_PGUP), C(KC_PGDN), XXXXXXX, XXXXXXX,
-    _______, KC_LALT, KC_LCTL, KC_LSFT, SELLINE, OM_BTN1,
+    _______, KC_LALT, KC_LCTL, KC_LSFT, SELLINE, MS_BTN1,
     _______, KC_LGUI, KC_PGUP, KC_PGDN, XXXXXXX, XXXXXXX,
                                                  KC_WBAK, G(KC_TAB),
 
                       _______, _______, _______, _______, _______, _______,
                       KC_PGUP, KC_HOME, KC_UP  , KC_END , SRCHSEL, _______,
                       KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, KC_DEL , _______,
-                      C(KC_Z), SELWBAK, SELWFWD, KC_APP , XXXXXXX, _______,
+                      C(KC_Z), SELWBAK, SELWORD, KC_APP , XXXXXXX, _______,
              _______, QK_LLCK
   ),
 
@@ -244,7 +201,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // A cheap pseudorandom generator.
 uint8_t myrand(void) {
   static uint16_t state = 1;
-  state = UINT16_C(36563) * (state + timer_read());
+#ifdef __CHIBIOS__  // Use high-res timer on ChibiOS
+  state += (uint16_t)chVTGetSystemTimeX();
+#else
+  state += timer_read();
+#endif
+  state *= UINT16_C(36563);
   return state >> 8;
 }
 
@@ -269,7 +231,7 @@ combo_t key_combos[] = {
 ///////////////////////////////////////////////////////////////////////////////
 // Custom shift keys (https://getreuer.info/posts/keyboards/custom-shift-keys)
 ///////////////////////////////////////////////////////////////////////////////
-#ifdef CUSTOM_SHIFT_KEYS_ENABLE
+#ifdef COMMUNITY_MODULE_CUSTOM_SHIFT_KEYS_ENABLE
 const custom_shift_key_t custom_shift_keys[] = {
     {HRM_DOT, KC_QUES},
     {KC_COMM, KC_EXLM},
@@ -277,9 +239,7 @@ const custom_shift_key_t custom_shift_keys[] = {
     {KC_SLSH, KC_BSLS},
     {KC_MPLY, KC_MNXT},
 };
-uint8_t NUM_CUSTOM_SHIFT_KEYS =
-    sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
-#endif  // CUSTOM_SHIFT_KEYS_ENABLE
+#endif  // COMMUNITY_MODULE_CUSTOM_SHIFT_KEYS_ENABLE
 
 ///////////////////////////////////////////////////////////////////////////////
 // Tap-hold configuration (https://docs.qmk.fm/tap_hold)
@@ -339,7 +299,7 @@ bool get_chordal_hold(
 ///////////////////////////////////////////////////////////////////////////////
 // Achordion (https://getreuer.info/posts/keyboards/achordion)
 ///////////////////////////////////////////////////////////////////////////////
-#ifdef ACHORDION_ENABLE
+#ifdef COMMUNITY_MODULE_ACHORDION_ENABLE
 bool achordion_chord(uint16_t tap_hold_keycode,
                      keyrecord_t* tap_hold_record,
                      uint16_t other_keycode,
@@ -403,7 +363,7 @@ uint16_t achordion_streak_chord_timeout(
     return 220;  // A longer timeout otherwise.
   }
 }
-#endif  // ACHORDION_ENABLE
+#endif  // COMMUNITY_MODULE_ACHORDION_ENABLE
 
 ///////////////////////////////////////////////////////////////////////////////
 // Autocorrect (https://docs.qmk.fm/features/autocorrect)
@@ -452,7 +412,7 @@ bool caps_word_press_user(uint16_t keycode) {
 ///////////////////////////////////////////////////////////////////////////////
 // Sentence case (https://getreuer.info/posts/keyboards/sentence-case)
 ///////////////////////////////////////////////////////////////////////////////
-#ifdef SENTENCE_CASE_ENABLE
+#ifdef COMMUNITY_MODULE_SENTENCE_CASE_ENABLE
 char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
                               uint8_t mods) {
   if ((mods & ~(MOD_MASK_SHIFT | MOD_BIT_RALT)) == 0) {
@@ -493,7 +453,7 @@ char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
   sentence_case_clear();
   return '\0';
 }
-#endif  // SENTENCE_CASE_ENABLE
+#endif  // COMMUNITY_MODULE_SENTENCE_CASE_ENABLE
 
 ///////////////////////////////////////////////////////////////////////////////
 // Repeat key (https://docs.qmk.fm/features/repeat_key)
@@ -514,12 +474,12 @@ bool remember_last_key_user(uint16_t keycode, keyrecord_t* record,
 #endif  // NO_ACTION_TAPPING
   }
 
-#ifdef SENTENCE_CASE_ENABLE
+#ifdef COMMUNITY_MODULE_SENTENCE_CASE_ENABLE
   if (is_sentence_case_primed() &&
       sentence_case_press_user(keycode, record, *remembered_mods) == 'a') {
     *remembered_mods |= MOD_BIT_LSHIFT;
   }
-#endif  // SENTENCE_CASE_ENABLE
+#endif  // COMMUNITY_MODULE_SENTENCE_CASE_ENABLE
 
   // Forget Shift on most letters when Shift or AltGr are the only mods. Some
   // letters are excluded, e.g. for "NN" and "ZZ" in Vim.
@@ -679,8 +639,8 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
   switch (keycode) {
     case KC_WH_U: return KC_WH_D;
     case KC_WH_D: return KC_WH_U;
-    case SELWBAK: return SELWFWD;
-    case SELWFWD: return SELWBAK;
+    case SELWBAK: return SELWORD;
+    case SELWORD: return SELWBAK;
   }
   return KC_TRNS;
 }
@@ -762,7 +722,7 @@ static void lighting_preset(uint8_t effect, uint8_t palette) {
 
 static void lighting_init(void) {
   lighting.val_start = 0;
-  lighting_preset(RGB_MATRIX_CUSTOM_PALETTEFX_RIPPLE, PALETTEFX_CARNIVAL);
+  lighting_preset(RGB_MATRIX_CUSTOM_PALETTEFX_FLOW + (myrand() % 4), myrand());
   lighting_set_val(RGB_MATRIX_MAXIMUM_BRIGHTNESS);
 }
 
@@ -818,10 +778,8 @@ static void lighting_task(void) {
 ///////////////////////////////////////////////////////////////////////////////
 // Debug logging
 ///////////////////////////////////////////////////////////////////////////////
-#if !defined(NO_DEBUG) && defined(KEYCODE_STRING_ENABLE)
+#if !defined(NO_DEBUG) && defined(COMMUNITY_MODULE_KEYCODE_STRING_ENABLE)
 #pragma message "dlog_record: enabled"
-#include "print.h"
-#include "features/keycode_string.h"
 
 KEYCODE_STRING_NAMES_USER(
   KEYCODE_STRING_NAME(ARROW),
@@ -830,9 +788,9 @@ KEYCODE_STRING_NAMES_USER(
   KEYCODE_STRING_NAME(USRNAME),
   KEYCODE_STRING_NAME(TMUXESC),
   KEYCODE_STRING_NAME(SRCHSEL),
-  KEYCODE_STRING_NAME(SELLINE),
+  KEYCODE_STRING_NAME(SELWORD),
   KEYCODE_STRING_NAME(SELWBAK),
-  KEYCODE_STRING_NAME(SELWFWD),
+  KEYCODE_STRING_NAME(SELLINE),
   KEYCODE_STRING_NAME(RGBBRI),
   KEYCODE_STRING_NAME(RGBNEXT),
   KEYCODE_STRING_NAME(RGBHUP),
@@ -859,7 +817,7 @@ static void dlog_record(uint16_t keycode, keyrecord_t* record) {
 #else
 #pragma message "dlog_record: disabled"
 #define dlog_record(keycode, record)
-#endif  // !defined(NO_DEBUG) && defined(KEYCODE_STRING_ENABLE)
+#endif  // !defined(NO_DEBUG) && defined(COMMUNITY_MODULE_KEYCODE_STRING_ENABLE)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Status LEDs
@@ -910,22 +868,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 #ifdef RGB_MATRIX_ENABLE
   lighting_activity_trigger();
 #endif  // RGB_MATRIX_ENABLE
-#ifdef ACHORDION_ENABLE
-  if (!process_achordion(keycode, record)) { return false; }
-#endif  // ACHORDION_ENABLE
-#ifdef ORBITAL_MOUSE_ENABLE
-  if (!process_orbital_mouse(keycode, record)) { return false; }
-#endif  // ORBITAL_MOUSE_ENABLE
-#ifdef SELECT_WORD_ENABLE
-  if (!process_select_word(keycode, record)) { return false; }
-#endif  // SELECT_WORD_ENABLE
-#ifdef SENTENCE_CASE_ENABLE
-  if (!process_sentence_case(keycode, record)) { return false; }
-#endif  // SENTENCE_CASE_ENABLE
-#ifdef CUSTOM_SHIFT_KEYS_ENABLE
-  if (!process_custom_shift_keys(keycode, record)) { return false; }
-#endif  // CUSTOM_SHIFT_KEYS_ENABLE
-
   dlog_record(keycode, record);
 
   // Track whether the left home ring and index keys are held, ignoring layer.
@@ -987,30 +929,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   }
 
   switch (keycode) {
-    case SELWBAK:  // Backward word selection.
-      if (record->event.pressed) {
-        select_word_register('B');
-      } else {
-        select_word_unregister();
-      }
-      break;
-
-    case SELWFWD:  // Forward word selection.
-      if (record->event.pressed) {
-        select_word_register('W');
-      } else {
-        select_word_unregister();
-      }
-      break;
-
-    case SELLINE:  // Line selection.
-      if(record->event.pressed) {
-        select_word_register('L');
-      } else {
-        select_word_unregister();
-      }
-      break;
-
     // Behavior:
     //  * Unmodified:       _ (KC_UNDS)
     //  * With Shift:       - (KC_MINS)
@@ -1235,20 +1153,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 }
 
 void housekeeping_task_user(void) {
-#ifdef ACHORDION_ENABLE
-  achordion_task();
-#endif  // ACHORDION_ENABLE
 #ifdef RGB_MATRIX_ENABLE
   lighting_task();
 #endif  // RGB_MATRIX_ENABLE
-#ifdef ORBITAL_MOUSE_ENABLE
-  orbital_mouse_task();
-#endif  // ORBITAL_MOUSE_ENABLE
-#ifdef SELECT_WORD_ENABLE
-  select_word_task();
-#endif  // SELECT_WORD_ENABLE
-#ifdef SENTENCE_CASE_ENABLE
-  sentence_case_task();
-#endif  // SENTENCE_CASE_ENABLE
 }
 

@@ -1,4 +1,4 @@
-# Pascal Getreuer's QMK keymap
+# @getreuer's QMK keymap
 
 (This is not an officially supported Google product.)
 
@@ -18,17 +18,19 @@ This repo uses the Apache License 2.0 except where otherwise indicated. See the
 
 ## Feature libraries
 
-Several userspace feature libraries for QMK are developed in this repo. Code is
-under the [features](features/) directory and detailed documentation can be
-found in the links below. For developers, see also my post [developing QMK
+Several features are developed as QMK community modules in
+[getreuer/qmk-modules](https://github.com/getreuer/qmk-modules/), a git
+submodule of this repo. The former pre-module code is under the
+[features](features/). Detailed documentation can be found in the links below.
+For developers, see also my post [developing QMK
 features](https://getreuer.info/posts/keyboards/developing-qmk-features/index.html)
 for general tips on writing userspace libraries and contributing to QMK.
 
 * [Custom shift
   keys](https://getreuer.info/posts/keyboards/custom-shift-keys/index.html)
-  &ndash; they're surprisingly tricky to get right; here is my approach
+  &ndash; customize what keycode is produced when shifted
 
-* [keycode_string()](https://getreuer.info/posts/keyboards/keycode-string/index.html)
+* [Keycode String](https://getreuer.info/posts/keyboards/keycode-string/index.html)
   &ndash; format keycodes as human-readable strings
 
 * [Mouse Turbo
@@ -42,14 +44,14 @@ for general tips on writing userspace libraries and contributing to QMK.
 * [PaletteFx](https://getreuer.info/posts/keyboards/palettefx/index.html) &ndash;
   palette-based animated RGB matrix lighting effects
 
+* [Select Word](https://getreuer.info/posts/keyboards/select-word/index.html)
+  &ndash; macro for convenient word or line selection
+
 * [Sentence Case](https://getreuer.info/posts/keyboards/sentence-case/index.html)
   &ndash; automatically capitalize the first letter of sentences
 
 * [SOCD Cleaner](https://getreuer.info/posts/keyboards/socd-cleaner/index.html)
   &ndash; enhance WASD for fast inputs for gaming
-
-* [Word selection](https://getreuer.info/posts/keyboards/select-word/index.html)
-  &ndash; macro for convenient word or line selection
 
 The following were originally developed here and have since graduated to become
 QMK core features. It is recommended to use the QMK core implementations, but
@@ -115,15 +117,19 @@ Sturdy](https://getreuer.info/posts/keyboards/alt-layouts/index.html#magic-sturd
 ## Installation
 
 This repo works as an [External QMK
-Userspace](https://docs.qmk.fm/newbs_external_userspace). Instructions on how
-to use it in QMK:
+Userspace](https://docs.qmk.fm/newbs_external_userspace) and makes use of the
+[Community Modules](https://docs.qmk.fm/features/community_modules) support
+added in QMK Firmware 0.28.0, released 2025-02-27. Instructions on how to use
+it in QMK:
 
-1. [Set up QMK](https://docs.qmk.fm/newbs).
+1. [Set up QMK](https://docs.qmk.fm/newbs) or [update your QMK set
+   up](https://docs.qmk.fm/newbs_git_using_your_master_branch#updating-your-master-branch)
+   to get the latest.
 
 2. Clone this repo locally
 
    ```sh
-   git clone https://github.com/getreuer/qmk-keymap
+   git clone --recurse-submodules https://github.com/getreuer/qmk-keymap
    ```
 
 3. Run the following shell command, replacing "`path/to/qmk-keymap`" with the

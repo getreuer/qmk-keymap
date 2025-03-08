@@ -1,0 +1,7 @@
+{
+  "modules": [
+    "getreuer/custom_shift_keys",
+    "getreuer/orbital_mouse",
+    "getreuer/select_word"
+  ]
+}
