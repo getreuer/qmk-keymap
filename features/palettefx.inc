@@ -299,7 +299,7 @@ static bool PALETTEFX_SPARKLE(effect_params_t* params) {
 }
 #endif
 
-#if defined(PALETTEFX_ENABLE_ALL_EFFECTS) || defined(PALETTEFX_SPARKLE_ENABLE)
+#if defined(PALETTEFX_ENABLE_ALL_EFFECTS) || defined(PALETTEFX_VORTEX_ENABLE)
 // "Vortex" animated effect. LEDs are animated according to a polar function
 // with the appearance of a spinning vortex centered on k_rgb_matrix_center.
 static bool PALETTEFX_VORTEX(effect_params_t* params) {
