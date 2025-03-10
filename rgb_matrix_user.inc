@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "modules/getreuer/palettefx/palettefx.inc"
+#include "palettefx.inc"
 
