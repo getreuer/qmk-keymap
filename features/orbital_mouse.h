@@ -101,7 +101,7 @@ void set_orbital_mouse_angle(uint8_t angle);
 // While keycodes for userspace features are conventionally allocated in the
 // user-defined keycode range, that range is limited. It would be unreasonable
 // to allocate Orbital Mouse's keys there. Being a Mouse Keys replacement, we
-// repurpose the Mouse Keys keycodes (`KC_MS_U`, `KC_BTN1`, etc.) for the
+// repurpose the Mouse Keys keycodes (`MS_UP`, `MS_BTN1`, etc.) for the
 // analogous functions in Orbital Mouse. We also repurpose the block of keycodes
 // `UC(0x41)` to `UC(0x4a)`. These keycode represent Unicode input of ASCII
 // characters, which seems unlikely to be missed.

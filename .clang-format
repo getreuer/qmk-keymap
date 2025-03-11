@@ -19,11 +19,11 @@
 #
 # Install clang-format (on Debian Linux: `sudo apt install clang-format`). Open
 # a shell and cd to the directory containing this file. To format a file (or
-# files), overwritting with the formatted result, run with the `-i` flag:
+# files), overwriting with the formatted result, run with the `-i` flag:
 #
 #     clang-format -style=file -i file1.c [file2.c ...]
 #
-# Or, to check and warn about formatting errors without overwritting, run:
+# Or, to check and warn about formatting errors without overwriting, run:
 #
 #     clang-format -style=file -dry-run -Werror file1.c [file2.c ...]
 #
