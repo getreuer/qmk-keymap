@@ -114,7 +114,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 
   [SYM] = LAYOUT_LR(  // Symbol layer.
-    _______, _______, _______, _______, _______, _______,
+    _______, _______, TFLOW_P, TFLOW_D, TFLOW_U, _______,
     TMUXESC, KC_GRV , KC_LABK, KC_RABK, KC_MINS, KC_PIPE,
     _______, KC_EXLM, KC_ASTR, NAV_SLS, NAV_EQL, KC_AMPR,
     STDCC  , KC_TILD, KC_PLUS, KC_LBRC, KC_RBRC, KC_PERC,
@@ -199,9 +199,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 // A cheap pseudorandom generator.
-uint8_t myrand(void) {
+static uint8_t myrand(void) {
   static uint16_t state = 1;
-#ifdef __CHIBIOS__  // Use high-res timer on ChibiOS
+#ifdef __CHIBIOS__  // Use high-res timer on ChibiOS.
   state += (uint16_t)chVTGetSystemTimeX();
 #else
   state += timer_read();
@@ -210,19 +210,29 @@ uint8_t myrand(void) {
   return state >> 8;
 }
 
+static uint16_t get_tap_keycode(uint16_t keycode) {
+  switch (keycode) {
+    case QK_MOD_TAP ... QK_MOD_TAP_MAX:
+      return QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
+#ifndef NO_ACTION_LAYER
+    case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+      return QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
+#endif  // NO_ACTION_LAYER
+  }
+  return keycode;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Combos (https://docs.qmk.fm/features/combo)
 ///////////////////////////////////////////////////////////////////////////////
 const uint16_t caps_combo[] PROGMEM = {KC_J, KC_COMM, COMBO_END};
 const uint16_t j_k_combo[] PROGMEM = {KC_J, KC_K, COMBO_END};
-const uint16_t h_comm_combo[] PROGMEM = {HRM_H, KC_COMM, COMBO_END};
 const uint16_t comm_dot_combo[] PROGMEM = {KC_COMM, HRM_DOT, COMBO_END};
 const uint16_t f_n_combo[] PROGMEM = {KC_F, HRM_N, COMBO_END};
 // clang-format off
 combo_t key_combos[] = {
     COMBO(caps_combo, CW_TOGG),          // J and , => activate Caps Word.
     COMBO(j_k_combo, KC_BSLS),           // J and K => backslash
-    COMBO(h_comm_combo, KC_QUOT),        // H and , => '
     COMBO(comm_dot_combo, KC_SCLN),      // , and . => ;
     COMBO(f_n_combo, OSL(FUN)),          // F and N => FUN layer
 };
@@ -234,6 +244,7 @@ combo_t key_combos[] = {
 #ifdef COMMUNITY_MODULE_CUSTOM_SHIFT_KEYS_ENABLE
 const custom_shift_key_t custom_shift_keys[] = {
     {HRM_DOT, KC_QUES},
+    {KC_DOT, KC_QUES},
     {KC_COMM, KC_EXLM},
     {KC_MINS, KC_SCLN},
     {KC_SLSH, KC_BSLS},
@@ -295,6 +306,33 @@ bool get_chordal_hold(
   return get_chordal_hold_default(tap_hold_record, other_record);
 }
 #endif  // CHORDAL_HOLD
+
+#ifdef COMMUNITY_MODULE_TAP_FLOW_ENABLE
+uint16_t get_tap_flow(uint16_t keycode, keyrecord_t* record,
+                      uint16_t prev_keycode) {
+  // Only apply Tap Flow when following a letter key.
+  if (get_tap_keycode(prev_keycode) <= KC_Z) {
+    switch (keycode) {
+      case HRM_S:
+      case HRM_X:
+      case HRM_I:
+      case HRM_QUO:
+      case HRM_DOT:
+        return g_tap_flow_term;
+
+      case HRM_T:
+      case HRM_D:
+      case HRM_G:
+      case HRM_N:
+      case HRM_H:
+      case HRM_A:
+        return g_tap_flow_term - 25;
+    }
+  }
+
+  return 0;
+}
+#endif  // COMMUNITY_MODULE_TAP_FLOW_ENABLE
 
 ///////////////////////////////////////////////////////////////////////////////
 // Achordion (https://getreuer.info/posts/keyboards/achordion)
@@ -461,18 +499,7 @@ char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
 bool remember_last_key_user(uint16_t keycode, keyrecord_t* record,
                             uint8_t* remembered_mods) {
   // Unpack tapping keycode for tap-hold keys.
-  switch (keycode) {
-#ifndef NO_ACTION_TAPPING
-    case QK_MOD_TAP ... QK_MOD_TAP_MAX:
-      keycode = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
-      break;
-#ifndef NO_ACTION_LAYER
-    case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-      keycode = QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
-      break;
-#endif  // NO_ACTION_LAYER
-#endif  // NO_ACTION_TAPPING
-  }
+  keycode = get_tap_keycode(keycode);
 
 #ifdef COMMUNITY_MODULE_SENTENCE_CASE_ENABLE
   if (is_sentence_case_primed() &&
@@ -534,12 +561,14 @@ bool remember_last_key_user(uint16_t keycode, keyrecord_t* record,
 //     . *   -> ../             (shell)
 //     . * @ -> ../../
 uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
+  keycode = get_tap_keycode(keycode);
+
   if (mods == MOD_BIT_LALT) {
     switch (keycode) {
       case KC_U: return A(KC_O);
       case KC_O: return A(KC_U);
-      case HRM_N: return A(KC_I);
-      case HRM_I: return A(KC_N);
+      case KC_N: return A(KC_I);
+      case KC_I: return A(KC_N);
     }
   } else if ((mods & ~MOD_MASK_SHIFT) == 0) {
     // This is where most of the "magic" for the MAGIC key is implemented.
@@ -551,19 +580,18 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
 
       // For navigating next/previous search results in Vim:
       // N -> Shift + N, Shift + N -> N.
-      case HRM_N:
+      case KC_N:
         if ((mods & MOD_MASK_SHIFT) == 0) {
           return S(KC_N);
         }
-        // Fall through intended.
-      case KC_N: return KC_N;
+        return KC_N;
 
       // Fix SFBs and awkward strokes.
-      case HRM_A: return KC_O;        // A -> O
+      case KC_A: return KC_O;         // A -> O
       case KC_O: return KC_A;         // O -> A
-      case HRM_E: return KC_U;        // E -> U
+      case KC_E: return KC_U;         // E -> U
       case KC_U: return KC_E;         // U -> E
-      case HRM_I:
+      case KC_I:
         if ((mods & MOD_MASK_SHIFT) == 0) {
           return M_ION;  // I -> ON
         } else {
@@ -571,19 +599,19 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
         }
       case KC_M: return M_MENT;       // M -> ENT
       case KC_Q: return M_QUEN;       // Q -> UEN
-      case HRM_T: return M_TMENT;     // T -> TMENT
+      case KC_T: return M_TMENT;      // T -> TMENT
 
       case KC_C: return KC_Y;         // C -> Y
-      case HRM_D: return KC_Y;        // D -> Y
-      case HRM_G: return KC_Y;        // G -> Y
+      case KC_D: return KC_Y;         // D -> Y
+      case KC_G: return KC_Y;         // G -> Y
       case KC_P: return KC_Y;         // P -> Y
       case KC_Y: return KC_P;         // Y -> P
 
       case KC_L: return KC_K;         // L -> K
-      case HRM_S: return KC_K;        // S -> K
+      case KC_S: return KC_K;         // S -> K
 
-      case HRM_R: return KC_L;        // R -> L
-      case HRM_DOT:
+      case KC_R: return KC_L;         // R -> L
+      case KC_DOT:
         if ((mods & MOD_MASK_SHIFT) == 0) {
           return M_UPDIR;  // . -> ./
         }
@@ -599,7 +627,7 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
           return KC_EQL;  // ! -> =
         }
         return M_NOOP;
-      case HRM_QUO:
+      case KC_QUOT:
         if ((mods & MOD_MASK_SHIFT) != 0) {
           return M_DOCSTR;  // " -> ""<cursor>"""
         }
@@ -629,7 +657,7 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
 
       case KC_F:
       case KC_V:
-      case HRM_X:
+      case KC_X:
       case KC_SCLN:
       case KC_1 ... KC_0:
         return M_NOOP;
