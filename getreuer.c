@@ -308,8 +308,8 @@ bool get_chordal_hold(
 #endif  // CHORDAL_HOLD
 
 #ifdef COMMUNITY_MODULE_TAP_FLOW_ENABLE
-uint16_t get_tap_flow(uint16_t keycode, keyrecord_t* record,
-                      uint16_t prev_keycode) {
+uint16_t get_tap_flow_term(uint16_t keycode, keyrecord_t* record,
+                           uint16_t prev_keycode) {
   // Only apply Tap Flow when following a letter key.
   if (get_tap_keycode(prev_keycode) <= KC_Z) {
     switch (keycode) {
