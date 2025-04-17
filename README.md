@@ -30,6 +30,9 @@ for general tips on writing userspace libraries and contributing to QMK.
   keys](https://getreuer.info/posts/keyboards/custom-shift-keys/index.html)
   &ndash; customize what keycode is produced when shifted
 
+* [Lumino](https://getreuer.info/posts/keyboards/lumino/index.html) &ndash; a
+  minimal, opinionated control scheme for RGB matrix lighting
+
 * [Keycode String](https://getreuer.info/posts/keyboards/keycode-string/index.html)
   &ndash; format keycodes as human-readable strings
 
