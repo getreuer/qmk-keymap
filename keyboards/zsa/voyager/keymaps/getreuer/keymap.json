@@ -1,6 +1,7 @@
 {
   "modules": [
     "getreuer/keycode_string",
+    "getreuer/lumino",
     "getreuer/orbital_mouse",
     "getreuer/palettefx",
     "getreuer/select_word",

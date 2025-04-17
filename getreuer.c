@@ -25,10 +25,6 @@
  * <https://getreuer.info/posts/keyboards>
  */
 
-#if __has_include("user_song_list.h")
-#include "user_song_list.h"
-#endif
-
 enum layers {
   BASE,
   SYM,
@@ -46,7 +42,6 @@ enum custom_keycodes {
   USRNAME,
   TMUXESC,
   SRCHSEL,
-  RGBBRI,
   RGBNEXT,
   RGBHUP,
   RGBHRND,
@@ -114,7 +109,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 
   [SYM] = LAYOUT_LR(  // Symbol layer.
-    _______, _______, TFLOW_P, TFLOW_D, TFLOW_U, _______,
+    _______, _______, _______, _______, _______, _______,
     TMUXESC, KC_GRV , KC_LABK, KC_RABK, KC_MINS, KC_PIPE,
     _______, KC_EXLM, KC_ASTR, NAV_SLS, NAV_EQL, KC_AMPR,
     STDCC  , KC_TILD, KC_PLUS, KC_LBRC, KC_RBRC, KC_PERC,
@@ -159,7 +154,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______, _______, _______, _______, _______, _______,
     RGBDEF1, RGBDEF2, KC_MUTE, KC_VOLD, KC_VOLU, MUTEMIC,
     RGBHRND, RGBHUP , G(KC_3), G(KC_2), G(KC_1), G(KC_D),
-    RGBBRI , RGBNEXT, G(KC_6), G(KC_5), G(KC_4), G(KC_W),
+    LUMINO , RGBNEXT, G(KC_6), G(KC_5), G(KC_4), G(KC_W),
                                                  KC_MPLY, G(KC_SPC),
 
                       _______, _______, _______, _______, _______, _______,
@@ -700,42 +695,9 @@ static void magic_send_string_P(const char* str, uint16_t repeat_keycode) {
 // RGB Matrix Lighting (https://docs.qmk.fm/features/rgb_matrix)
 ///////////////////////////////////////////////////////////////////////////////
 #if RGB_MATRIX_ENABLE
-// The following logic controls the RGB Matrix light level with a convenient
-// 3-state setting---off, dim, or full---and turns off automatically and with
-// smooth transitions when the keyboard is idle.
-
-#include <lib/lib8tion/lib8tion.h>
-
-static struct {
-  uint32_t timer;
-  uint8_t event_count;
-  uint8_t val;
-  uint8_t val_start;
-  uint8_t val_end;
-} lighting = {0};
-
-static void lighting_set_val(uint8_t val) {
-  lighting.val = val;
-  lighting.val_end = val;
-  if (lighting.val_start != lighting.val_end) {
-    lighting.timer = timer_read32();
-  }
-}
-
-/** Cycles between off, 40% brightness, and max brightness. */
-static void lighting_cycle_3_state(void) {
-  if (lighting.val == 0) {
-    lighting_set_val((RGB_MATRIX_MAXIMUM_BRIGHTNESS * 2 + 2) / 5);
-  } else if (lighting.val < RGB_MATRIX_MAXIMUM_BRIGHTNESS) {
-    lighting_set_val(RGB_MATRIX_MAXIMUM_BRIGHTNESS);
-  } else {
-    lighting_set_val(0);
-  }
-}
-
 static void lighting_set_palette(uint8_t palette) {
-  if (lighting.val == 0) {
-    lighting_cycle_3_state();
+  if (lumino_get_value() == 0) {
+    lumino_cycle_3_state();
   }
   rgb_matrix_enable_noeeprom();
   rgb_matrix_sethsv_noeeprom(
@@ -746,60 +708,6 @@ static void lighting_preset(uint8_t effect, uint8_t palette) {
   lighting_set_palette(palette);
   rgb_matrix_mode_noeeprom(effect);
   rgb_matrix_set_speed_noeeprom(100);
-}
-
-static void lighting_init(void) {
-  lighting.val_start = 0;
-  lighting_preset(RGB_MATRIX_CUSTOM_PALETTEFX_FLOW + (myrand() % 4), myrand());
-  lighting_set_val(RGB_MATRIX_MAXIMUM_BRIGHTNESS);
-}
-
-static void lighting_set_sleep_timer(void) {
-  if (lighting.val_start == lighting.val_end) {
-    const uint32_t duration =
-        (lighting.event_count <= 10) ? UINT32_C(5000) : UINT32_C(30000);
-    lighting.timer = (timer_read32() + duration) | 1;
-  }
-}
-
-/** This function should be called on every key event to keep lights awake. */
-static void lighting_activity_trigger(void) {
-  if (lighting.val > 0) {
-    lighting.event_count = qadd8(lighting.event_count, 1);
-    if (lighting.val_end == 0) {
-      lighting_set_val(lighting.val);  // Wake lighting.
-    } else {
-      lighting_set_sleep_timer();
-    }
-  }
-}
-
-static void lighting_task(void) {
-  if (!lighting.timer) { return; }  // Early return if sleeping.
-  const uint32_t diff = timer_read32() - lighting.timer;
-
-  if (lighting.val_start != lighting.val_end) {
-    const uint8_t t = (diff <= 511) ? (uint8_t)(diff / 2) : 255;
-
-    hsv_t hsv = rgb_matrix_get_hsv();
-    hsv.v = (t == 255)
-        ? lighting.val_end
-        : lerp8by8(lighting.val_start, lighting.val_end, ease8InOutCubic(t));
-    rgb_matrix_sethsv_noeeprom(hsv.h, hsv.s, hsv.v);
-
-    if (t == 255) {  // Transition complete.
-      lighting.val_end = rgb_matrix_get_val();
-      lighting.val_start = lighting.val_end;
-      if (lighting.val_end == 0) {  // Sleep.
-        lighting.timer = 0;
-        lighting.event_count = 0;
-      } else {
-        lighting_set_sleep_timer();
-      }
-    }
-  } else if (diff < UINT32_MAX / 2) {  // Sleep timeout expired; begin fading.
-    lighting.val_end = 0;
-  }
 }
 #endif  // RGB_MATRIX_ENABLE
 
@@ -819,7 +727,6 @@ KEYCODE_STRING_NAMES_USER(
   KEYCODE_STRING_NAME(SELWORD),
   KEYCODE_STRING_NAME(SELWBAK),
   KEYCODE_STRING_NAME(SELLINE),
-  KEYCODE_STRING_NAME(RGBBRI),
   KEYCODE_STRING_NAME(RGBNEXT),
   KEYCODE_STRING_NAME(RGBHUP),
   KEYCODE_STRING_NAME(RGBHRND),
@@ -878,7 +785,7 @@ void caps_word_set_user(bool active) {
 
 void keyboard_post_init_user(void) {
 #if RGB_MATRIX_ENABLE
-  lighting_init();
+  lighting_preset(RGB_MATRIX_CUSTOM_PALETTEFX_FLOW + (myrand() % 4), myrand());
 #endif // RGB_MATRIX_ENABLE
 
   // Play MUSHROOM_SOUND two seconds after init, if defined and audio enabled.
@@ -893,9 +800,6 @@ void keyboard_post_init_user(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
-#ifdef RGB_MATRIX_ENABLE
-  lighting_activity_trigger();
-#endif  // RGB_MATRIX_ENABLE
   dlog_record(keycode, record);
 
   // Track whether the left home ring and index keys are held, ignoring layer.
@@ -1056,6 +960,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
         return false;
       }
       return true;
+
+    case G(KC_TAB):
+      lumino_sleep_soon();
+      return true;
   }
 
   if (record->event.pressed) {
@@ -1142,10 +1050,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
         break;
 
 #if RGB_MATRIX_ENABLE
-      case RGBBRI:
-        lighting_cycle_3_state();
-        break;
-
       case RGBNEXT:
         if (shift_mods) {
           rgb_matrix_step_reverse_noeeprom();
@@ -1178,11 +1082,5 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   }
 
   return true;
-}
-
-void housekeeping_task_user(void) {
-#ifdef RGB_MATRIX_ENABLE
-  lighting_task();
-#endif  // RGB_MATRIX_ENABLE
 }
 
