@@ -62,30 +62,38 @@ enum custom_keycodes {
   M_NOOP,
 };
 
-// The "magic" key is the Alternate Repeat Key.
-#define MAGIC QK_AREP
-// F20 mutes the mic on my system.
-#define MUTEMIC KC_F20
+enum keycode_aliases {
+  // The "magic" key is the Alternate Repeat Key.
+  MAGIC = QK_AREP,
+  // F20 mutes the mic on my system.
+  MUTEMIC = KC_F20,
+  // Short aliases for home row mods and other tap-hold keys.
+  HRM_S = LALT_T(KC_S),
+  HRM_T = LT(SYM, KC_T),
+  HRM_R = LSFT_T(KC_R),
+  HRM_D = LT(NAV, KC_D),
+  HRM_G = LCTL_T(KC_G),
+  HRM_X = LGUI_T(KC_X),
 
-// Short aliases for home row mods and other tap-hold keys.
-#define HRM_S LALT_T(KC_S)
-#define HRM_T LT(SYM, KC_T)
-#define HRM_R LSFT_T(KC_R)
-#define HRM_D LT(NAV, KC_D)
-#define HRM_G LCTL_T(KC_G)
-#define HRM_X LGUI_T(KC_X)
+  HRM_N = LT(NUM, KC_N),
+  HRM_E = RSFT_T(KC_E),
+  HRM_A = LT(SYM, KC_A),
+  HRM_I = LALT_T(KC_I),
+  HRM_H = RCTL_T(KC_H),
+  HRM_DOT = LT(WIN, KC_DOT),
+  HRM_QUO = RGUI_T(KC_QUOT),
 
-#define HRM_N LT(NUM, KC_N)
-#define HRM_E RSFT_T(KC_E)
-#define HRM_A LT(SYM, KC_A)
-#define HRM_I LALT_T(KC_I)
-#define HRM_H RCTL_T(KC_H)
-#define HRM_DOT LT(WIN, KC_DOT)
-#define HRM_QUO RGUI_T(KC_QUOT)
+  EXT_COL = LT(EXT, KC_SCLN),
+  NAV_SLS = LSFT_T(KC_SLSH),
+  NAV_EQL = LT(0, KC_EQL),
+};
 
-#define EXT_COL LT(EXT, KC_SCLN)
-#define NAV_SLS LSFT_T(KC_SLSH)
-#define NAV_EQL LT(0, KC_EQL)
+#ifdef COMMUNITY_MODULE_PALETTEFX_ENABLE
+enum palette_names {  // User-defined PaletteFx palettes.
+  PALETTEFX_MECHA = PALETTEFX_USER_0,
+  PALETTEFX_HERO = PALETTEFX_USER_1,
+};
+#endif // COMMUNITY_MODULE_PALETTEFX_ENABLE
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -127,7 +135,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______, KC_WREF, C(KC_PGUP), C(KC_PGDN), XXXXXXX, XXXXXXX,
     _______, KC_LALT, KC_LCTL, KC_LSFT, SELLINE, MS_BTN1,
     _______, KC_LGUI, KC_PGUP, KC_PGDN, XXXXXXX, XXXXXXX,
-                                                 KC_WBAK, G(KC_TAB),
+                                                 _______, _______,
 
                       _______, _______, _______, _______, _______, _______,
                       KC_PGUP, KC_HOME, KC_UP  , KC_END , SRCHSEL, _______,
@@ -144,7 +152,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                  _______, _______,
 
                       _______, _______, _______, _______, _______, _______,
-                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
+                      XXXXXXX, XXXXXXX, KC_LBRC, KC_RBRC, XXXXXXX, _______,
                       XXXXXXX, XXXXXXX, KC_E   , KC_RCTL, KC_LALT, _______,
                       XXXXXXX, XXXXXXX, KC_COMM, KC_DOT , KC_LGUI, _______,
              KC_0   , QK_LLCK
@@ -152,15 +160,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [WIN] = LAYOUT_LR(  // Window management layer.
     _______, _______, _______, _______, _______, _______,
-    RGBDEF1, RGBDEF2, KC_MUTE, KC_VOLD, KC_VOLU, MUTEMIC,
-    RGBHRND, RGBHUP , G(KC_3), G(KC_2), G(KC_1), G(KC_D),
+    RGBDEF1, RGBDEF2, XXXXXXX, S(A(KC_TAB)), A(KC_TAB), KC_VOLU,
+    RGBHRND, RGBHUP , G(KC_3), G(KC_2), G(KC_1), KC_VOLD,
     LUMINO , RGBNEXT, G(KC_6), G(KC_5), G(KC_4), G(KC_W),
                                                  KC_MPLY, G(KC_SPC),
 
                       _______, _______, _______, _______, _______, _______,
                       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
                       XXXXXXX, XXXXXXX, KC_RSFT, XXXXXXX, KC_LALT, XXXXXXX,
-                      XXXXXXX, S(A(KC_TAB)), A(KC_TAB), XXXXXXX, XXXXXXX, G(KC_ENT),
+                      XXXXXXX, KC_MUTE, MUTEMIC, XXXXXXX, XXXXXXX, G(KC_ENT),
              _______, QK_LLCK
   ),
 
@@ -180,7 +188,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [EXT] = LAYOUT_LR(  // Mouse and extras.
     _______, _______, _______, _______, _______, _______,
-    _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+    _______, C(KC_Z), OM_W_L , KC_BSPC, KC_SPC , OM_W_R ,
     OM_SLOW, KC_LALT, KC_LCTL, KC_LSFT, SELLINE, XXXXXXX,
     _______, KC_LGUI, C(KC_V), C(KC_A), C(KC_C), C(KC_X),
                                                  KC_WBAK, OM_BTN1,
@@ -203,18 +211,6 @@ static uint8_t myrand(void) {
 #endif
   state *= UINT16_C(36563);
   return state >> 8;
-}
-
-static uint16_t get_tap_keycode(uint16_t keycode) {
-  switch (keycode) {
-    case QK_MOD_TAP ... QK_MOD_TAP_MAX:
-      return QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
-#ifndef NO_ACTION_LAYER
-    case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-      return QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
-#endif  // NO_ACTION_LAYER
-  }
-  return keycode;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -273,6 +269,30 @@ uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t* record) {
       return 0;  // Otherwise, force hold and disable key repeating.
   }
 }
+
+#ifdef FLOW_TAP_TERM
+uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record,
+                           uint16_t prev_keycode) {
+  // Only apply Flow Tap when following a letter key, and not hotkeys.
+  if (get_tap_keycode(prev_keycode) <= KC_Z &&
+      (get_mods() & (MOD_MASK_CG | MOD_BIT_LALT)) == 0) {
+    switch (keycode) {
+      case HRM_S:
+      case HRM_X:
+      case HRM_I:
+      case HRM_QUO:
+      case HRM_DOT:
+        return FLOW_TAP_TERM;
+
+      case HRM_G:
+      case HRM_H:
+        return FLOW_TAP_TERM - 25;
+    }
+  }
+
+  return 0;  // Disable Flow Tap otherwise.
+}
+#endif  // FLOW_TAP_TERM
 
 #ifdef CHORDAL_HOLD
 bool get_chordal_hold(
@@ -694,7 +714,7 @@ static void magic_send_string_P(const char* str, uint16_t repeat_keycode) {
 ///////////////////////////////////////////////////////////////////////////////
 // RGB Matrix Lighting (https://docs.qmk.fm/features/rgb_matrix)
 ///////////////////////////////////////////////////////////////////////////////
-#if RGB_MATRIX_ENABLE
+#ifdef COMMUNITY_MODULE_PALETTEFX_ENABLE
 static void lighting_set_palette(uint8_t palette) {
   if (lumino_get_value() == 0) {
     lumino_cycle_3_state();
@@ -707,16 +727,17 @@ static void lighting_set_palette(uint8_t palette) {
 static void lighting_preset(uint8_t effect, uint8_t palette) {
   lighting_set_palette(palette);
   rgb_matrix_mode_noeeprom(effect);
-  rgb_matrix_set_speed_noeeprom(100);
+  rgb_matrix_set_speed_noeeprom(80);
 }
-#endif  // RGB_MATRIX_ENABLE
+#endif // COMMUNITY_MODULE_PALETTEFX_ENABLE
 
 ///////////////////////////////////////////////////////////////////////////////
 // Debug logging
 ///////////////////////////////////////////////////////////////////////////////
-#if !defined(NO_DEBUG) && defined(COMMUNITY_MODULE_KEYCODE_STRING_ENABLE)
+#ifndef NO_DEBUG
 #pragma message "dlog_record: enabled"
 
+#ifdef KEYCODE_STRING_ENABLE
 KEYCODE_STRING_NAMES_USER(
   KEYCODE_STRING_NAME(ARROW),
   KEYCODE_STRING_NAME(UPDIR),
@@ -733,6 +754,7 @@ KEYCODE_STRING_NAMES_USER(
   KEYCODE_STRING_NAME(RGBDEF1),
   KEYCODE_STRING_NAME(RGBDEF2),
 );
+#endif  // KEYCODE_STRING_ENABLE
 
 static void dlog_record(uint16_t keycode, keyrecord_t* record) {
   if (!debug_enable) { return; }
@@ -752,7 +774,7 @@ static void dlog_record(uint16_t keycode, keyrecord_t* record) {
 #else
 #pragma message "dlog_record: disabled"
 #define dlog_record(keycode, record)
-#endif  // !defined(NO_DEBUG) && defined(COMMUNITY_MODULE_KEYCODE_STRING_ENABLE)
+#endif  // NO_DEBUG
 
 ///////////////////////////////////////////////////////////////////////////////
 // Status LEDs
@@ -784,9 +806,9 @@ void caps_word_set_user(bool active) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void keyboard_post_init_user(void) {
-#if RGB_MATRIX_ENABLE
+#ifdef COMMUNITY_MODULE_PALETTEFX_ENABLE
   lighting_preset(RGB_MATRIX_CUSTOM_PALETTEFX_FLOW + (myrand() % 4), myrand());
-#endif // RGB_MATRIX_ENABLE
+#endif // COMMUNITY_MODULE_PALETTEFX_ENABLE
 
   // Play MUSHROOM_SOUND two seconds after init, if defined and audio enabled.
 #if defined(AUDIO_ENABLE) && defined(MUSHROOM_SOUND)
@@ -861,6 +883,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
   }
 
   switch (keycode) {
+    // When the Repeat key follows Space, it behaves as one-shot shift.
+    case KC_SPC:
+      if (get_repeat_key_count() > 0) {
+        if (record->event.pressed) {
+          add_oneshot_mods(MOD_LSFT);
+          register_mods(MOD_LSFT);
+        } else {
+          unregister_mods(MOD_LSFT);
+        }
+        return false;
+      }
+      break;
+
     // Behavior:
     //  * Unmodified:       _ (KC_UNDS)
     //  * With Shift:       - (KC_MINS)
@@ -990,7 +1025,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 
       case USRNAME:
         add_oneshot_mods(shift_mods);
+        clear_mods();
         clear_weak_mods();
+        send_keyboard_report();
         MAGIC_STRING("getreuer", KC_AT);
         return false;
 
@@ -1014,6 +1051,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
               "\xf0\x9f\x8e\x89",  // Party popper.
               "\xf0\x9f\x91\xbe",  // Purple alien.
               "\xf0\x9f\x98\x81",  // Grin.
+              "\xf0\x9f\x9a\x80",  // Rocket.
           };
           const int NUM_EMOJIS = sizeof(emojis) / sizeof(*emojis);
 
@@ -1049,7 +1087,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
         SEND_STRING_DELAY(/*`*/"``\n\n```" SS_TAP(X_UP), TAP_CODE_DELAY);
         break;
 
-#if RGB_MATRIX_ENABLE
+#ifdef COMMUNITY_MODULE_PALETTEFX_ENABLE
       case RGBNEXT:
         if (shift_mods) {
           rgb_matrix_step_reverse_noeeprom();
@@ -1071,13 +1109,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
         break;
 
       case RGBDEF1:
-        lighting_preset(RGB_MATRIX_CUSTOM_PALETTEFX_RIPPLE, PALETTEFX_CARNIVAL);
+        lighting_preset(RGB_MATRIX_CUSTOM_PALETTEFX_FLOW, PALETTEFX_MECHA);
         break;
 
       case RGBDEF2:
-        lighting_preset(RGB_MATRIX_CUSTOM_PALETTEFX_FLOW, PALETTEFX_POLARIZED);
+        lighting_preset(RGB_MATRIX_CUSTOM_PALETTEFX_RIPPLE, PALETTEFX_ROSEGOLD);
         break;
-#endif  // RGB_MATRIX_ENABLE
+#endif  // COMMUNITY_MODULE_PALETTEFX_ENABLE
     }
   }
 
