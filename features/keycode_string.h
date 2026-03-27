@@ -1,4 +1,4 @@
-// Copyright 2024-2025 Google LLC
+// Copyright 2024-2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
 /**
  * @file keycode_string.h
  * @brief Format a QMK keycode as a human-readable string.
+ *
+ * @note Keycode String is now a core QMK feature! See
+ * <https://docs.qmk.fm/unit_testing#keycode-string>
  *
  * Example use: Output the keycode and other event information to debug logging.
  * This supposes the Console is enabled (see https://docs.qmk.fm/faq_debug).
@@ -38,6 +41,9 @@
 #pragma once
 
 #include <stdint.h>
+
+#pragma message \
+    "Keycode String is now a core QMK feature! To use it, update your QMK set up and see https://docs.qmk.fm/unit_testing#keycode-string"
 
 #ifdef __cplusplus
 extern "C" {
@@ -92,7 +98,8 @@ extern "C" {
 const char* get_keycode_string(uint16_t keycode);
 
 /** @deprecated Use `get_keycode_string()` instead. */
-static inline const char* keycode_string(uint16_t keycode) {
+static inline const char* keycode_string(uint16_t keycode)
+    __attribute__((deprecated("Use get_keycode_string() instead"))) {
   return get_keycode_string(keycode);
 }
 
@@ -121,12 +128,12 @@ typedef struct {
  * The above defines names for `MYMACRO1` and `MYMACRO2`, and overrides
  * `KC_EXLM` to format as "KC_EXLM" instead of the default "S(KC_1)".
  */
-#define KEYCODE_STRING_NAMES_USER(...)                                    \
-  static const keycode_string_name_t keycode_string_names_user[] =        \
-      {__VA_ARGS__};                                                      \
-  uint16_t keycode_string_names_size_user =                               \
-      sizeof(keycode_string_names_user) / sizeof(keycode_string_name_t);  \
-  const keycode_string_name_t* keycode_string_names_data_user =           \
+#define KEYCODE_STRING_NAMES_USER(...)                                   \
+  static const keycode_string_name_t keycode_string_names_user[] = {     \
+      __VA_ARGS__};                                                      \
+  uint16_t keycode_string_names_size_user =                              \
+      sizeof(keycode_string_names_user) / sizeof(keycode_string_name_t); \
+  const keycode_string_name_t* keycode_string_names_data_user =          \
       keycode_string_names_user
 
 /** Helper to define a keycode_string_name_t. */
