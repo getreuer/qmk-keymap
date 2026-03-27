@@ -1,4 +1,4 @@
-// Copyright 2021-2022 Google LLC
+// Copyright 2021-2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,6 +56,8 @@
  */
 
 #pragma once
+
+#warning "DEPRECATION NOTICE: This implementation of Custom Shift Keys is deprecated and will be removed from this repo on 2026-10-01. Use the newer, module-based implementation of Custom Shift Keys at <https://github.com/getreuer/qmk-modules/tree/main/custom_shift_keys>. Find detailed instructions at <https://getreuer.info/posts/keyboards/custom-shift-keys>."
 
 #include "quantum.h"
 

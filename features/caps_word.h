@@ -1,4 +1,4 @@
-// Copyright 2021-2025 Google LLC
+// Copyright 2021-2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -65,6 +65,8 @@
  */
 
 #pragma once
+
+#warning "DEPRECATION NOTICE: This implementation of Caps Word is deprecated and will be removed from this repo on 2026-10-01. Caps Word is now a core QMK feature. See <https://docs.qmk.fm/features/caps_word>."
 
 #include "quantum.h"
 

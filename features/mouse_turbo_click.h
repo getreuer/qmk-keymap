@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC
+// Copyright 2022-2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@
  */
 
 #pragma once
+
+#warning "DEPRECATION NOTICE: This implementation of Mouse Turbo Click is deprecated and will be removed from this repo on 2026-10-01. Use the newer, module-based implementation of Mouse Turbo Click at <https://github.com/getreuer/qmk-modules/tree/main/mouse_turbo_click>. Find detailed instructions at <https://getreuer.info/posts/keyboards/mouse-turbo-click>."
 
 #include "quantum.h"
 

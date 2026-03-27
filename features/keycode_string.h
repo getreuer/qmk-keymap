@@ -42,6 +42,7 @@
 
 #include <stdint.h>
 
+#warning "DEPRECATION NOTICE: This implementation of Keycode String is deprecated and will be removed from this repo on 2026-10-01. Keycode String is now a core QMK feature. See <https://docs.qmk.fm/unit_testing#keycode-string>."
 #pragma message \
     "Keycode String is now a core QMK feature! To use it, update your QMK set up and see https://docs.qmk.fm/unit_testing#keycode-string"
 

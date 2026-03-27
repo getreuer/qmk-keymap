@@ -1,4 +1,4 @@
-// Copyright 2023-2025 Google LLC
+// Copyright 2023-2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,6 +39,8 @@
  */
 
 #pragma once
+
+#warning "DEPRECATION NOTICE: This implementation of Orbital Mouse is deprecated and will be removed from this repo on 2026-10-01. Use the newer, module-based implementation of Orbital Mouse at <https://github.com/getreuer/qmk-modules/tree/main/orbital_mouse>. Find detailed instructions at <https://getreuer.info/posts/keyboards/orbital-mouse>."
 
 #include "quantum.h"
 
