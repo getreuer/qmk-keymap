@@ -1,4 +1,4 @@
-// Copyright 2021-2025 Google LLC
+// Copyright 2021-2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -832,7 +832,8 @@ void caps_word_set_user(bool active) {
 
 void keyboard_post_init_user(void) {
 #ifdef COMMUNITY_MODULE_PALETTEFX_ENABLE
-  lighting_preset(RGB_MATRIX_CUSTOM_PALETTEFX_FLOW + (myrand() % 4), myrand());
+  lighting_preset(
+      RGB_MATRIX_COMMUNITY_MODULE_PALETTEFX_FLOW + (myrand() % 4), myrand());
 #endif // COMMUNITY_MODULE_PALETTEFX_ENABLE
 
   // Play MUSHROOM_SOUND two seconds after init, if defined and audio enabled.
@@ -1106,11 +1107,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
         break;
 
       case RGBDEF1:
-        lighting_preset(RGB_MATRIX_CUSTOM_PALETTEFX_FLOW, PALETTEFX_HERO);
+        lighting_preset(
+            RGB_MATRIX_COMMUNITY_MODULE_PALETTEFX_FLOW, PALETTEFX_HERO);
         break;
 
       case RGBDEF2:
-        lighting_preset(RGB_MATRIX_CUSTOM_PALETTEFX_RIPPLE, PALETTEFX_ROSEGOLD);
+        lighting_preset(
+            RGB_MATRIX_COMMUNITY_MODULE_PALETTEFX_RIPPLE, PALETTEFX_ROSEGOLD);
         break;
 #endif  // COMMUNITY_MODULE_PALETTEFX_ENABLE
     }
