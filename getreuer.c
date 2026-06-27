@@ -281,11 +281,19 @@ uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t* record) {
   // lead to missed triggers in fast typing. Here, returning 0 means we
   // instead want to "force hold" and disable key repeating.
   switch (keycode) {
-    case HRM_N:
-    case HRM_H:
-      return QUICK_TAP_TERM;  // Enable key repeating.
+    case QK_MOD_TAP ... QK_MOD_TAP_MAX:
+    case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:  // For MT and LT tap-hold keys.
+      switch (keycode) {
+        case HRM_N:
+        case HRM_H:
+          return QUICK_TAP_TERM;  // Enable key repeating for these keys.
+        default:
+          return 0;  // Disable Quick Tap for other MT and LT keys.
+      }
     default:
-      return 0;  // Otherwise, force hold and disable key repeating.
+      // Enable for tap-hold keys besides MT and LT. Particularly, TT keys need
+      // Quick Tap enabled to use their toggling function.
+      return QUICK_TAP_TERM;
   }
 }
 
