@@ -1,4 +1,4 @@
-// Copyright 2021-2025 Google LLC
+// Copyright 2021-2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@
 #define CHORDAL_HOLD
 #define PERMISSIVE_HOLD
 #define SPECULATIVE_HOLD
+#define SPECULATIVE_HOLD_ONE_KEY
+#define SPECULATIVE_HOLD_FLOW_TERM 200
 #define QUICK_TAP_TERM_PER_KEY
 
 #define DUMMY_MOD_NEUTRALIZER_KEYCODE KC_RCTL
