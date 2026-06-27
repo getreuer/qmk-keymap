@@ -36,9 +36,6 @@ for general tips on writing userspace libraries and contributing to QMK.
 * [Lumino](https://getreuer.info/posts/keyboards/lumino/index.html) &ndash; a
   minimal, opinionated control scheme for RGB matrix lighting
 
-* [Keycode String](https://getreuer.info/posts/keyboards/keycode-string/index.html)
-  &ndash; format keycodes as human-readable strings
-
 * [Mouse Turbo
   Click](https://getreuer.info/posts/keyboards/mouse-turbo-click/index.html)
   &ndash; macro that clicks the mouse rapidly
@@ -75,6 +72,9 @@ userspace versions:
 * [Caps Word](https://getreuer.info/posts/keyboards/caps-word/index.html)
   &ndash; userspace version of [QMK's Caps
   Word](https://docs.qmk.fm/features/caps_word)
+
+* [Keycode String](https://getreuer.info/posts/keyboards/keycode-string/index.html)
+  &ndash; format keycodes as human-readable strings
 
 * [Layer Lock key](https://getreuer.info/posts/keyboards/layer-lock/index.html)
   &ndash; userspace version of [QMK's Layer
