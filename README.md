@@ -56,6 +56,9 @@ for general tips on writing userspace libraries and contributing to QMK.
 * [SOCD Cleaner](https://getreuer.info/posts/keyboards/socd-cleaner/index.html)
   &ndash; enhance WASD for fast inputs for gaming
 
+* [Super Leader](https://getreuer.info/posts/keyboards/super-leader/index.html)
+  &ndash; a snappy leader key with concise definitions
+
 The following were originally developed here and have since graduated to become
 QMK core features. It is recommended to use the QMK core implementations, but
 (perhaps for sake of customization or curiosity) you may continue to use these
