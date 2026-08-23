@@ -42,7 +42,9 @@
  * @note Some QMK features handle events before the point where Achordion can
  * intercept them, particularly: Combos, Key Lock, and Dynamic Macros. It's
  * still possible to use these features and Achordion in your keymap, but beware
- * they might behave poorly when used simultaneously with tap-hold keys.
+ * they might behave poorly when used simultaneously with tap-hold keys. For
+ * Combos specifically, call `pre_process_achordion()` from
+ * `pre_process_record_user()` as described below.
  *
  *
  * For full documentation, see
@@ -73,6 +75,28 @@ extern "C" {
  *     }
  */
 bool process_achordion(uint16_t keycode, keyrecord_t* record);
+
+/**
+ * Pre-processing handler function for Achordion.
+ *
+ * Call this function from `pre_process_record_user()` as
+ *
+ *     #include "features/achordion.h"
+ *
+ *     bool pre_process_record_user(uint16_t keycode, keyrecord_t* record) {
+ *       if (!pre_process_achordion(keycode, record)) { return false; }
+ *       return true;
+ *     }
+ *
+ * This handler is optional, but recommended when Combos are enabled. QMK
+ * resolves combos before `process_record_user()` runs, looking up the keycodes
+ * of the combo's keys in the keymap as it goes. Without this handler, a
+ * layer-tap key that Achordion is still deciding about hasn't switched the
+ * layer on yet, so combos defined on that layer aren't recognized. Calling
+ * `pre_process_achordion()` settles the pending tap-hold key in time for QMK
+ * to look the combo up on the right layer.
+ */
+bool pre_process_achordion(uint16_t keycode, keyrecord_t* record);
 
 /**
  * Matrix task function for Achordion.

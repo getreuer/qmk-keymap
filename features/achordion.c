@@ -149,6 +149,55 @@ static void settle_as_tap(void) {
   recursively_process_record(&tap_hold_record, STATE_TAPPING);
 }
 
+// Settles the active tap-hold key, if any, on the next key press. This runs
+// from `pre_process_record_user()`, ahead of QMK's Combos and tapping logic.
+bool pre_process_achordion(uint16_t keycode, keyrecord_t* record) {
+  // Act only on physical key presses made while a tap-hold key is unsettled.
+  // This also excludes STATE_RECURSING, i.e. events Achordion itself generated.
+  if (achordion_state != STATE_UNSETTLED || !record->event.pressed ||
+      !IS_KEYEVENT(record->event)) {
+    return true;
+  }
+
+  // If the other key is itself a tap-hold key, QMK hasn't decided yet whether
+  // it is tapped or held, which `process_achordion()` takes into account. Leave
+  // this event to `process_achordion()`, which runs after QMK has settled it.
+  if (IS_QK_MOD_TAP(keycode) || IS_QK_LAYER_TAP(keycode)) {
+    return true;
+  }
+
+#ifdef ACHORDION_STREAK
+  const uint16_t s_timeout =
+      achordion_streak_chord_timeout(tap_hold_keycode, keycode);
+  const bool is_streak =
+      streak_timer && s_timeout &&
+      !timer_expired(record->event.time, (streak_timer + s_timeout));
+#endif
+
+  // Settle the tap-hold key now, before Combos and QMK's tapping logic handle
+  // this event. Combos look up the keycodes of their keys from the keymap, so
+  // for a combo on the layer of a layer-tap key to be recognized, the layer
+  // must already be switched on by this point.
+  dprintln("Achordion: Settling ahead of combo processing.");
+  if (!is_streak && achordion_chord(tap_hold_keycode, &tap_hold_record, keycode,
+                                    record)) {
+    settle_as_hold();
+  } else {
+    settle_as_tap();
+
+#ifdef ACHORDION_STREAK
+    update_streak_timer(keycode, record);
+#endif
+  }
+
+  // Combos may swallow this event, in which case `process_achordion()` never
+  // sees it, so record here that another key was pressed. Otherwise, release of
+  // the tap-hold key would plumb a spurious hold press and release.
+  pressed_another_key_before_release = true;
+
+  return true;  // Continue with normal handling of this event.
+}
+
 bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   // Don't process events that Achordion generated.
   if (achordion_state == STATE_RECURSING) {
