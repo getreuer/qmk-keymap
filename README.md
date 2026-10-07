@@ -16,15 +16,14 @@ This repo uses the Apache License 2.0 except where otherwise indicated. See the
 [LICENSE file](LICENSE.txt) for details.
 
 
-## Feature libraries
+## Community modules
 
 Several features are developed as QMK community modules in
 [getreuer/qmk-modules](https://github.com/getreuer/qmk-modules/), a git
-submodule of this repo. The former pre-module code is under the
-[features](features/). Detailed documentation can be found in the links below.
+submodule of this repo. Detailed documentation can be found in the links below.
 For developers, see also my post [developing QMK
 features](https://getreuer.info/posts/keyboards/developing-qmk-features/index.html)
-for general tips on writing userspace libraries and contributing to QMK.
+for general tips on writing modules and contributing to QMK.
 
 * [Custom shift
   keys](https://getreuer.info/posts/keyboards/custom-shift-keys/index.html)
@@ -61,39 +60,41 @@ for general tips on writing userspace libraries and contributing to QMK.
 
 The following were originally developed here and have since graduated to become
 QMK core features. It is recommended to use the QMK core implementations, but
-(perhaps for sake of customization or curiosity) you may continue to use these
-userspace versions:
+perhaps for sake of customization or curiosity, you may continue to use these
+module versions:
 
 * [Achordion](https://getreuer.info/posts/keyboards/achordion/index.html)
-  &ndash; userspace predecessor of [QMK's Chordal
+  &ndash; module predecessor of [QMK's Chordal
   Hold](https://docs.qmk.fm/tap_hold#chordal-hold)
 
 * [Autocorrection](https://getreuer.info/posts/keyboards/autocorrection/index.html)
-  &ndash; userspace version of [QMK's
+  &ndash; module version of [QMK's
   Autocorrect](https://docs.qmk.fm/features/autocorrect)
 
 * [Caps Word](https://getreuer.info/posts/keyboards/caps-word/index.html)
-  &ndash; userspace version of [QMK's Caps
+  &ndash; module version of [QMK's Caps
   Word](https://docs.qmk.fm/features/caps_word)
 
-* [Keycode String](https://getreuer.info/posts/keyboards/keycode-string/index.html)
-  &ndash; format keycodes as human-readable strings
+* [Keycode
+  String](https://getreuer.info/posts/keyboards/keycode-string/index.html)
+  &ndash; module version of [QMK's Keycode
+  String](https://docs.qmk.fm/unit_testing#keycode-string)
 
 * [Layer Lock key](https://getreuer.info/posts/keyboards/layer-lock/index.html)
-  &ndash; userspace version of [QMK's Layer
+  &ndash; module version of [QMK's Layer
   Lock](https://docs.qmk.fm/features/layer_lock)
 
 * [Repeat Key](https://getreuer.info/posts/keyboards/repeat-key/index.html)
-  &ndash; userspace version of [QMK's Repeat
+  &ndash; module version of [QMK's Repeat
   Key](https://docs.qmk.fm/features/repeat_key)
 
 * [Speculative
   Hold](https://getreuer.info/posts/keyboards/speculative-hold/index.html)
-  &ndash; userspace version of [QMK's Speculative
+  &ndash; module version of [QMK's Speculative
   Hold](https://docs.qmk.fm/tap_hold#speculative-hold)
 
 * [Tap Flow](https://getreuer.info/posts/keyboards/tap-flow/index.html) &ndash;
-  userspace predecessor of [QMK's Flow
+  module predecessor of [QMK's Flow
   Tap](https://docs.qmk.fm/tap_hold#flow-tap)
 
 
